@@ -51,6 +51,7 @@ export default function Team() {
       totalPerformanceRwa: 60,
       smallAreaPerformanceRwa: 30,
       dailyRate: 1.0,
+      mecPrice: 1,
     },
   });
 
@@ -86,7 +87,8 @@ export default function Team() {
     setResult(null);
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined) => {
+    if (value === undefined || value === null) return '$0.00';
     return `$${value.toFixed(2)}`;
   };
 
@@ -210,6 +212,28 @@ export default function Team() {
             </div>
 
             <div>
+              <Label htmlFor="mecPrice" className="text-sm font-medium mb-2 block">
+                {t.mecPrice}
+              </Label>
+              <Select
+                value={form.watch('mecPrice')?.toString()}
+                onValueChange={(value) => form.setValue('mecPrice', Number(value))}
+              >
+                <SelectTrigger id="mecPrice" data-testid="select-mec-price">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1" data-testid="mec-price-1">1 USD</SelectItem>
+                  <SelectItem value="2" data-testid="mec-price-2">2 USD</SelectItem>
+                  <SelectItem value="4" data-testid="mec-price-4">4 USD</SelectItem>
+                  <SelectItem value="8" data-testid="mec-price-8">8 USD</SelectItem>
+                  <SelectItem value="16" data-testid="mec-price-16">16 USD</SelectItem>
+                  <SelectItem value="32" data-testid="mec-price-32">32 USD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
               <Label className="text-sm font-medium mb-2 block">
                 {t.totalPerformance}: <span className="font-mono text-primary">{totalPerformanceRwa || 0} RWA</span>
               </Label>
@@ -326,10 +350,46 @@ export default function Team() {
               icon={TrendingUp}
               label={`${t.totalReward} - ${t.daily}`}
               value={formatCurrency(result.totalDailyReward)}
-              subtitle={`${formatCurrency(result.totalMonthlyReward)} ${t.monthly.toLowerCase()}`}
               testId="metric-total-team-reward"
             />
           </div>
+
+          <Card className="p-6 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/30">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <div className="w-1 h-6 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+              {t.total180Days}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="p-4 bg-card rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">{t.total180DayUsd}</p>
+                  <p className="text-2xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
+                    {formatCurrency(result.total180DayUsd)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t.dailyUsd}: {formatCurrency(result.daily180DayUsd)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="p-4 bg-card rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">{t.total180DayMec}</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
+                      {result.total180DayMec.toFixed(2)}
+                    </p>
+                    <span className="text-sm text-muted-foreground">MEC</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t.dailyMec}: {result.daily180DayMec.toFixed(2)} MEC
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    @ {result.mecPrice} USD/{t.mecTokens}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
             <div className="space-y-3">

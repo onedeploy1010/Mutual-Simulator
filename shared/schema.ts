@@ -182,6 +182,9 @@ export const teamRewardInputSchema = z.object({
   totalPerformanceRwa: z.number().min(1).int(),
   smallAreaPerformanceRwa: z.number().min(1).int(),
   dailyRate: z.number().min(1.0).max(1.5),
+  mecPrice: z.number().refine((val) => [1, 2, 4, 8, 16, 32].includes(val), {
+    message: "MEC price must be one of: 1, 2, 4, 8, 16, 32 USD",
+  }),
 }).refine(
   (data) => {
     const tierInfo = teamTiers.find(t => t.tier === data.currentTier);
@@ -218,8 +221,13 @@ export interface TeamRewardResult {
   streamingManagementReward: number;
   supremeReward: number;
   totalDailyReward: number;
-  totalMonthlyReward: number;
+  total180DayReward: number;
+  total180DayUsd: number;
+  daily180DayUsd: number;
+  total180DayMec: number;
+  daily180DayMec: number;
   tierInfo: TeamTierInfo;
+  mecPrice: number;
 }
 
 export type Language = 'en' | 'zh';
@@ -272,6 +280,12 @@ export const translations = {
     teamDividendUsd: 'USD Reward (90%)',
     teamDividendMec: 'MEC Tokens (10%)',
     mecTokens: 'MEC Tokens',
+    mecPrice: 'MEC Price (USD)',
+    total180Days: '180-Day Total',
+    total180DayUsd: 'Total USD (90%)',
+    total180DayMec: 'Total MEC Tokens',
+    dailyUsd: 'Daily USD',
+    dailyMec: 'Daily MEC',
     streamingManagement: 'Streaming Management',
     supremeReward: 'Supreme Reward',
     tierRequirements: 'Tier Requirements',
@@ -388,6 +402,12 @@ export const translations = {
     teamDividendUsd: 'USD奖励（90%）',
     teamDividendMec: 'MEC代币（10%）',
     mecTokens: 'MEC代币',
+    mecPrice: 'MEC价格（USD）',
+    total180Days: '180天总计',
+    total180DayUsd: 'USD总奖励（90%）',
+    total180DayMec: 'MEC代币总数',
+    dailyUsd: '每日USD',
+    dailyMec: '每日MEC',
     streamingManagement: '推流管理',
     supremeReward: '至尊奖励',
     tierRequirements: '等级要求',

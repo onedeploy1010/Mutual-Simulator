@@ -146,7 +146,7 @@ export function calculateReferralRewards(input: ReferralInput): ReferralReward {
 }
 
 export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
-  const { currentTier, totalPerformanceRwa, smallAreaPerformanceRwa, dailyRate } = input;
+  const { currentTier, totalPerformanceRwa, smallAreaPerformanceRwa, dailyRate, mecPrice } = input;
   
   const tierInfo = teamTiers.find(t => t.tier === currentTier);
   if (!tierInfo) {
@@ -159,9 +159,9 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);
   const teamDividendReward = smallAreaDailyProfit * (tierInfo.teamDividendPercent / 100);
   
-  // Team dividend is split: 90% USD, 10% MEC (1 USD = 1 MEC)
+  // Team dividend is split: 90% USD, 10% MEC
   const teamDividendUsd = teamDividendReward * 0.9;
-  const teamDividendMec = teamDividendReward * 0.1;
+  const teamDividendMec = (teamDividendReward * 0.1) / mecPrice; // MEC tokens = USD value / MEC price
   
   const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
   const totalDailyStreamingProfit = totalDailyProfit * 0.4;
@@ -174,6 +174,14 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   
   const totalDailyReward = teamDividendReward + streamingManagementReward + supremeReward;
   
+  // 180-day calculations
+  const total180DayReward = totalDailyReward * 180;
+  const total180DayUsd = total180DayReward * 0.9; // 90% in USD
+  const daily180DayUsd = total180DayUsd / 180;
+  const total180DayMecValue = total180DayReward * 0.1; // 10% in MEC (USD value)
+  const total180DayMec = total180DayMecValue / mecPrice; // Convert to MEC tokens
+  const daily180DayMec = total180DayMec / 180;
+  
   return {
     teamDividendReward,
     teamDividendUsd,
@@ -181,7 +189,12 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     streamingManagementReward,
     supremeReward,
     totalDailyReward,
-    totalMonthlyReward: totalDailyReward * 30,
+    total180DayReward,
+    total180DayUsd,
+    daily180DayUsd,
+    total180DayMec,
+    daily180DayMec,
     tierInfo,
+    mecPrice,
   };
 }
