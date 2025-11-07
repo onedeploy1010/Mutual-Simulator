@@ -180,6 +180,7 @@ export const teamTiers: TeamTierInfo[] = [
 export const teamRewardInputSchema = z.object({
   currentTier: z.string(),
   totalPerformanceRwa: z.number().min(1).int(),
+  smallAreaPerformanceRwa: z.number().min(1).int(),
   dailyRate: z.number().min(1.0).max(1.5),
 }).refine(
   (data) => {
@@ -193,6 +194,18 @@ export const teamRewardInputSchema = z.object({
   {
     message: "Total performance must be within the selected tier range",
     path: ["totalPerformanceRwa"],
+  }
+).refine(
+  (data) => data.smallAreaPerformanceRwa >= data.totalPerformanceRwa * 0.5,
+  {
+    message: "Small area performance must be at least 50% of total performance",
+    path: ["smallAreaPerformanceRwa"],
+  }
+).refine(
+  (data) => data.smallAreaPerformanceRwa <= data.totalPerformanceRwa,
+  {
+    message: "Small area performance cannot exceed total performance",
+    path: ["smallAreaPerformanceRwa"],
   }
 );
 

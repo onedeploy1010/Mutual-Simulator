@@ -146,7 +146,7 @@ export function calculateReferralRewards(input: ReferralInput): ReferralReward {
 }
 
 export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
-  const { currentTier, totalPerformanceRwa, dailyRate } = input;
+  const { currentTier, totalPerformanceRwa, smallAreaPerformanceRwa, dailyRate } = input;
   
   const tierInfo = teamTiers.find(t => t.tier === currentTier);
   if (!tierInfo) {
@@ -154,7 +154,6 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   }
   
   const totalPerformanceUsd = totalPerformanceRwa * 100;
-  const smallAreaPerformanceRwa = totalPerformanceRwa * 0.5;
   const smallAreaPerformanceUsd = smallAreaPerformanceRwa * 100;
   
   const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);

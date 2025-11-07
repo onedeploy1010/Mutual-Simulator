@@ -27,9 +27,10 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 - **Monthly projections**: Automatic 30-day calculations
 
 ### 3. Team Rewards Calculator (RWA-Based, Auto-Calculated)
-- **Input**: RWA units for team performance (1 RWA = $100 USD)
-- **Validation**: Small area performance must be ≥ 50% and ≤ total performance; total performance must be within selected tier's min/max range
-- **Auto-calculation**: Daily profits derived from RWA × 100 × daily rate (1-1.5%)
+- **Input**: RWA units for total team performance (1 RWA = $100 USD)
+- **Auto-calculation**: Small area performance automatically set to 50% of total performance
+- **Validation**: Total performance must be within selected tier's min/max range
+- **Daily profits**: Derived from RWA × 100 × daily rate (1-1.5%)
 - **8-tier system with USD ranges**: 
   - VIP ($6K-20K), 1-Star Expert ($20K-60K), 2-Star Expert ($60K-200K), 3-Star Expert ($200K-600K)
   - 1-Star Ambassador ($600K-2M), 2-Star Ambassador ($2M-6M), 3-Star Ambassador ($6M+), Supreme (no range)
@@ -53,9 +54,9 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 - **RWA-based inputs**: All investment amounts now in RWA units (1 RWA = 100 USD)
 - **Investment schema**: `rwaCount` (integer), `productType`, `duration`, `dailyRate`
 - **Referral schema**: `downlineRwaCount`, `secondLevelRwaCount` (optional), unified `dailyRate`
-- **Team schema**: `totalPerformanceRwa`, `smallAreaPerformanceRwa`, `dailyRate`, `currentTier`
-  - Zod validation: `smallAreaPerformanceRwa >= totalPerformanceRwa * 0.5`
-  - Zod validation: `smallAreaPerformanceRwa <= totalPerformanceRwa`
+- **Team schema**: `totalPerformanceRwa`, `dailyRate`, `currentTier`
+  - Small area performance auto-calculated as 50% of total performance
+  - Zod validation: Total performance must be within selected tier's min/max range (except Supreme)
 - Team tier definitions with requirements
 - Translation strings for EN/ZH
 - Streaming release schedule configuration
@@ -64,10 +65,12 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 ### Calculation Engine (`client/src/lib/calculations.ts`)
 - `calculateInvestment()`: Converts RWA to USD (×100), processes short/long-term returns
 - `calculateReferralRewards()`: Converts RWA to USD, applies unified daily rate to both levels
-- `calculateTeamRewards()`: Converts RWA to USD, auto-calculates daily profits from performance × rate
-  - Derives small area daily profit from `smallAreaPerformanceRwa × 100 × dailyRate / 100`
-  - Applies tier-based percentages to calculated daily profit
-  - Supreme bonus: `totalPerformanceRwa × 100 × dailyRate / 100 × 0.05`
+- `calculateTeamRewards()`: Converts RWA to USD, auto-calculates small area as 50% of total
+  - Small area performance = `totalPerformanceRwa × 0.5`
+  - Small area daily profit = `smallAreaPerformanceUsd × dailyRate / 100`
+  - Team dividend = Small area daily profit × Tier dividend %
+  - Management reward = Total daily streaming profit × Tier management %
+  - Supreme bonus: `totalDailyProfit × 0.05` (Supreme tier only)
 - Daily breakdown generation with unlock percentages
 
 ### Component Structure
@@ -139,7 +142,7 @@ client/src/
 
 ### Team Rewards
 - Total performance = RWA count × 100 (USD)
-- Small area performance = RWA count × 100 (USD, must be ≥ 50% of total)
+- Small area performance = Total performance × 50% (auto-calculated)
 - Small area daily profit = Small area performance × Daily rate (1-1.5%)
 - Team dividend = Small area daily profit × Tier dividend % (10%-70%)
 - Management reward = Total daily streaming profit × Tier management % (5%-30%, starting from 1-Star Expert)
@@ -161,7 +164,15 @@ client/src/
   - `/team` - Team Rewards
 
 ## Recent Updates
-**November 7, 2025 (Latest)**: 
+**November 7, 2025 (Latest v2)**: 
+- **Team Rewards auto-calculation**: Small area performance now automatically calculated as 50% of total performance
+  - Removed small area performance input field from Team page
+  - Updated schema to only require: currentTier, totalPerformanceRwa, dailyRate
+  - Simplified user workflow: select tier → enter total performance → calculate
+  - System automatically derives small area and performs all reward calculations
+  - Helper text explains: "Small area is automatically set to 50% of total performance"
+
+**November 7, 2025 (v1)**: 
 - **Team tier system overhaul**: Updated all 8 tiers with explicit USD performance ranges
   - VIP: $6K-$20K, 1-Star Expert: $20K-$60K, 2-Star Expert: $60K-$200K, 3-Star Expert: $200K-$600K
   - 1-Star Ambassador: $600K-$2M, 2-Star Ambassador: $2M-$6M, 3-Star Ambassador: $6M+, Supreme: no range

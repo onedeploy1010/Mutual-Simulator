@@ -37,13 +37,24 @@ export default function Team() {
     defaultValues: {
       currentTier: 'VIP',
       totalPerformanceRwa: 60,
+      smallAreaPerformanceRwa: 30,
       dailyRate: 1.0,
     },
   });
 
   const currentTier = form.watch('currentTier');
+  const totalPerformanceRwa = form.watch('totalPerformanceRwa');
   const dailyRate = form.watch('dailyRate');
   const isSupreme = currentTier === 'Supreme';
+  
+  const tierInfo = teamTiers.find(t => t.tier === currentTier);
+  const minTotalRwa = tierInfo ? Math.max(1, Math.ceil(tierInfo.requirementMin / 100)) : 1;
+  const maxTotalRwa = tierInfo && tierInfo.requirementMax 
+    ? Math.floor(tierInfo.requirementMax / 100) 
+    : Math.max(minTotalRwa * 10, 100000);
+  
+  const minSmallAreaRwa = Math.max(1, Math.ceil((totalPerformanceRwa || 1) * 0.5));
+  const maxSmallAreaRwa = Math.max(1, totalPerformanceRwa || 1);
 
   const onSubmit = (data: TeamRewardInput) => {
     const calculatedResult = calculateTeamRewards(data);
@@ -81,7 +92,20 @@ export default function Team() {
               </Label>
               <Select
                 value={currentTier}
-                onValueChange={(value) => form.setValue('currentTier', value)}
+                onValueChange={(value) => {
+                  form.setValue('currentTier', value);
+                  const newTierInfo = teamTiers.find(t => t.tier === value);
+                  if (newTierInfo) {
+                    const newMinTotal = Math.max(1, Math.ceil(newTierInfo.requirementMin / 100));
+                    const newMaxTotal = newTierInfo.requirementMax 
+                      ? Math.floor(newTierInfo.requirementMax / 100)
+                      : Math.max(newMinTotal * 10, 100000);
+                    const safeTotal = Math.max(newMinTotal, Math.min(totalPerformanceRwa || newMinTotal, newMaxTotal));
+                    form.setValue('totalPerformanceRwa', safeTotal);
+                    const safeSmallArea = Math.max(1, Math.ceil(safeTotal * 0.5));
+                    form.setValue('smallAreaPerformanceRwa', safeSmallArea);
+                  }
+                }}
               >
                 <SelectTrigger data-testid="select-tier">
                   <SelectValue />
@@ -133,24 +157,62 @@ export default function Team() {
             </div>
 
             <div>
-              <Label htmlFor="totalPerformanceRwa" className="text-sm font-medium mb-2 block">
-                {t.totalPerformance}
+              <Label className="text-sm font-medium mb-2 block">
+                {t.totalPerformance}: <span className="font-mono text-primary">{totalPerformanceRwa || 0} RWA</span>
               </Label>
-              <Input
-                id="totalPerformanceRwa"
-                type="number"
-                min="1"
-                step="1"
-                {...form.register('totalPerformanceRwa', { valueAsNumber: true })}
-                data-testid="input-total-performance-rwa"
-                className="font-mono"
+              <Slider
+                min={minTotalRwa}
+                max={maxTotalRwa}
+                step={1}
+                value={[totalPerformanceRwa || minTotalRwa]}
+                onValueChange={([value]) => {
+                  form.setValue('totalPerformanceRwa', value);
+                  const newMinSmall = Math.ceil(value * 0.5);
+                  const currentSmall = form.getValues('smallAreaPerformanceRwa');
+                  if (currentSmall < newMinSmall || currentSmall > value) {
+                    form.setValue('smallAreaPerformanceRwa', newMinSmall);
+                  }
+                }}
+                data-testid="slider-total-performance"
+                className="mt-2"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                1 RWA = $100 USD · Small area is automatically set to 50% of total performance
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>{minTotalRwa} RWA</span>
+                <span>{maxTotalRwa === 1000 ? '∞' : `${maxTotalRwa} RWA`}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                1 RWA = $100 USD · Range for {currentTier}
               </p>
               {form.formState.errors.totalPerformanceRwa && (
                 <p className="text-xs text-destructive mt-1">
                   {form.formState.errors.totalPerformanceRwa.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">
+                {t.smallAreaPerformance}: <span className="font-mono text-primary">{form.watch('smallAreaPerformanceRwa') || 0} RWA</span>
+              </Label>
+              <Slider
+                min={minSmallAreaRwa}
+                max={maxSmallAreaRwa}
+                step={1}
+                value={[form.watch('smallAreaPerformanceRwa') || minSmallAreaRwa]}
+                onValueChange={([value]) => form.setValue('smallAreaPerformanceRwa', value)}
+                data-testid="slider-small-area-performance"
+                className="mt-2"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>{minSmallAreaRwa} RWA (50%)</span>
+                <span>{maxSmallAreaRwa} RWA (100%)</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Select between 50%-100% of total performance
+              </p>
+              {form.formState.errors.smallAreaPerformanceRwa && (
+                <p className="text-xs text-destructive mt-1">
+                  {form.formState.errors.smallAreaPerformanceRwa.message}
                 </p>
               )}
             </div>
