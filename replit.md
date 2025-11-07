@@ -103,7 +103,7 @@ client/src/
 - Investment amount = RWA count × 100 (USD)
 - Total return = Investment × 5%
 - Daily return = Total return ÷ Duration
-- Streaming bonus = Total return × 40% (released over 100 days)
+- **No streaming bonus** (short-term products don't have streaming tasks)
 
 ### Long-Term Investment
 - Investment amount = RWA count × 100 (USD)
@@ -159,6 +159,10 @@ client/src/
   - Mobile (<768px): Card layout with labeled key-value pairs for easy reading
   - Desktop (≥768px): Traditional table layout with sticky header
   - Maintains all data fields and color coding across both views
+- **Business logic update**: Removed streaming bonus from short-term investments
+  - Short-term products (5-10 days) no longer calculate streaming bonus
+  - Only long-term products (180 days) have 40% streaming bonus over 100-task cycle
+  - Clarifies that streaming tasks only apply to long-term investments
 
 ## Next Steps (Backend & Integration)
 1. Implement storage interface for saving calculation scenarios

@@ -59,80 +59,86 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     };
   }
   
-  const totalStreamingBonus = totalReturn * 0.4;
-  const streamingBonusPerTask = totalStreamingBonus / 100;
+  const dailyStreamingBonus = dailyReturn * 0.4;
   
   const streamingAccumulator = new Map<number, { total: number; claimable: number; locked: number }>();
   
-  for (let task = 1; task <= 100; task++) {
-    const bonusThisTask = streamingBonusPerTask;
-    const prevAccumulated = task === 1 ? 0 : (streamingAccumulator.get(task - 1)?.total || 0);
-    const totalAccumulated = prevAccumulated + bonusThisTask;
+  for (let day = 1; day <= 100; day++) {
+    const bonusThisDay = dailyStreamingBonus;
+    const prevAccumulated = day === 1 ? 0 : (streamingAccumulator.get(day - 1)?.total || 0);
+    const totalAccumulated = prevAccumulated + bonusThisDay;
     
     let claimable = 0;
     let locked = totalAccumulated;
     
-    if (task < 20) {
+    if (day < 20) {
       claimable = 0;
       locked = totalAccumulated;
-    } else if (task === 20) {
-      claimable = (streamingBonusPerTask * 20) * 0.5;
+    } else if (day === 20) {
+      const cycleAccumulated = dailyStreamingBonus * 20;
+      claimable = cycleAccumulated * 0.5;
       locked = totalAccumulated - claimable;
-    } else if (task > 20 && task < 40) {
-      claimable = (streamingBonusPerTask * 20) * 0.5;
+    } else if (day > 20 && day < 40) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      claimable = cycle1Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task === 40) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable;
+    } else if (day === 40) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Accumulated = dailyStreamingBonus * 20;
+      const cycle2Unlocked = cycle2Accumulated * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task > 40 && task < 60) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable;
+    } else if (day > 40 && day < 60) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task === 60) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle3Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable + cycle3Claimable;
+    } else if (day === 60) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle3Accumulated = dailyStreamingBonus * 20;
+      const cycle3Unlocked = cycle3Accumulated * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked + cycle3Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task > 60 && task < 80) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle3Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable + cycle3Claimable;
+    } else if (day > 60 && day < 80) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle3Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked + cycle3Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task === 80) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle3Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle4Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable + cycle3Claimable + cycle4Claimable;
+    } else if (day === 80) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle3Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle4Accumulated = dailyStreamingBonus * 20;
+      const cycle4Unlocked = cycle4Accumulated * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked + cycle3Unlocked + cycle4Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task > 80 && task < 100) {
-      const cycle1Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle2Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle3Claimable = (streamingBonusPerTask * 20) * 0.5;
-      const cycle4Claimable = (streamingBonusPerTask * 20) * 0.5;
-      claimable = cycle1Claimable + cycle2Claimable + cycle3Claimable + cycle4Claimable;
+    } else if (day > 80 && day < 100) {
+      const cycle1Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle2Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle3Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      const cycle4Unlocked = (dailyStreamingBonus * 20) * 0.5;
+      claimable = cycle1Unlocked + cycle2Unlocked + cycle3Unlocked + cycle4Unlocked;
       locked = totalAccumulated - claimable;
-    } else if (task === 100) {
+    } else if (day === 100) {
       claimable = totalAccumulated;
       locked = 0;
     }
     
-    streamingAccumulator.set(task, { total: totalAccumulated, claimable, locked });
+    streamingAccumulator.set(day, { total: totalAccumulated, claimable, locked });
   }
+  
+  const totalStreamingBonus = dailyStreamingBonus * 100;
   
   let cumulativeProfit = 0;
   for (let day = 1; day <= totalDays; day++) {
     cumulativeProfit += dailyReturn;
-    const taskNumber = Math.min(day, 100);
-    const streamingData = streamingAccumulator.get(taskNumber) || { total: 0, claimable: 0, locked: 0 };
+    const taskNumber = day <= 100 ? day : 100;
+    const streamingData = streamingAccumulator.get(day <= 100 ? day : 100) || { total: 0, claimable: 0, locked: 0 };
     
-    const unlockPercentage = getUnlockPercentageForTask(taskNumber);
-    const streamingBonusToday = day <= 100 ? streamingBonusPerTask : 0;
+    const unlockPercentage = getUnlockPercentageForTask(day);
+    const streamingBonusToday = day <= 100 ? dailyStreamingBonus : 0;
     
     dailyBreakdown.push({
       day,
@@ -146,30 +152,12 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     });
   }
   
-  if (totalDays < 100) {
-    for (let task = totalDays + 1; task <= 100; task++) {
-      const streamingData = streamingAccumulator.get(task) || { total: 0, claimable: 0, locked: 0 };
-      const unlockPercentage = getUnlockPercentageForTask(task);
-      
-      dailyBreakdown.push({
-        day: task,
-        taskNumber: task,
-        dailyProfit: 0,
-        streamingBonus: streamingBonusPerTask,
-        unlockPercentage,
-        claimable: streamingData.claimable,
-        locked: streamingData.locked,
-        cumulativeProfit: cumulativeProfit,
-      });
-    }
-  }
-  
   return {
     dailyReturn,
     monthlyReturn: dailyReturn * 30,
     totalReturn,
     totalStreamingBonus,
-    dailyStreamingBonus: streamingBonusPerTask,
+    dailyStreamingBonus,
     totalWithCapital: amount + totalReturn,
     dailyBreakdown,
   };
