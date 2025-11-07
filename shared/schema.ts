@@ -214,11 +214,22 @@ export const teamRewardInputSchema = z.object({
 
 export type TeamRewardInput = z.infer<typeof teamRewardInputSchema>;
 
+export interface StreamingManagementDailyBreakdown {
+  day: number;
+  cycle: number;
+  releasedToday: number;
+  cumulativeClaimable: number;
+  lockedBalance: number;
+  unlockEvent: boolean;
+  unlockPercent: number;
+}
+
 export interface TeamRewardResult {
   teamDividendReward: number;
   teamDividendUsd: number;
   teamDividendMec: number;
   streamingManagementReward: number;
+  streamingManagementBreakdown: StreamingManagementDailyBreakdown[];
   supremeReward: number;
   totalDailyReward: number;
   totalMonthlyReward: number;

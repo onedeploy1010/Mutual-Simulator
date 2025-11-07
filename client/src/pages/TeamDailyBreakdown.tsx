@@ -33,14 +33,14 @@ export default function TeamDailyBreakdown() {
   const [currentPage, setCurrentPage] = useState(1);
   const [dayRange, setDayRange] = useState<string>('all');
 
-  // Generate 180 days of team reward data
+  // Use streaming management breakdown from calculation result
   const dailyData = useMemo((): DailyTeamReward[] => {
-    if (!result || !input) return [];
+    if (!result || !input || !result.streamingManagementBreakdown) return [];
     
     const data: DailyTeamReward[] = [];
     for (let day = 1; day <= 180; day++) {
-      // Streaming management reward is only distributed in first 100 days
-      const managementReward = day <= 100 ? result.streamingManagementReward : 0;
+      const breakdown = result.streamingManagementBreakdown[day - 1];
+      const managementReward = breakdown?.releasedToday || 0;
       const totalReward = result.teamDividendReward + managementReward + result.supremeReward;
       
       data.push({

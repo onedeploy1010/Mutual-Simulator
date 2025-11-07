@@ -6,6 +6,7 @@ import type {
   ReferralReward,
   TeamRewardInput,
   TeamRewardResult,
+  StreamingManagementDailyBreakdown,
 } from '@shared/schema';
 import { teamTiers } from '@shared/schema';
 
@@ -167,8 +168,49 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   
   // 推流管理奖励：基础分红收入的40%作为推流池，然后按管理比例分配，100天释放
   const dailyStreamingPool = baseDividendIncome * 0.4;
-  const streamingManagementTotal100Days = dailyStreamingPool * 100 * (tierInfo.streamingManagementPercent / 100);
-  const streamingManagementReward = streamingManagementTotal100Days / 100; // 平均每日
+  const dailyStreamingRate = dailyStreamingPool * (tierInfo.streamingManagementPercent / 100);
+  const cycleAccumulation = dailyStreamingRate * 20; // 每20天累积
+  const streamingManagementTotal100Days = dailyStreamingRate * 100;
+  const streamingManagementReward = streamingManagementTotal100Days / 100; // 平均每日（用于汇总显示）
+  
+  // Generate 180-day streaming management breakdown with phased unlocks
+  const streamingManagementBreakdown: StreamingManagementDailyBreakdown[] = [];
+  let cumulativeClaimable = 0;
+  
+  for (let day = 1; day <= 180; day++) {
+    let releasedToday = 0;
+    let unlockEvent = false;
+    let unlockPercent = 0;
+    let cycle = day <= 100 ? Math.min(Math.ceil(day / 20), 5) : 5;
+    
+    if (day <= 100) {
+      if (day === 20 || day === 40 || day === 60 || day === 80) {
+        // Release 50% of the 20-day cycle accumulation
+        releasedToday = cycleAccumulation * 0.5;
+        cumulativeClaimable += releasedToday;
+        unlockEvent = true;
+        unlockPercent = 50;
+      } else if (day === 100) {
+        // Full unlock - release remaining locked balance
+        releasedToday = streamingManagementTotal100Days - cumulativeClaimable;
+        cumulativeClaimable = streamingManagementTotal100Days;
+        unlockEvent = true;
+        unlockPercent = 100;
+      }
+    }
+    
+    const lockedBalance = streamingManagementTotal100Days - cumulativeClaimable;
+    
+    streamingManagementBreakdown.push({
+      day,
+      cycle,
+      releasedToday,
+      cumulativeClaimable,
+      lockedBalance,
+      unlockEvent,
+      unlockPercent,
+    });
+  }
   
   let supremeReward = 0;
   if (tierInfo.isSupreme) {
@@ -198,6 +240,7 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     teamDividendUsd,
     teamDividendMec,
     streamingManagementReward,
+    streamingManagementBreakdown,
     supremeReward,
     totalDailyReward,
     totalMonthlyReward,
