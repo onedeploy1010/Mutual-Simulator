@@ -4,7 +4,7 @@
 The RWA Profit Simulator is a tool designed to calculate investment returns and multi-tier rewards for Real World Assets (RWA). It enables users to assess potential profits from short-term and long-term RWA products, analyze referral earnings, and track team-based bonuses across various tiered levels, from VIP to Supreme. The project aims to provide comprehensive financial projections for RWA investments.
 
 ## User Preferences
-- **Language**: EN/ZH toggle in top navigation
+- **Language**: EN/ZH toggle in top navigation (默认中文/Default Chinese)
 - **Theme**: Light/dark mode toggle in top navigation
 - **Persistence**: Both preferences saved to localStorage
 
@@ -44,8 +44,13 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
     - Supports 8 tiers (VIP to Supreme) with specific RWA/USD performance ranges.
     - Total Performance and Small Area (50% of total performance) sliders for input.
     - Calculates daily profits, team dividends (10-70% by tier), management rewards (5-30%), and a 5% Supreme bonus.
+    - **Streaming Management Rewards**: Based on 40% streaming pool, released over 100 days with phased unlocks:
+      - Day 20/40/60/80: Release 50% of each 20-day cycle, 50% locked
+      - Day 100: Full unlock (all previously locked amounts released)
+      - Days 101-180: No streaming management rewards
     - Integrates MEC Token: Team dividend split into 90% USD and 10% MEC tokens with selectable MEC price (1/2/4/8/16/32 USD per MEC).
     - 180-day total calculations: Shows total USD and MEC quantities earned over 180 days with daily breakdowns.
+    - Team Daily Breakdown page displays phased unlock events and released amounts for each milestone day.
 
 ## External Dependencies
 - **Recharts**: JavaScript charting library for data visualization.
