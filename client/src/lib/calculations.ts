@@ -158,15 +158,17 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   // 基础分红收入 = 小区业绩 × 每日收益率
   const baseDividendIncome = smallAreaPerformanceUsd * (dailyRate / 100);
   
-  // 团队分红奖励 = 基础分红收入 × 分红比例
+  // 团队分红奖励 = 基础分红收入 × 分红比例 (每日发放)
   const teamDividendReward = baseDividendIncome * (tierInfo.teamDividendPercent / 100);
   
   // Team dividend is split: 90% USD, 10% MEC
   const teamDividendUsd = teamDividendReward * 0.9;
   const teamDividendMec = (teamDividendReward * 0.1) / mecPrice;
   
-  // 管理奖励 = 基础分红收入 × 管理奖励比例 (100% USD)
-  const streamingManagementReward = baseDividendIncome * (tierInfo.streamingManagementPercent / 100);
+  // 推流管理奖励：基础分红收入的40%作为推流池，然后按管理比例分配，100天释放
+  const dailyStreamingPool = baseDividendIncome * 0.4;
+  const streamingManagementTotal100Days = dailyStreamingPool * 100 * (tierInfo.streamingManagementPercent / 100);
+  const streamingManagementReward = streamingManagementTotal100Days / 100; // 平均每日
   
   let supremeReward = 0;
   if (tierInfo.isSupreme) {
@@ -176,9 +178,12 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const totalDailyReward = teamDividendReward + streamingManagementReward + supremeReward;
   const totalMonthlyReward = totalDailyReward * 30;
   
-  // 180-day calculations: only team dividend is split into USD/MEC
+  // 180-day calculations
+  // Team dividend: 180 days (90% USD, 10% MEC)
   const teamDividend180Days = teamDividendReward * 180;
-  const streamingManagement180Days = streamingManagementReward * 180;
+  // Streaming management: only 100 days (100% USD)
+  const streamingManagement180Days = streamingManagementTotal100Days;
+  // Supreme: 180 days (100% USD)
   const supreme180Days = supremeReward * 180;
   
   const total180DayUsd = (teamDividend180Days * 0.9) + streamingManagement180Days + supreme180Days;
