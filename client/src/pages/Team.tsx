@@ -96,14 +96,17 @@ export default function Team() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.teamRewards}</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+          <div className="w-1 h-8 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+          {t.teamRewards}
+        </h2>
+        <p className="text-sm text-muted-foreground ml-3">
           {t.calculateTeamRewardsDesc}
         </p>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 card-premium shadow-md">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>

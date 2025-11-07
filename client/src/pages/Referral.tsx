@@ -44,9 +44,12 @@ export default function Referral() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t.referralRewards}</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+          <div className="w-1 h-8 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+          {t.referralRewards}
+        </h2>
+        <p className="text-sm text-muted-foreground ml-3">
           {t.referralDesc}
         </p>
       </div>
@@ -59,7 +62,7 @@ export default function Referral() {
         </TabsList>
 
         <TabsContent value="direct" className="space-y-6 mt-6">
-          <Card className="p-6">
+          <Card className="p-6 card-premium shadow-md">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <div>
