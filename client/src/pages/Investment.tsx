@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { investmentInputSchema, type InvestmentInput, type InvestmentResult, ProductType } from '@shared/schema';
 import { calculateInvestment } from '@/lib/calculations';
@@ -13,12 +14,14 @@ import { MetricCard } from '@/components/MetricCard';
 import { DailyBreakdownTable } from '@/components/DailyBreakdownTable';
 import { StreamingReleaseChart } from '@/components/StreamingReleaseChart';
 import { ProfitProgressionChart } from '@/components/ProfitProgressionChart';
-import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ChevronDown, ChevronUp } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ChevronDown, ChevronUp, ListOrdered } from 'lucide-react';
 
 export default function Investment() {
   const { t } = useLanguage();
+  const [, navigate] = useLocation();
   const [result, setResult] = useState<InvestmentResult | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [currentFormValues, setCurrentFormValues] = useState<InvestmentInput | null>(null);
 
   const form = useForm<InvestmentInput>({
     resolver: zodResolver(investmentInputSchema),
@@ -36,7 +39,22 @@ export default function Investment() {
   const onSubmit = (data: InvestmentInput) => {
     const calculatedResult = calculateInvestment(data);
     setResult(calculatedResult);
+    setCurrentFormValues(data);
     setShowBreakdown(false);
+  };
+
+  const handleViewDetailedBreakdown = () => {
+    if (!result || !currentFormValues) return;
+    
+    const investmentAmount = currentFormValues.rwaCount * 100;
+    
+    navigate('/daily-breakdown', {
+      state: {
+        dailyBreakdown: result.dailyBreakdown,
+        investmentAmount,
+        dailyRate: currentFormValues.dailyRate || 0,
+      }
+    });
   };
 
   const handleReset = () => {
@@ -202,24 +220,38 @@ export default function Investment() {
           </div>
 
           <Card className="p-6">
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2"
-              onClick={() => setShowBreakdown(!showBreakdown)}
-              data-testid="button-toggle-breakdown"
-            >
-              {showBreakdown ? (
-                <>
-                  <ChevronUp className="w-4 h-4" />
-                  {t.hideDailyBreakdown}
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4" />
-                  {t.viewDailyBreakdown}
-                </>
+            <div className="space-y-3">
+              {productType === ProductType.LONG && result.dailyBreakdown.length === 180 && (
+                <Button
+                  variant="default"
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleViewDetailedBreakdown}
+                  data-testid="button-view-detailed-breakdown"
+                >
+                  <ListOrdered className="w-4 h-4" />
+                  View Detailed 180-Day Breakdown
+                </Button>
               )}
-            </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => setShowBreakdown(!showBreakdown)}
+                data-testid="button-toggle-breakdown"
+              >
+                {showBreakdown ? (
+                  <>
+                    <ChevronUp className="w-4 h-4" />
+                    {t.hideDailyBreakdown}
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4" />
+                    {t.viewDailyBreakdown}
+                  </>
+                )}
+              </Button>
+            </div>
 
             {showBreakdown && (
               <div className="mt-6">

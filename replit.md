@@ -26,19 +26,20 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 - **Indirect rewards**: 10% of second-level downline daily profits
 - **Monthly projections**: Automatic 30-day calculations
 
-### 3. Team Rewards Calculator (RWA-Based, Auto-Calculated)
-- **Input**: RWA units for total team performance (1 RWA = $100 USD)
-- **Auto-calculation**: Small area performance automatically set to 50% of total performance
-- **Validation**: Total performance must be within selected tier's min/max range
+### 3. Team Rewards Calculator (RWA-Based, Slider Selection)
+- **Input**: Select RWA units using sliders (1 RWA = $100 USD)
+- **Total Performance Slider**: Select within selected tier's range (e.g., VIP: 60-200 RWA)
+- **Small Area Slider**: Select between 50%-100% of total performance
+- **Validation**: Both values must be within valid ranges
 - **Daily profits**: Derived from RWA × 100 × daily rate (1-1.5%)
 - **8-tier system with USD ranges**: 
   - VIP ($6K-20K), 1-Star Expert ($20K-60K), 2-Star Expert ($60K-200K), 3-Star Expert ($200K-600K)
-  - 1-Star Ambassador ($600K-2M), 2-Star Ambassador ($2M-6M), 3-Star Ambassador ($6M+), Supreme (no range)
+  - 1-Star Ambassador ($600K-2M), 2-Star Ambassador ($2M-6M), 3-Star Ambassador ($6M+), Supreme (up to $10M)
 - **Team dividend**: Small area daily profit × Dividend % (10%-70% by tier)
 - **Management reward**: Total performance daily streaming profit × Management % (5%-30%, starting from 1-Star Expert)
   - Daily streaming profit = Total daily profit × 40%
 - **Supreme bonus**: 5% of total team daily profits (Supreme tier only)
-- **UI**: Displays tier performance ranges in both RWA units and USD equivalent
+- **UI**: Dynamic sliders adjust ranges based on tier selection; auto-constrains small area when total changes
 
 ### 4. UI/UX Features
 - **Mobile-first design**: Bottom tab navigation for mobile, responsive layouts
@@ -54,9 +55,9 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 - **RWA-based inputs**: All investment amounts now in RWA units (1 RWA = 100 USD)
 - **Investment schema**: `rwaCount` (integer), `productType`, `duration`, `dailyRate`
 - **Referral schema**: `downlineRwaCount`, `secondLevelRwaCount` (optional), unified `dailyRate`
-- **Team schema**: `totalPerformanceRwa`, `dailyRate`, `currentTier`
-  - Small area performance auto-calculated as 50% of total performance
+- **Team schema**: `totalPerformanceRwa`, `smallAreaPerformanceRwa`, `dailyRate`, `currentTier`
   - Zod validation: Total performance must be within selected tier's min/max range (except Supreme)
+  - Zod validation: Small area must be ≥ 50% and ≤ 100% of total performance
 - Team tier definitions with requirements
 - Translation strings for EN/ZH
 - Streaming release schedule configuration
@@ -65,8 +66,8 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 ### Calculation Engine (`client/src/lib/calculations.ts`)
 - `calculateInvestment()`: Converts RWA to USD (×100), processes short/long-term returns
 - `calculateReferralRewards()`: Converts RWA to USD, applies unified daily rate to both levels
-- `calculateTeamRewards()`: Converts RWA to USD, auto-calculates small area as 50% of total
-  - Small area performance = `totalPerformanceRwa × 0.5`
+- `calculateTeamRewards()`: Converts RWA to USD, uses user-selected small area performance
+  - Small area performance = User-selected value (50%-100% of total)
   - Small area daily profit = `smallAreaPerformanceUsd × dailyRate / 100`
   - Team dividend = Small area daily profit × Tier dividend %
   - Management reward = Total daily streaming profit × Tier management %
