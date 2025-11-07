@@ -374,16 +374,58 @@ export default function Team() {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                  <span className="text-sm text-muted-foreground">100% USD</span>
-                  <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management">
-                    {formatCurrency(result.streamingManagementReward)}
+                  <span className="text-sm text-muted-foreground">90% USD</span>
+                  <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-usd">
+                    {formatCurrency(result.streamingManagementUsd)}
                   </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">10% MEC</span>
+                    <span className="text-xs text-muted-foreground">@ {result.mecPrice} USD/MEC</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-mec">
+                      {result.streamingManagementMec.toFixed(2)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">MEC</span>
+                  </div>
                 </div>
                 <div className="text-xs text-muted-foreground italic px-1">
                   {t.streamingManagement100DaysNote}
                 </div>
               </div>
             </Card>
+
+            {result.tierInfo.isSupreme && (
+              <Card className="p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Crown className="w-5 h-5 text-chart-1" />
+                  <h3 className="text-base font-semibold">{t.supremeReward}</h3>
+                  <span className="text-sm text-muted-foreground">(5%)</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                    <span className="text-sm text-muted-foreground">90% USD</span>
+                    <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-usd">
+                      {formatCurrency(result.supremeRewardUsd)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">10% MEC</span>
+                      <span className="text-xs text-muted-foreground">@ {result.mecPrice} USD/MEC</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-mec">
+                        {result.supremeRewardMec.toFixed(2)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">MEC</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
 
           <Card className="p-6 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/30">
