@@ -109,16 +109,23 @@ client/src/
 - Investment amount = RWA count × 100 (USD)
 - Daily return = Investment × Daily rate (1-1.5%)
 - Total return = Daily return × 180 days
-- Streaming bonus = Total return × 40% (released over 100 days)
+- **Daily streaming bonus** = Daily return × 40% (accumulated for first 100 days only)
+- **Total streaming bonus** = Daily streaming bonus × 100
 - Capital returned on day 180
 
-### Streaming Bonus Release Pattern
-- Days 1-20: 0% claimable, 100% locked
-- Days 21-40: 50% of days 1-20 unlocked
-- Days 41-60: Additional 50% of days 21-40 unlocked
-- Days 61-80: Additional 50% of days 41-60 unlocked
-- Days 81-100: Additional 50% of days 61-80 unlocked
-- Day 100: All remaining locked amounts unlocked
+### Streaming Bonus Accumulation & Release (20-Day Cycles)
+- **Daily accumulation**: Each day (1-100) earns streaming bonus = Daily profit × 40%
+- **Days 1-19**: Accumulate daily, 0% claimable, 100% locked
+- **Day 20**: Unlock 50% of 20-day cycle (days 1-20), lock remaining 50%
+- **Days 21-39**: Continue accumulating, maintain day 20 unlocked amount
+- **Day 40**: Unlock 50% of cycle 2 (days 21-40), total claimable = cycles 1+2 unlocked
+- **Days 41-59**: Continue accumulating, maintain previous unlocked amounts
+- **Day 60**: Unlock 50% of cycle 3 (days 41-60), total claimable = cycles 1+2+3 unlocked
+- **Days 61-79**: Continue accumulating, maintain previous unlocked amounts
+- **Day 80**: Unlock 50% of cycle 4 (days 61-80), total claimable = cycles 1+2+3+4 unlocked
+- **Days 81-99**: Continue accumulating, maintain previous unlocked amounts
+- **Day 100**: Unlock all remaining locked amounts (100% claimable, 0% locked)
+- **Days 101-180**: No streaming bonus earned (0 per day)
 
 ### Referral Rewards
 - Downline investment = RWA count × 100 (USD)
@@ -159,9 +166,15 @@ client/src/
   - Mobile (<768px): Card layout with labeled key-value pairs for easy reading
   - Desktop (≥768px): Traditional table layout with sticky header
   - Maintains all data fields and color coding across both views
+- **Streaming bonus calculation refinement**: Changed from total-based to daily-based accumulation
+  - **OLD**: Total streaming = Total return × 40%, distributed across 100 days
+  - **NEW**: Daily streaming = Daily profit × 40%, accumulated for first 100 days only
+  - Each 20-day cycle unlocks 50% at milestones (days 20/40/60/80/100)
+  - Days 101-180 earn zero streaming bonus (only days 1-100 generate streaming rewards)
+  - Example: 10 RWA @ 1.2% = $12/day profit → $4.80/day streaming × 100 days = $480 total
 - **Business logic update**: Removed streaming bonus from short-term investments
   - Short-term products (5-10 days) no longer calculate streaming bonus
-  - Only long-term products (180 days) have 40% streaming bonus over 100-task cycle
+  - Only long-term products (180 days) have streaming bonus with 20-day accumulation cycles
   - Clarifies that streaming tasks only apply to long-term investments
 
 ## Next Steps (Backend & Integration)
