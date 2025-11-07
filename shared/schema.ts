@@ -356,6 +356,7 @@ export const translations = {
     twoCommunities: 'Two communities with',
     tierInfo: 'Tier Information',
     rewardSummary: 'Reward Summary',
+    streamingManagement100DaysNote: '* Released over 100 days only',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -480,6 +481,7 @@ export const translations = {
     twoCommunities: '两个社区达到',
     tierInfo: '等级信息',
     rewardSummary: '奖励汇总',
+    streamingManagement100DaysNote: '* 仅在前100天释放',
   },
 };
 

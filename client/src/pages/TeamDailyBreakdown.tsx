@@ -39,12 +39,16 @@ export default function TeamDailyBreakdown() {
     
     const data: DailyTeamReward[] = [];
     for (let day = 1; day <= 180; day++) {
+      // Streaming management reward is only distributed in first 100 days
+      const managementReward = day <= 100 ? result.streamingManagementReward : 0;
+      const totalReward = result.teamDividendReward + managementReward + result.supremeReward;
+      
       data.push({
         day,
         teamDividend: result.teamDividendReward,
-        managementReward: result.streamingManagementReward,
+        managementReward,
         supremeReward: result.supremeReward,
-        totalReward: result.totalDailyReward,
+        totalReward,
       });
     }
     return data;

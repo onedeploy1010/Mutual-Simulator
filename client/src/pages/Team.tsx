@@ -379,6 +379,9 @@ export default function Team() {
                     {formatCurrency(result.streamingManagementReward)}
                   </span>
                 </div>
+                <div className="text-xs text-muted-foreground italic px-1">
+                  {t.streamingManagement100DaysNote}
+                </div>
               </div>
             </Card>
           </div>
