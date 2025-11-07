@@ -165,7 +165,26 @@ client/src/
   - `/team` - Team Rewards
 
 ## Recent Updates
-**November 7, 2025 (Latest v2)**: 
+**November 7, 2025 (Latest v3)**: 
+- **InvestmentContext implementation**: Fixed data sharing between Investment and DailyBreakdown pages
+  - Created InvestmentContext to store calculation results (replaces wouter state param which is not supported)
+  - Added InvestmentProvider to App.tsx provider hierarchy
+  - Investment page saves calculation results to Context before navigation
+  - DailyBreakdown page reads from Context instead of location state
+- **Complete bilingual translation**: Added all translation keys for DailyBreakdown page
+  - Filter labels: filterByType, dayRange, allDays, streamingBonusDays, etc.
+  - Day range options: all180Days, cycle1-5, noStreaming
+  - Pagination: showing, of, days, page, previous, next
+  - Navigation: dailyBreakdownPage, backToInvestment, noDataAvailable
+  - All UI text now supports EN/ZH switching
+- **Mobile-responsive DailyBreakdown**: Enhanced for mobile-first design
+  - Desktop (≥768px): Table layout with all columns visible
+  - Mobile (<768px): Card-based layout with key-value pairs
+  - Responsive filters and pagination controls
+  - Touch-friendly button sizing and spacing
+  - Maintains all data display across both layouts
+
+**November 7, 2025 (v2)**: 
 - **Team Rewards auto-calculation**: Small area performance now automatically calculated as 50% of total performance
   - Removed small area performance input field from Team page
   - Updated schema to only require: currentTier, totalPerformanceRwa, dailyRate
