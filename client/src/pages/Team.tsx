@@ -97,6 +97,18 @@ export default function Team() {
                   ))}
                 </SelectContent>
               </Select>
+              {(() => {
+                const tierInfo = teamTiers.find(t => t.tier === currentTier);
+                if (!tierInfo || tierInfo.isSupreme) return null;
+                const minRwa = tierInfo.requirementMin / 100;
+                const maxRwa = tierInfo.requirementMax ? tierInfo.requirementMax / 100 : null;
+                return (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Performance range: {formatNumber(minRwa)} - {maxRwa ? formatNumber(maxRwa) : '∞'} RWA 
+                    <span className="text-muted-foreground/70"> (${formatNumber(tierInfo.requirementMin)} - {tierInfo.requirementMax ? `$${formatNumber(tierInfo.requirementMax)}` : '∞'})</span>
+                  </p>
+                );
+              })()}
             </div>
 
             <div>
