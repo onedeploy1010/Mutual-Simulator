@@ -1,6 +1,7 @@
 import { TeamTier } from '@shared/schema';
 import { Badge } from '@/components/ui/badge';
 import { Star, Crown } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TierBadgeProps {
   tier: TeamTier;
@@ -8,6 +9,22 @@ interface TierBadgeProps {
 }
 
 export function TierBadge({ tier, className }: TierBadgeProps) {
+  const { t } = useLanguage();
+  
+  const getTierTranslation = (tierName: string) => {
+    const tierMap: Record<string, keyof typeof t> = {
+      'VIP': 'tierVIP',
+      '1-Star Expert': 'tier1StarExpert',
+      '2-Star Expert': 'tier2StarExpert',
+      '3-Star Expert': 'tier3StarExpert',
+      '1-Star Ambassador': 'tier1StarAmbassador',
+      '2-Star Ambassador': 'tier2StarAmbassador',
+      '3-Star Ambassador': 'tier3StarAmbassador',
+      'Supreme': 'tierSupreme',
+    };
+    const key = tierMap[tierName];
+    return key ? t[key] : tierName;
+  };
   const getTierColor = (tier: TeamTier) => {
     switch (tier) {
       case 'VIP':
@@ -36,7 +53,7 @@ export function TierBadge({ tier, className }: TierBadgeProps) {
   return (
     <Badge className={`${getTierColor(tier)} ${className} flex items-center gap-1`}>
       {isSupreme ? <Crown className="w-3 h-3" /> : <Star className="w-3 h-3" />}
-      {tier}
+      {getTierTranslation(tier)}
     </Badge>
   );
 }

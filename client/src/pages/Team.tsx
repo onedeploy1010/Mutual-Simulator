@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { teamRewardInputSchema, type TeamRewardInput, type TeamRewardResult, teamTiers } from '@shared/schema';
 import { calculateTeamRewards } from '@/lib/calculations';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTeam } from '@/contexts/TeamContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,20 +19,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Trophy, TrendingUp, Zap, Crown } from 'lucide-react';
+import { Trophy, TrendingUp, Zap, Crown, ListOrdered } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 export default function Team() {
   const { t } = useLanguage();
+  const [, navigate] = useLocation();
+  const { setTeamData } = useTeam();
   const [result, setResult] = useState<TeamRewardResult | null>(null);
+  const [currentFormValues, setCurrentFormValues] = useState<TeamRewardInput | null>(null);
+
+  const getTierTranslation = (tierName: string) => {
+    const tierMap: Record<string, keyof typeof t> = {
+      'VIP': 'tierVIP',
+      '1-Star Expert': 'tier1StarExpert',
+      '2-Star Expert': 'tier2StarExpert',
+      '3-Star Expert': 'tier3StarExpert',
+      '1-Star Ambassador': 'tier1StarAmbassador',
+      '2-Star Ambassador': 'tier2StarAmbassador',
+      '3-Star Ambassador': 'tier3StarAmbassador',
+      'Supreme': 'tierSupreme',
+    };
+    const key = tierMap[tierName];
+    return key ? t[key] : tierName;
+  };
 
   const form = useForm<TeamRewardInput>({
     resolver: zodResolver(teamRewardInputSchema),
@@ -59,6 +71,14 @@ export default function Team() {
   const onSubmit = (data: TeamRewardInput) => {
     const calculatedResult = calculateTeamRewards(data);
     setResult(calculatedResult);
+    setCurrentFormValues(data);
+  };
+
+  const handleViewDetailedBreakdown = () => {
+    if (!result || !currentFormValues) return;
+    
+    setTeamData(result, currentFormValues);
+    navigate('/team-daily-breakdown');
   };
 
   const handleReset = () => {
@@ -79,7 +99,7 @@ export default function Team() {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-2">{t.teamRewards}</h2>
         <p className="text-sm text-muted-foreground">
-          Calculate rewards based on your team tier and performance
+          {t.calculateTeamRewardsDesc}
         </p>
       </div>
 
@@ -122,14 +142,44 @@ export default function Team() {
               </Select>
               {(() => {
                 const tierInfo = teamTiers.find(t => t.tier === currentTier);
-                if (!tierInfo || tierInfo.isSupreme) return null;
-                const minRwa = tierInfo.requirementMin / 100;
-                const maxRwa = tierInfo.requirementMax ? tierInfo.requirementMax / 100 : null;
+                if (!tierInfo) return null;
+                
                 return (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Performance range: {formatNumber(minRwa)} - {maxRwa ? formatNumber(maxRwa) : '∞'} RWA 
-                    <span className="text-muted-foreground/70"> (${formatNumber(tierInfo.requirementMin)} - {tierInfo.requirementMax ? `$${formatNumber(tierInfo.requirementMax)}` : '∞'})</span>
-                  </p>
+                  <div className="mt-3 p-3 bg-muted/30 rounded-md border border-border/50 space-y-2">
+                    {!tierInfo.isSupreme && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t.performanceRange}: </span>
+                        <span className="font-mono font-medium text-foreground">
+                          {formatNumber(tierInfo.requirementMin / 100)} - {tierInfo.requirementMax ? formatNumber(tierInfo.requirementMax / 100) : '∞'} RWA
+                        </span>
+                        <span className="text-muted-foreground/70"> (${formatNumber(tierInfo.requirementMin)} - {tierInfo.requirementMax ? `$${formatNumber(tierInfo.requirementMax)}` : '∞'})</span>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t.dividend}: </span>
+                        <span className="font-mono font-semibold text-primary">{tierInfo.teamDividendPercent}%</span>
+                      </div>
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t.management}: </span>
+                        <span className="font-mono font-semibold text-chart-3">{tierInfo.streamingManagementPercent}%</span>
+                      </div>
+                    </div>
+                    {tierInfo.communityRequirement && tierInfo.communityRequirement !== '-' && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t.communityStructure}: </span>
+                        <span className="text-foreground/80">
+                          {(() => {
+                            const match = tierInfo.communityRequirement.match(/Two communities with (.+)/);
+                            if (match) {
+                              return `${t.twoCommunities} ${getTierTranslation(match[1])}`;
+                            }
+                            return tierInfo.communityRequirement;
+                          })()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
             </div>
@@ -152,7 +202,7 @@ export default function Team() {
                 <span>1.5%</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Long-term RWA investment daily return rate
+                {t.longTerm} RWA {t.dailyReturnRate}
               </p>
             </div>
 
@@ -181,7 +231,7 @@ export default function Team() {
                 <span>{maxTotalRwa === 1000 ? '∞' : `${maxTotalRwa} RWA`}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                1 RWA = $100 USD · Range for {currentTier}
+                1 RWA = $100 USD · {t.rangeFor} {currentTier}
               </p>
               {form.formState.errors.totalPerformanceRwa && (
                 <p className="text-xs text-destructive mt-1">
@@ -208,7 +258,7 @@ export default function Team() {
                 <span>{maxSmallAreaRwa} RWA (100%)</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Select between 50%-100% of total performance
+                {t.smallAreaRangeDesc}
               </p>
               {form.formState.errors.smallAreaPerformanceRwa && (
                 <p className="text-xs text-destructive mt-1">
@@ -287,48 +337,19 @@ export default function Team() {
                   </p>
                 </div>
               </div>
+              <Button 
+                onClick={handleViewDetailedBreakdown}
+                variant="outline" 
+                className="w-full mt-4"
+                data-testid="button-view-team-breakdown"
+              >
+                <ListOrdered className="w-4 h-4 mr-2" />
+                {t.viewDetailedBreakdown}
+              </Button>
             </div>
           </Card>
         </>
       )}
-
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">{t.tierRequirements}</h3>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tier</TableHead>
-                <TableHead className="text-right">{t.requirement}</TableHead>
-                <TableHead>{t.communityStructure}</TableHead>
-                <TableHead className="text-right">{t.dividend} %</TableHead>
-                <TableHead className="text-right">{t.management} %</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teamTiers.map((tier) => (
-                <TableRow key={tier.tier} data-testid={`row-tier-${tier.tier}`}>
-                  <TableCell>
-                    <TierBadge tier={tier.tier} />
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-sm">
-                    {tier.requirementSelfAndTeam > 0 ? `$${formatNumber(tier.requirementSelfAndTeam)}` : '-'}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground max-w-[200px]">
-                    {tier.communityRequirement}
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-sm font-semibold text-primary">
-                    {tier.teamDividendPercent}%
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-sm font-semibold text-chart-3">
-                    {tier.streamingManagementPercent}%
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
     </div>
   );
 }

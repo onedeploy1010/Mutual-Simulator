@@ -12,17 +12,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { MetricCard } from '@/components/MetricCard';
-import { DailyBreakdownTable } from '@/components/DailyBreakdownTable';
 import { StreamingReleaseChart } from '@/components/StreamingReleaseChart';
 import { ProfitProgressionChart } from '@/components/ProfitProgressionChart';
-import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ChevronDown, ChevronUp, ListOrdered } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered } from 'lucide-react';
 
 export default function Investment() {
   const { t } = useLanguage();
   const [, navigate] = useLocation();
   const { setInvestmentData } = useInvestment();
   const [result, setResult] = useState<InvestmentResult | null>(null);
-  const [showBreakdown, setShowBreakdown] = useState(false);
   const [currentFormValues, setCurrentFormValues] = useState<InvestmentInput | null>(null);
 
   const form = useForm<InvestmentInput>({
@@ -42,7 +40,6 @@ export default function Investment() {
     const calculatedResult = calculateInvestment(data);
     setResult(calculatedResult);
     setCurrentFormValues(data);
-    setShowBreakdown(false);
   };
 
   const handleViewDetailedBreakdown = () => {
@@ -55,7 +52,6 @@ export default function Investment() {
   const handleReset = () => {
     form.reset();
     setResult(null);
-    setShowBreakdown(false);
   };
 
   const formatCurrency = (value: number) => {
@@ -67,9 +63,7 @@ export default function Investment() {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-2">{t.investmentCalculator}</h2>
         <p className="text-sm text-muted-foreground">
-          {productType === ProductType.SHORT
-            ? 'Short-term: Fixed 5% return, 5-10 days'
-            : 'Long-term: 1-1.5% daily, 180 days with capital return'}
+          {productType === ProductType.SHORT ? t.shortTermDesc : t.longTermDesc}
         </p>
       </div>
 
@@ -182,25 +176,29 @@ export default function Investment() {
               value={formatCurrency(result.dailyReturn)}
               testId="metric-daily-return"
             />
-            <MetricCard
-              icon={Calendar}
-              label={t.monthlyReturn}
-              value={formatCurrency(result.monthlyReturn)}
-              testId="metric-monthly-return"
-            />
+            {productType === ProductType.LONG && (
+              <MetricCard
+                icon={Calendar}
+                label={t.monthlyReturn}
+                value={formatCurrency(result.monthlyReturn)}
+                testId="metric-monthly-return"
+              />
+            )}
             <MetricCard
               icon={TrendingUp}
               label={t.totalReturn}
               value={formatCurrency(result.totalReturn)}
               testId="metric-total-return"
             />
-            <MetricCard
-              icon={Zap}
-              label={t.streamingBonus}
-              value={formatCurrency(result.totalStreamingBonus)}
-              subtitle={`${formatCurrency(result.dailyStreamingBonus)} ${t.daily.toLowerCase()}`}
-              testId="metric-streaming-bonus"
-            />
+            {productType === ProductType.LONG && (
+              <MetricCard
+                icon={Zap}
+                label={t.streamingBonus}
+                value={formatCurrency(result.totalStreamingBonus)}
+                subtitle={`${formatCurrency(result.dailyStreamingBonus)} ${t.daily.toLowerCase()}`}
+                testId="metric-streaming-bonus"
+              />
+            )}
             <MetricCard
               icon={PiggyBank}
               label={t.totalWithCapital}
@@ -211,49 +209,24 @@ export default function Investment() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ProfitProgressionChart dailyBreakdown={result.dailyBreakdown} />
-            <StreamingReleaseChart />
+            {productType === ProductType.LONG && (
+              <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
+            )}
           </div>
 
-          <Card className="p-6">
-            <div className="space-y-3">
-              {productType === ProductType.LONG && result.dailyBreakdown.length === 180 && (
-                <Button
-                  variant="default"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={handleViewDetailedBreakdown}
-                  data-testid="button-view-detailed-breakdown"
-                >
-                  <ListOrdered className="w-4 h-4" />
-                  View Detailed 180-Day Breakdown
-                </Button>
-              )}
-              
+          {productType === ProductType.LONG && result.dailyBreakdown.length === 180 && (
+            <Card className="p-6">
               <Button
-                variant="outline"
+                variant="default"
                 className="w-full flex items-center justify-center gap-2"
-                onClick={() => setShowBreakdown(!showBreakdown)}
-                data-testid="button-toggle-breakdown"
+                onClick={handleViewDetailedBreakdown}
+                data-testid="button-view-detailed-breakdown"
               >
-                {showBreakdown ? (
-                  <>
-                    <ChevronUp className="w-4 h-4" />
-                    {t.hideDailyBreakdown}
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-4 h-4" />
-                    {t.viewDailyBreakdown}
-                  </>
-                )}
+                <ListOrdered className="w-4 h-4" />
+                {t.viewDetailedBreakdown}
               </Button>
-            </div>
-
-            {showBreakdown && (
-              <div className="mt-6">
-                <DailyBreakdownTable dailyBreakdown={result.dailyBreakdown} />
-              </div>
-            )}
-          </Card>
+            </Card>
+          )}
         </>
       )}
     </div>

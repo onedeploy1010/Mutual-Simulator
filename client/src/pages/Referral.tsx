@@ -47,7 +47,7 @@ export default function Referral() {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-2">{t.referralRewards}</h2>
         <p className="text-sm text-muted-foreground">
-          Direct: 20% of downline daily profit | Indirect: 10% of 2nd level daily profit | Single rate for both levels
+          {t.referralDesc}
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export default function Referral() {
                     <span>1.5%</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    This rate applies to both direct and indirect referral levels
+                    {t.rateAppliesBothLevels}
                   </p>
                 </div>
 

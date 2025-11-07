@@ -50,7 +50,7 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     
     return {
       dailyReturn,
-      monthlyReturn: dailyReturn * 30,
+      monthlyReturn: 0,
       totalReturn,
       totalStreamingBonus: 0,
       dailyStreamingBonus: 0,

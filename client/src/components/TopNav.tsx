@@ -2,6 +2,7 @@ import { Moon, Sun, Globe } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
+import logoImage from '@assets/image_1762536371479.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +15,11 @@ export function TopNav() {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-40 bg-background border-b border-border">
-      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-foreground">{t.appTitle}</h1>
+    <header className="sticky top-0 z-40 bg-card/95 border-b border-border/50 backdrop-blur-md shadow-sm">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src={logoImage} alt="Mutual Logo" className="h-10 w-auto" data-testid="logo-image" />
+        </div>
         
         <div className="flex items-center gap-2">
           <DropdownMenu>

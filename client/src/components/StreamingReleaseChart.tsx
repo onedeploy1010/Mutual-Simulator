@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { streamingReleaseSchedule } from '@shared/schema';
+import type { DailyEarning } from '@shared/schema';
 import {
   BarChart,
   Bar,
@@ -12,15 +12,33 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-export function StreamingReleaseChart() {
+interface StreamingReleaseChartProps {
+  dailyBreakdown: DailyEarning[];
+}
+
+export function StreamingReleaseChart({ dailyBreakdown }: StreamingReleaseChartProps) {
   const { t } = useLanguage();
 
-  const data = streamingReleaseSchedule.map(node => ({
-    tasks: node.taskCount,
-    claimable: node.claimablePercent,
-    locked: node.lockedPercent,
-    description: node.description,
-  }));
+  // Calculate streaming release data from daily breakdown
+  const data = [];
+  
+  // Find unlock task milestones (20, 40, 60, 80, 100)
+  const unlockTasks = [20, 40, 60, 80, 100];
+  
+  if (dailyBreakdown && dailyBreakdown.length > 0) {
+    for (const taskCount of unlockTasks) {
+      const dayData = dailyBreakdown.find(d => d.taskNumber === taskCount);
+      if (dayData) {
+        data.push({
+          tasks: taskCount,
+          claimable: Number(dayData.claimable.toFixed(2)),
+          locked: Number(dayData.locked.toFixed(2)),
+        });
+      }
+    }
+  }
+
+  const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
 
   return (
     <Card className="p-6" data-testid="card-release-schedule">
@@ -34,10 +52,11 @@ export function StreamingReleaseChart() {
             className="text-sm"
           />
           <YAxis 
-            label={{ value: '%', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'USD ($)', angle: -90, position: 'insideLeft' }}
             className="text-sm"
           />
           <Tooltip 
+            formatter={formatCurrency}
             contentStyle={{ 
               backgroundColor: 'hsl(var(--card))',
               border: '1px solid hsl(var(--border))',
