@@ -1,0 +1,209 @@
+一、制度逻辑总览
+1️⃣ 产品类别
+产品类型
+投资金额
+投资周期
+收益类型
+收益计算方式
+短线产品
+≥ $100/份
+5–10天
+固定收益 5%
+到期一次性结算
+长线产品
+≥ $100/份
+180天
+每日收益 1%–1.5%，到期返本
+每日收益 + 本金返还（第180天）
+￼
+￼
+2️⃣ 推流收益结构
+• 每投资一份 RWA（$100），用户可参与推流任务；
+• 每天可完成 1 次任务；
+• 每 20 次任务形成 1 个释放周期，总周期 100 次；
+• 总推流收益 = 分红回报 × 40%。
+释放节点：
+任务次数
+可领取比例
+锁仓比例
+说明
+20次
+50%
+50%
+第一次领取
+40次
+50%
+50%
+第二次领取
+60次
+50%
+50%
+第三次领取
+80次
+50%
+50%
+第四次领取
+100次
+100%
+解锁前面锁仓
+第五次领取
+￼
+👉 所以推流平均每日收益 = 总推流收益 ÷ 100。
+￼
+3️⃣ 推广奖励体系
+Tab 1：推荐奖
+奖项
+条件
+奖励
+直推奖
+推荐用户直接投资
+下级每日分红收益 × 20%
+间推奖
+推荐的下级再推荐
+二级每日分红收益 × 10%
+￼
+👉 推荐奖励在下级的分红周期内每日发放。
+￼
+Tab 2：团队奖励
+等级
+要求
+团队业绩
+小区业绩≥总业绩一半
+团队分红比例
+团队推流管理奖励
+VIP
+自投 + 团队总业绩 ≥ 6000
+小区业绩 ×10%
+✅
+10%
+0
+1星达人
+两社区有VIP，业绩≥20000
+小区业绩 ×20%
+✅
+20%
+5%
+2星达人
+两社区有1星达人，业绩≥60000
+小区业绩 ×30%
+✅
+30%
+10%
+3星达人
+两社区有2星达人，业绩≥200000
+小区业绩 ×40%
+✅
+40%
+15%
+1星大使
+两社区有3星达人，业绩≥600000
+小区业绩 ×50%
+✅
+50%
+20%
+2星大使
+两社区有1星大使，业绩≥2000000
+小区业绩 ×60%
+✅
+60%
+25%
+3星大使
+两社区有2星大使，业绩≥6000000
+小区业绩 ×70%
+✅
+70%
+30%
+至尊
+两社区有3星大使
+全公司RWA分红5%
+✅
+5% (全局)
+-
+￼
+￼
+💻 二、Next.js + TypeScript 计算器模块规划
+🔹 主页面（收益计算器）
+• 用户输入：
+• 投资金额（USD）
+• 投资类型（短线/长线）
+• 收益比例（短线固定5%，长线1%–1.5%）
+• 输出：
+• 每日收益
+• 月度收益
+• 总收益（含本金）
+• 按日明细（可展开查看每日复利/锁仓/解锁情况）
+• 组件：
+• <RWAInvestmentForm />
+• <InvestmentSummary />
+• <DailyEarningsTable />
+￼
+🔹 推广奖励页（Tabs）
+Tab 1 - 推荐奖计算
+输入：
+• 下级投资金额
+• 分红比例（1%–1.5%）
+输出：
+• 直推奖励（20%）
+• 间推奖励（10%）
+公式：
+matlab
+￼
+Copy code
+直推收益 = 下级每日分红 × 20%
+间推收益 = 二级每日分红 × 
+10%
+￼
+Tab 2 - 团队奖励计算
+输入：
+• 自身等级
+• 团队总业绩 / 小区业绩
+• 小区每日RWA分红收益
+输出：
+• 团队奖励（按等级百分比）
+• 团队推流管理奖励（按等级管理比例）
+• 至尊奖励（如条件满足）
+￼
+🧠 三、可交给 AI Agent 的 Prompt 模板
+以下 Prompt 可以直接丢给 Claude / ChatGPT Code Interpreter / Replit Agent：
+￼
+Prompt：
+Build a Next.js + TypeScript + Tailwind CSS web app (mobile responsive) called RWA Profit Simulator.
+The app includes three main pages:
+Page 1: Investment Calculator
+• “Users input: investmentAmount, productType (short / long), and dailyReturnRate.”
+• “If short → fixed 5% return, duration 5–10 days (chooseable).”
+• “If long → daily return 1–1.5%, duration 180 days, with capital released at the end.”
+• “Each RWA = $100.”
+• “Show calculated:”
+• “Daily return”
+• “Monthly return”
+• “Total return (with capital)”
+• “Button “View Daily Breakdown” to expand a per-day income table.”
+Page 2: Promotion Rewards
+Includes two tabs:
+• “Tab 1: Direct & Indirect Rewards”
+• “Direct: 20% of first-level downline’s daily profit.”
+• “Indirect: 10% of second-level downline’s daily profit.”
+• “Inputs: downline’s investment and daily rate.”
+• “Tab 2: Team Rewards”
+• “Levels: VIP → 3-Star Ambassador + Supreme.”
+• “Each level requires community structure + total performance threshold.”
+• “Formula: smallAreaDailyProfit × teamRewardRate.”
+• “Add “streaming bonus” management rate (5% → 30%) depending on level.”
+• “Supreme reward: 5% of all company-wide RWA profits.”
+UI Requirements
+• “Mobile-first design (Tailwind).”
+• “Tabs on bottom nav for easy switching.”
+• “Responsive cards for each summary metric.”
+• “Use Zustand or React Context for global state.”
+• “Display results with dynamic charts (using Recharts or ApexCharts).”
+• “Include localization placeholders (EN/ZH toggle).”
+Calculation rules:
+• “Streaming bonus = 40% of RWA daily return, released over 100 days (20-task unlock pattern: 50% claim, 50% locked until last unlock).”
+• “Team rewards and referral rewards are calculated daily based on downstream’s active RWA profit.”
+Output should include:
+• “Next.js folder structure”
+• “pages, components, hooks and utils layout”
+• “Main formulas in TypeScript”
+• “Tailwind-based UI snippets”
+• “Sample JSON for simulation data
