@@ -42,13 +42,17 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
     - Monthly projections.
 - **Team Rewards Calculator**:
     - Supports 8 tiers (VIP to Supreme) with specific RWA/USD performance ranges.
+    - Supreme tier: 70% team dividend, 30% streaming management, plus 5% global Supreme bonus.
     - Total Performance and Small Area (50% of total performance) sliders for input.
-    - Calculates daily profits, team dividends (10-70% by tier), management rewards (5-30%), and a 5% Supreme bonus.
+    - **All rewards split 90% USD / 10% MEC**:
+      - Team dividends (10-70% by tier)
+      - Streaming management rewards (0-30% by tier)
+      - Supreme bonus (5% for Supreme tier only)
     - **Streaming Management Rewards**: Based on 40% streaming pool, released over 100 days with phased unlocks:
       - Day 20/40/60/80: Release 50% of each 20-day cycle, 50% locked
       - Day 100: Full unlock (all previously locked amounts released)
       - Days 101-180: No streaming management rewards
-    - Integrates MEC Token: Team dividend split into 90% USD and 10% MEC tokens with selectable MEC price (1/2/4/8/16/32 USD per MEC).
+    - Integrates MEC Token with selectable MEC price (1/2/4/8/16/32 USD per MEC).
     - 180-day total calculations: Shows total USD and MEC quantities earned over 180 days with daily breakdowns.
     - Team Daily Breakdown page displays phased unlock events and released amounts for each milestone day.
 
