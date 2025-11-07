@@ -29,7 +29,7 @@ export default function DailyBreakdown() {
   const [dayRange, setDayRange] = useState<string>('all');
 
   const dailyBreakdown = result?.dailyBreakdown || [];
-  const investmentAmount = input ? input.rwaCount * 100 : 0;
+  const rwaCount = input?.rwaCount || 0;
   const dailyRate = input?.dailyRate || 0;
 
   // Filter data
@@ -95,7 +95,7 @@ export default function DailyBreakdown() {
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-foreground">{t.dailyBreakdownPage}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {t.investmentAmount}: {formatCurrency(investmentAmount)} • {t.dailyReturnRate}: {dailyRate}%
+              {t.investmentAmount}: {rwaCount} RWA • {t.dailyReturnRate}: {dailyRate}%
             </p>
           </div>
           <Button onClick={() => navigate('/')} variant="outline" size="sm" data-testid="button-back" className="w-full md:w-auto">
