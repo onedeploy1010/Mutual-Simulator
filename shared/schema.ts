@@ -85,7 +85,8 @@ export type TeamTier =
 
 export interface TeamTierInfo {
   tier: TeamTier;
-  requirementSelfAndTeam: number;
+  requirementMin: number;
+  requirementMax: number | null;
   communityRequirement: string;
   smallAreaMinPercent: number;
   teamDividendPercent: number;
@@ -96,7 +97,8 @@ export interface TeamTierInfo {
 export const teamTiers: TeamTierInfo[] = [
   {
     tier: 'VIP',
-    requirementSelfAndTeam: 6000,
+    requirementMin: 6000,
+    requirementMax: 20000,
     communityRequirement: '-',
     smallAreaMinPercent: 50,
     teamDividendPercent: 10,
@@ -105,7 +107,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '1-Star Expert',
-    requirementSelfAndTeam: 20000,
+    requirementMin: 20000,
+    requirementMax: 60000,
     communityRequirement: 'Two communities with VIP',
     smallAreaMinPercent: 50,
     teamDividendPercent: 20,
@@ -114,7 +117,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '2-Star Expert',
-    requirementSelfAndTeam: 60000,
+    requirementMin: 60000,
+    requirementMax: 200000,
     communityRequirement: 'Two communities with 1-Star Expert',
     smallAreaMinPercent: 50,
     teamDividendPercent: 30,
@@ -123,7 +127,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '3-Star Expert',
-    requirementSelfAndTeam: 200000,
+    requirementMin: 200000,
+    requirementMax: 600000,
     communityRequirement: 'Two communities with 2-Star Expert',
     smallAreaMinPercent: 50,
     teamDividendPercent: 40,
@@ -132,7 +137,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '1-Star Ambassador',
-    requirementSelfAndTeam: 600000,
+    requirementMin: 600000,
+    requirementMax: 2000000,
     communityRequirement: 'Two communities with 3-Star Expert',
     smallAreaMinPercent: 50,
     teamDividendPercent: 50,
@@ -141,7 +147,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '2-Star Ambassador',
-    requirementSelfAndTeam: 2000000,
+    requirementMin: 2000000,
+    requirementMax: 6000000,
     communityRequirement: 'Two communities with 1-Star Ambassador',
     smallAreaMinPercent: 50,
     teamDividendPercent: 60,
@@ -150,7 +157,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: '3-Star Ambassador',
-    requirementSelfAndTeam: 6000000,
+    requirementMin: 6000000,
+    requirementMax: null,
     communityRequirement: 'Two communities with 2-Star Ambassador',
     smallAreaMinPercent: 50,
     teamDividendPercent: 70,
@@ -159,7 +167,8 @@ export const teamTiers: TeamTierInfo[] = [
   },
   {
     tier: 'Supreme',
-    requirementSelfAndTeam: 0,
+    requirementMin: 0,
+    requirementMax: null,
     communityRequirement: 'Two communities with 3-Star Ambassador',
     smallAreaMinPercent: 0,
     teamDividendPercent: 5,
@@ -184,6 +193,19 @@ export const teamRewardInputSchema = z.object({
   {
     message: "Small area performance cannot exceed total performance",
     path: ["smallAreaPerformanceRwa"],
+  }
+).refine(
+  (data) => {
+    const tierInfo = teamTiers.find(t => t.tier === data.currentTier);
+    if (!tierInfo || tierInfo.isSupreme) return true;
+    const totalPerformanceUsd = data.totalPerformanceRwa * 100;
+    const isAboveMin = totalPerformanceUsd >= tierInfo.requirementMin;
+    const isBelowMax = tierInfo.requirementMax === null || totalPerformanceUsd <= tierInfo.requirementMax;
+    return isAboveMin && isBelowMax;
+  },
+  {
+    message: "Total performance must be within the selected tier range",
+    path: ["totalPerformanceRwa"],
   }
 );
 

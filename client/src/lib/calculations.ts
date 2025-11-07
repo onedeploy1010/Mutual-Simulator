@@ -158,11 +158,13 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   
   const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);
   const teamDividendReward = smallAreaDailyProfit * (tierInfo.teamDividendPercent / 100);
-  const streamingManagementReward = smallAreaDailyProfit * (tierInfo.streamingManagementPercent / 100);
+  
+  const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
+  const totalDailyStreamingProfit = totalDailyProfit * 0.4;
+  const streamingManagementReward = totalDailyStreamingProfit * (tierInfo.streamingManagementPercent / 100);
   
   let supremeReward = 0;
   if (tierInfo.isSupreme) {
-    const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
     supremeReward = totalDailyProfit * 0.05;
   }
   
