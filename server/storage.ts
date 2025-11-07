@@ -1,37 +1,42 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { type CalculationScenario, type InsertCalculationScenario } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getScenarios(): Promise<CalculationScenario[]>;
+  getScenario(id: string): Promise<CalculationScenario | undefined>;
+  createScenario(scenario: InsertCalculationScenario): Promise<CalculationScenario>;
+  deleteScenario(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private scenarios: Map<string, CalculationScenario>;
 
   constructor() {
-    this.users = new Map();
+    this.scenarios = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+  async getScenarios(): Promise<CalculationScenario[]> {
+    return Array.from(this.scenarios.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getScenario(id: string): Promise<CalculationScenario | undefined> {
+    return this.scenarios.get(id);
+  }
+
+  async createScenario(insertScenario: InsertCalculationScenario): Promise<CalculationScenario> {
+    const id = crypto.randomUUID();
+    const scenario: CalculationScenario = {
+      ...insertScenario,
+      id,
+      createdAt: new Date(),
+    };
+    this.scenarios.set(id, scenario);
+    return scenario;
+  }
+
+  async deleteScenario(id: string): Promise<boolean> {
+    return this.scenarios.delete(id);
   }
 }
 

@@ -1,0 +1,66 @@
+import { Moon, Sun, Globe } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+export function TopNav() {
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
+
+  return (
+    <header className="sticky top-0 z-40 bg-background border-b border-border">
+      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-foreground">{t.appTitle}</h1>
+        
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                data-testid="button-language-toggle"
+              >
+                <Globe className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                onClick={() => setLanguage('en')}
+                data-testid="menu-item-english"
+                className={language === 'en' ? 'bg-accent' : ''}
+              >
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLanguage('zh')}
+                data-testid="menu-item-chinese"
+                className={language === 'zh' ? 'bg-accent' : ''}
+              >
+                中文
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            data-testid="button-theme-toggle"
+          >
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4" />
+            ) : (
+              <Sun className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+}
