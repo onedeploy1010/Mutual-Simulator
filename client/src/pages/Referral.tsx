@@ -20,15 +20,13 @@ export default function Referral() {
   const form = useForm<ReferralInput>({
     resolver: zodResolver(referralInputSchema),
     defaultValues: {
-      downlineInvestment: 100,
-      downlineDailyRate: 1.0,
-      secondLevelInvestment: 0,
-      secondLevelDailyRate: 1.0,
+      downlineRwaCount: 1,
+      secondLevelRwaCount: 0,
+      dailyRate: 1.0,
     },
   });
 
-  const downlineDailyRate = form.watch('downlineDailyRate');
-  const secondLevelDailyRate = form.watch('secondLevelDailyRate');
+  const dailyRate = form.watch('dailyRate');
 
   const onSubmit = (data: ReferralInput) => {
     const calculatedResult = calculateReferralRewards(data);
@@ -49,7 +47,7 @@ export default function Referral() {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-2">{t.referralRewards}</h2>
         <p className="text-sm text-muted-foreground">
-          Direct: 20% of downline daily profit | Indirect: 10% of 2nd level daily profit
+          Direct: 20% of downline daily profit | Indirect: 10% of 2nd level daily profit | Single rate for both levels
         </p>
       </div>
 
@@ -64,6 +62,28 @@ export default function Referral() {
           <Card className="p-6">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">
+                    {t.dailyReturnRateReferral}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
+                  </Label>
+                  <Slider
+                    min={1.0}
+                    max={1.5}
+                    step={0.1}
+                    value={[dailyRate || 1.0]}
+                    onValueChange={([value]) => form.setValue('dailyRate', value)}
+                    data-testid="slider-daily-rate"
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>1.0%</span>
+                    <span>1.5%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This rate applies to both direct and indirect referral levels
+                  </p>
+                </div>
+
                 <div className="border-l-4 border-l-primary pl-4">
                   <h3 className="text-sm font-semibold text-foreground mb-4">
                     Level 1 - {t.directReward}
@@ -71,37 +91,21 @@ export default function Referral() {
 
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="downlineInvestment" className="text-sm font-medium mb-2 block">
+                      <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block">
                         {t.downlineInvestment}
                       </Label>
                       <Input
-                        id="downlineInvestment"
+                        id="downlineRwaCount"
                         type="number"
-                        step="100"
-                        min="100"
-                        {...form.register('downlineInvestment', { valueAsNumber: true })}
-                        data-testid="input-downline-investment"
+                        step="1"
+                        min="1"
+                        {...form.register('downlineRwaCount', { valueAsNumber: true })}
+                        data-testid="input-downline-rwa"
                         className="font-mono"
                       />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">
-                        {t.downlineDailyRate}: <span className="font-mono text-primary">{downlineDailyRate?.toFixed(1)}%</span>
-                      </Label>
-                      <Slider
-                        min={1.0}
-                        max={1.5}
-                        step={0.1}
-                        value={[downlineDailyRate || 1.0]}
-                        onValueChange={([value]) => form.setValue('downlineDailyRate', value)}
-                        data-testid="slider-downline-rate"
-                        className="mt-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>1.0%</span>
-                        <span>1.5%</span>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        1 RWA = $100 USD
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -113,37 +117,21 @@ export default function Referral() {
 
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="secondLevelInvestment" className="text-sm font-medium mb-2 block">
+                      <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block">
                         {t.secondLevelInvestment}
                       </Label>
                       <Input
-                        id="secondLevelInvestment"
+                        id="secondLevelRwaCount"
                         type="number"
-                        step="100"
+                        step="1"
                         min="0"
-                        {...form.register('secondLevelInvestment', { valueAsNumber: true })}
-                        data-testid="input-second-level-investment"
+                        {...form.register('secondLevelRwaCount', { valueAsNumber: true })}
+                        data-testid="input-second-level-rwa"
                         className="font-mono"
                       />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">
-                        {t.secondLevelDailyRate}: <span className="font-mono text-primary">{secondLevelDailyRate?.toFixed(1)}%</span>
-                      </Label>
-                      <Slider
-                        min={1.0}
-                        max={1.5}
-                        step={0.1}
-                        value={[secondLevelDailyRate || 1.0]}
-                        onValueChange={([value]) => form.setValue('secondLevelDailyRate', value)}
-                        data-testid="slider-second-level-rate"
-                        className="mt-2"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>1.0%</span>
-                        <span>1.5%</span>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        1 RWA = $100 USD
+                      </p>
                     </div>
                   </div>
                 </div>

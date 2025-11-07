@@ -12,7 +12,7 @@ export const productTypeSchema = z.enum([ProductType.SHORT, ProductType.LONG]);
 export type ProductType = z.infer<typeof productTypeSchema>;
 
 export const investmentInputSchema = z.object({
-  amount: z.number().min(100).multipleOf(100),
+  rwaCount: z.number().min(1).int(),
   productType: productTypeSchema,
   duration: z.number().optional(),
   dailyRate: z.number().min(1.0).max(1.5).optional(),
@@ -57,10 +57,9 @@ export const streamingReleaseSchedule: StreamingReleaseNode[] = [
 ];
 
 export const referralInputSchema = z.object({
-  downlineInvestment: z.number().min(100),
-  downlineDailyRate: z.number().min(1.0).max(1.5),
-  secondLevelInvestment: z.number().min(0).optional(),
-  secondLevelDailyRate: z.number().min(1.0).max(1.5).optional(),
+  downlineRwaCount: z.number().min(1).int(),
+  secondLevelRwaCount: z.number().min(0).int().optional(),
+  dailyRate: z.number().min(1.0).max(1.5),
 });
 
 export type ReferralInput = z.infer<typeof referralInputSchema>;
@@ -200,7 +199,7 @@ export const translations = {
     productType: 'Product Type',
     shortTerm: 'Short Term',
     longTerm: 'Long Term',
-    investmentAmount: 'Investment Amount (USD)',
+    investmentAmount: 'Investment Amount (RWA)',
     duration: 'Duration (Days)',
     dailyReturnRate: 'Daily Return Rate',
     calculate: 'Calculate',
@@ -222,10 +221,9 @@ export const translations = {
     referralRewards: 'Referral Rewards',
     directRewards: 'Direct & Indirect Rewards',
     teamRewards: 'Team Rewards',
-    downlineInvestment: 'Downline Investment',
-    downlineDailyRate: 'Downline Daily Rate',
-    secondLevelInvestment: '2nd Level Investment',
-    secondLevelDailyRate: '2nd Level Daily Rate',
+    downlineInvestment: 'Direct Referral RWA',
+    dailyReturnRateReferral: 'Daily Return Rate (Both Levels)',
+    secondLevelInvestment: 'Indirect Referral RWA',
     directReward: 'Direct Reward (20%)',
     indirectReward: 'Indirect Reward (10%)',
     totalReward: 'Total Reward',
@@ -257,7 +255,7 @@ export const translations = {
     productType: '产品类型',
     shortTerm: '短线产品',
     longTerm: '长线产品',
-    investmentAmount: '投资金额 (USD)',
+    investmentAmount: '投资金额 (RWA)',
     duration: '投资周期（天）',
     dailyReturnRate: '每日收益率',
     calculate: '计算',
@@ -279,10 +277,9 @@ export const translations = {
     referralRewards: '推荐奖励',
     directRewards: '直推与间推奖励',
     teamRewards: '团队奖励',
-    downlineInvestment: '下级投资额',
-    downlineDailyRate: '下级每日收益率',
-    secondLevelInvestment: '二级投资额',
-    secondLevelDailyRate: '二级每日收益率',
+    downlineInvestment: '直推下级RWA',
+    dailyReturnRateReferral: '每日收益率（两级）',
+    secondLevelInvestment: '间推下级RWA',
     directReward: '直推奖励 (20%)',
     indirectReward: '间推奖励 (10%)',
     totalReward: '总奖励',

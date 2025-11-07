@@ -10,7 +10,9 @@ import type {
 import { teamTiers } from '@shared/schema';
 
 export function calculateInvestment(input: InvestmentInput): InvestmentResult {
-  const { amount, productType, duration, dailyRate } = input;
+  const { rwaCount, productType, duration, dailyRate } = input;
+  
+  const amount = rwaCount * 100;
   
   let totalDays: number;
   let totalReturn: number;
@@ -159,14 +161,16 @@ function getUnlockPercentageForTask(taskNumber: number): number {
 }
 
 export function calculateReferralRewards(input: ReferralInput): ReferralReward {
-  const { downlineInvestment, downlineDailyRate, secondLevelInvestment, secondLevelDailyRate } = input;
+  const { downlineRwaCount, secondLevelRwaCount, dailyRate } = input;
   
-  const downlineDailyProfit = downlineInvestment * (downlineDailyRate / 100);
+  const downlineInvestment = downlineRwaCount * 100;
+  const downlineDailyProfit = downlineInvestment * (dailyRate / 100);
   const directDailyReward = downlineDailyProfit * 0.2;
   
   let indirectDailyReward = 0;
-  if (secondLevelInvestment && secondLevelDailyRate) {
-    const secondLevelDailyProfit = secondLevelInvestment * (secondLevelDailyRate / 100);
+  if (secondLevelRwaCount && secondLevelRwaCount > 0) {
+    const secondLevelInvestment = secondLevelRwaCount * 100;
+    const secondLevelDailyProfit = secondLevelInvestment * (dailyRate / 100);
     indirectDailyReward = secondLevelDailyProfit * 0.1;
   }
   

@@ -23,7 +23,7 @@ export default function Investment() {
   const form = useForm<InvestmentInput>({
     resolver: zodResolver(investmentInputSchema),
     defaultValues: {
-      amount: 100,
+      rwaCount: 1,
       productType: ProductType.SHORT,
       duration: 7,
       dailyRate: 1.0,
@@ -88,23 +88,26 @@ export default function Investment() {
             </div>
 
             <div>
-              <Label htmlFor="amount" className="text-sm font-medium mb-2 block">
+              <Label htmlFor="rwaCount" className="text-sm font-medium mb-2 block">
                 {t.investmentAmount}
               </Label>
               <Input
-                id="amount"
+                id="rwaCount"
                 type="number"
-                step="100"
-                min="100"
-                {...form.register('amount', { valueAsNumber: true })}
-                data-testid="input-amount"
+                step="1"
+                min="1"
+                {...form.register('rwaCount', { valueAsNumber: true })}
+                data-testid="input-rwaCount"
                 className="font-mono"
               />
-              {form.formState.errors.amount && (
+              {form.formState.errors.rwaCount && (
                 <p className="text-xs text-destructive mt-1">
-                  {form.formState.errors.amount.message}
+                  {form.formState.errors.rwaCount.message}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground mt-1">
+                1 RWA = $100 USD
+              </p>
             </div>
 
             {productType === ProductType.SHORT && (
