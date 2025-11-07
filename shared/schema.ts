@@ -171,8 +171,8 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMax: null,
     communityRequirement: 'Two communities with 3-Star Ambassador',
     smallAreaMinPercent: 0,
-    teamDividendPercent: 5,
-    streamingManagementPercent: 0,
+    teamDividendPercent: 70,
+    streamingManagementPercent: 30,
     isSupreme: true,
   },
 ];
@@ -229,8 +229,12 @@ export interface TeamRewardResult {
   teamDividendUsd: number;
   teamDividendMec: number;
   streamingManagementReward: number;
+  streamingManagementUsd: number;
+  streamingManagementMec: number;
   streamingManagementBreakdown: StreamingManagementDailyBreakdown[];
   supremeReward: number;
+  supremeRewardUsd: number;
+  supremeRewardMec: number;
   totalDailyReward: number;
   totalMonthlyReward: number;
   total180DayUsd: number;
