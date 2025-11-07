@@ -2,7 +2,8 @@ import { Moon, Sun, Globe } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import logoImage from '@assets/image_1762536371479.png';
+import logoDark from '@assets/image_1762536371479.png';
+import logoLight from '@assets/image_1762536980372.png';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,12 @@ export function TopNav() {
     <header className="sticky top-0 z-40 bg-card/95 border-b border-border/50 backdrop-blur-md shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src={logoImage} alt="Mutual Logo" className="h-10 w-auto" data-testid="logo-image" />
+          <img 
+            src={theme === 'dark' ? logoDark : logoLight} 
+            alt="Mutual Logo" 
+            className="h-10 w-auto transition-opacity duration-300" 
+            data-testid="logo-image" 
+          />
         </div>
         
         <div className="flex items-center gap-2">
