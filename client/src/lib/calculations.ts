@@ -153,33 +153,39 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     throw new Error('Invalid tier');
   }
   
-  const totalPerformanceUsd = totalPerformanceRwa * 100;
   const smallAreaPerformanceUsd = smallAreaPerformanceRwa * 100;
   
-  const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);
-  const teamDividendReward = smallAreaDailyProfit * (tierInfo.teamDividendPercent / 100);
+  // 基础分红收入 = 小区业绩 × 每日收益率
+  const baseDividendIncome = smallAreaPerformanceUsd * (dailyRate / 100);
+  
+  // 团队分红奖励 = 基础分红收入 × 分红比例
+  const teamDividendReward = baseDividendIncome * (tierInfo.teamDividendPercent / 100);
   
   // Team dividend is split: 90% USD, 10% MEC
   const teamDividendUsd = teamDividendReward * 0.9;
-  const teamDividendMec = (teamDividendReward * 0.1) / mecPrice; // MEC tokens = USD value / MEC price
+  const teamDividendMec = (teamDividendReward * 0.1) / mecPrice;
   
-  const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
-  const totalDailyStreamingProfit = totalDailyProfit * 0.4;
-  const streamingManagementReward = totalDailyStreamingProfit * (tierInfo.streamingManagementPercent / 100);
+  // 管理奖励 = 基础分红收入 × 管理奖励比例 (100% USD)
+  const streamingManagementReward = baseDividendIncome * (tierInfo.streamingManagementPercent / 100);
   
   let supremeReward = 0;
   if (tierInfo.isSupreme) {
-    supremeReward = totalDailyProfit * 0.05;
+    supremeReward = baseDividendIncome * 0.05;
   }
   
   const totalDailyReward = teamDividendReward + streamingManagementReward + supremeReward;
+  const totalMonthlyReward = totalDailyReward * 30;
   
-  // 180-day calculations
-  const total180DayReward = totalDailyReward * 180;
-  const total180DayUsd = total180DayReward * 0.9; // 90% in USD
+  // 180-day calculations: only team dividend is split into USD/MEC
+  const teamDividend180Days = teamDividendReward * 180;
+  const streamingManagement180Days = streamingManagementReward * 180;
+  const supreme180Days = supremeReward * 180;
+  
+  const total180DayUsd = (teamDividend180Days * 0.9) + streamingManagement180Days + supreme180Days;
   const daily180DayUsd = total180DayUsd / 180;
-  const total180DayMecValue = total180DayReward * 0.1; // 10% in MEC (USD value)
-  const total180DayMec = total180DayMecValue / mecPrice; // Convert to MEC tokens
+  
+  const total180DayMecValue = teamDividend180Days * 0.1;
+  const total180DayMec = total180DayMecValue / mecPrice;
   const daily180DayMec = total180DayMec / 180;
   
   return {
@@ -189,7 +195,7 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     streamingManagementReward,
     supremeReward,
     totalDailyReward,
-    total180DayReward,
+    totalMonthlyReward,
     total180DayUsd,
     daily180DayUsd,
     total180DayMec,

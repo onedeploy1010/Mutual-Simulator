@@ -308,21 +308,51 @@ export default function Team() {
 
       {result && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-4 space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Trophy className="w-4 h-4" />
-                <span className="text-sm font-medium">{t.teamDividend} ({result.tierInfo.teamDividendPercent}%)</span>
+          <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">{t.tierInfo}</h3>
+                <TierBadge tier={result.tierInfo.tier} />
               </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{t.teamDividendUsd}</span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-3 bg-card rounded-md">
+                  <p className="text-xs text-muted-foreground mb-1">{t.dividend}</p>
+                  <p className="text-xl font-bold font-mono text-primary">
+                    {result.tierInfo.teamDividendPercent}%
+                  </p>
+                </div>
+                <div className="p-3 bg-card rounded-md">
+                  <p className="text-xs text-muted-foreground mb-1">{t.management}</p>
+                  <p className="text-xl font-bold font-mono text-chart-3">
+                    {result.tierInfo.streamingManagementPercent}%
+                  </p>
+                </div>
+                {result.tierInfo.isSupreme && (
+                  <div className="p-3 bg-card rounded-md">
+                    <p className="text-xs text-muted-foreground mb-1">Supreme</p>
+                    <p className="text-xl font-bold font-mono text-chart-1">5%</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Trophy className="w-5 h-5 text-primary" />
+                <h3 className="text-base font-semibold">{t.teamDividend}</h3>
+                <span className="text-sm text-muted-foreground">({result.tierInfo.teamDividendPercent}%)</span>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <span className="text-sm text-muted-foreground">90% USD</span>
                   <span className="font-mono text-lg font-semibold" data-testid="value-team-dividend-usd">
                     {formatCurrency(result.teamDividendUsd)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-border pt-1.5">
-                  <span className="text-xs text-muted-foreground">{t.teamDividendMec}</span>
+                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-md">
+                  <span className="text-sm text-muted-foreground">10% MEC</span>
                   <div className="flex items-center gap-1">
                     <span className="font-mono text-lg font-semibold text-primary" data-testid="value-team-dividend-mec">
                       {result.teamDividendMec.toFixed(2)}
@@ -330,103 +360,78 @@ export default function Team() {
                     <span className="text-xs text-muted-foreground">MEC</span>
                   </div>
                 </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  @ {result.mecPrice} USD/MEC
+                </div>
               </div>
             </Card>
-            <MetricCard
-              icon={Zap}
-              label={`${t.streamingManagement} (${result.tierInfo.streamingManagementPercent}%)`}
-              value={formatCurrency(result.streamingManagementReward)}
-              testId="metric-streaming-management"
-            />
-            {result.tierInfo.isSupreme && (
-              <MetricCard
-                icon={Crown}
-                label={`${t.supremeReward} (5%)`}
-                value={formatCurrency(result.supremeReward)}
-                testId="metric-supreme-reward"
-              />
-            )}
-            <MetricCard
-              icon={TrendingUp}
-              label={`${t.totalReward} - ${t.daily}`}
-              value={formatCurrency(result.totalDailyReward)}
-              testId="metric-total-team-reward"
-            />
+
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="w-5 h-5 text-chart-3" />
+                <h3 className="text-base font-semibold">{t.streamingManagement}</h3>
+                <span className="text-sm text-muted-foreground">({result.tierInfo.streamingManagementPercent}%)</span>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <span className="text-sm text-muted-foreground">100% USD</span>
+                  <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management">
+                    {formatCurrency(result.streamingManagementReward)}
+                  </span>
+                </div>
+              </div>
+            </Card>
           </div>
 
           <Card className="p-6 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/30">
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <div className="w-1 h-6 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
-              {t.total180Days}
+              <TrendingUp className="w-5 h-5" />
+              {t.rewardSummary}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="p-4 bg-card rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">{t.total180DayUsd}</p>
-                  <p className="text-2xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
-                    {formatCurrency(result.total180DayUsd)}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t.dailyUsd}: {formatCurrency(result.daily180DayUsd)}
-                  </p>
-                </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="p-4 bg-card rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">{t.daily}</p>
+                <p className="text-2xl font-bold font-mono text-foreground" data-testid="metric-total-team-reward">
+                  {formatCurrency(result.totalDailyReward)}
+                </p>
               </div>
-              <div className="space-y-3">
-                <div className="p-4 bg-card rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">{t.total180DayMec}</p>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-2xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
-                      {result.total180DayMec.toFixed(2)}
-                    </p>
-                    <span className="text-sm text-muted-foreground">MEC</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t.dailyMec}: {result.daily180DayMec.toFixed(2)} MEC
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    @ {result.mecPrice} USD/{t.mecTokens}
-                  </p>
-                </div>
+              <div className="p-4 bg-card rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">{t.monthly}</p>
+                <p className="text-2xl font-bold font-mono text-foreground">
+                  {formatCurrency(result.totalMonthlyReward)}
+                </p>
+              </div>
+              <div className="p-4 bg-card rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">180 {t.days}</p>
+                <p className="text-2xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
+                  {formatCurrency(result.total180DayUsd)}
+                </p>
               </div>
             </div>
-          </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">Current Tier Benefits</h3>
-                <TierBadge tier={result.tierInfo.tier} />
+            <div className="p-4 bg-card rounded-lg">
+              <p className="text-sm font-medium text-foreground mb-3">180 {t.days} MEC {t.mecTokens}</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-3xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
+                  {result.total180DayMec.toFixed(2)}
+                </p>
+                <span className="text-sm text-muted-foreground">MEC</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-card rounded-md">
-                  <p className="text-xs text-muted-foreground mb-1">{t.dividend}</p>
-                  <p className="text-2xl font-bold font-mono text-primary">
-                    {result.tierInfo.teamDividendPercent}%
-                  </p>
-                </div>
-                <div className="p-4 bg-card rounded-md">
-                  <p className="text-xs text-muted-foreground mb-1">{t.management}</p>
-                  <p className="text-2xl font-bold font-mono text-chart-3">
-                    {result.tierInfo.streamingManagementPercent}%
-                  </p>
-                </div>
-                <div className="p-4 bg-card rounded-md">
-                  <p className="text-xs text-muted-foreground mb-1">{t.monthly} Total</p>
-                  <p className="text-2xl font-bold font-mono text-foreground">
-                    {formatCurrency(result.totalMonthlyReward)}
-                  </p>
-                </div>
-              </div>
-              <Button 
-                onClick={handleViewDetailedBreakdown}
-                variant="outline" 
-                className="w-full mt-4"
-                data-testid="button-view-team-breakdown"
-              >
-                <ListOrdered className="w-4 h-4 mr-2" />
-                {t.viewDetailedBreakdown}
-              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                {t.dailyMec}: {result.daily180DayMec.toFixed(2)} MEC @ {result.mecPrice} USD/MEC
+              </p>
             </div>
+
+            <Button 
+              onClick={handleViewDetailedBreakdown}
+              variant="outline" 
+              className="w-full mt-4"
+              data-testid="button-view-team-breakdown"
+            >
+              <ListOrdered className="w-4 h-4 mr-2" />
+              {t.viewDetailedBreakdown}
+            </Button>
           </Card>
         </>
       )}

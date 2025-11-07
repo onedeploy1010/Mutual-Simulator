@@ -32,8 +32,8 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
+      <LanguageProvider>
+        <ThemeProvider>
           <InvestmentProvider>
             <TeamProvider>
               <TooltipProvider>
@@ -48,8 +48,8 @@ function App() {
               </TooltipProvider>
             </TeamProvider>
           </InvestmentProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

@@ -221,7 +221,7 @@ export interface TeamRewardResult {
   streamingManagementReward: number;
   supremeReward: number;
   totalDailyReward: number;
-  total180DayReward: number;
+  totalMonthlyReward: number;
   total180DayUsd: number;
   daily180DayUsd: number;
   total180DayMec: number;
@@ -354,6 +354,8 @@ export const translations = {
     tier3StarAmbassador: '3-Star Ambassador',
     tierSupreme: 'Supreme',
     twoCommunities: 'Two communities with',
+    tierInfo: 'Tier Information',
+    rewardSummary: 'Reward Summary',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -476,6 +478,8 @@ export const translations = {
     tier3StarAmbassador: '3星大使',
     tierSupreme: '至尊',
     twoCommunities: '两个社区达到',
+    tierInfo: '等级信息',
+    rewardSummary: '奖励汇总',
   },
 };
 
