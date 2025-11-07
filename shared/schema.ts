@@ -170,11 +170,22 @@ export const teamTiers: TeamTierInfo[] = [
 
 export const teamRewardInputSchema = z.object({
   currentTier: z.string(),
-  totalPerformance: z.number().min(0),
-  smallAreaPerformance: z.number().min(0),
-  smallAreaDailyProfit: z.number().min(0),
-  companyWideDailyProfit: z.number().min(0).optional(),
-});
+  totalPerformanceRwa: z.number().min(1).int(),
+  smallAreaPerformanceRwa: z.number().min(1).int(),
+  dailyRate: z.number().min(1.0).max(1.5),
+}).refine(
+  (data) => data.smallAreaPerformanceRwa >= data.totalPerformanceRwa * 0.5,
+  {
+    message: "Small area performance must be at least 50% of total performance",
+    path: ["smallAreaPerformanceRwa"],
+  }
+).refine(
+  (data) => data.smallAreaPerformanceRwa <= data.totalPerformanceRwa,
+  {
+    message: "Small area performance cannot exceed total performance",
+    path: ["smallAreaPerformanceRwa"],
+  }
+);
 
 export type TeamRewardInput = z.infer<typeof teamRewardInputSchema>;
 
@@ -230,10 +241,9 @@ export const translations = {
     daily: 'Daily',
     monthly: 'Monthly',
     currentTier: 'Current Tier',
-    totalPerformance: 'Total Performance',
-    smallAreaPerformance: 'Small Area Performance',
-    smallAreaDailyProfit: 'Small Area Daily Profit',
-    companyWideDailyProfit: 'Company-wide Daily Profit',
+    totalPerformance: 'Total Performance (RWA)',
+    smallAreaPerformance: 'Small Area Performance (RWA)',
+    teamDailyRate: 'Daily Return Rate',
     teamDividend: 'Team Dividend',
     streamingManagement: 'Streaming Management',
     supremeReward: 'Supreme Reward',
@@ -286,10 +296,9 @@ export const translations = {
     daily: '每日',
     monthly: '每月',
     currentTier: '当前等级',
-    totalPerformance: '团队总业绩',
-    smallAreaPerformance: '小区业绩',
-    smallAreaDailyProfit: '小区每日分红',
-    companyWideDailyProfit: '全公司每日分红',
+    totalPerformance: '团队总业绩（RWA）',
+    smallAreaPerformance: '小区业绩（RWA）',
+    teamDailyRate: '每日收益率',
     teamDividend: '团队分红',
     streamingManagement: '推流管理',
     supremeReward: '至尊奖励',

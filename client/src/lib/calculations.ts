@@ -185,19 +185,24 @@ export function calculateReferralRewards(input: ReferralInput): ReferralReward {
 }
 
 export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
-  const { currentTier, smallAreaDailyProfit, companyWideDailyProfit } = input;
+  const { currentTier, totalPerformanceRwa, smallAreaPerformanceRwa, dailyRate } = input;
   
   const tierInfo = teamTiers.find(t => t.tier === currentTier);
   if (!tierInfo) {
     throw new Error('Invalid tier');
   }
   
+  const totalPerformanceUsd = totalPerformanceRwa * 100;
+  const smallAreaPerformanceUsd = smallAreaPerformanceRwa * 100;
+  
+  const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);
   const teamDividendReward = smallAreaDailyProfit * (tierInfo.teamDividendPercent / 100);
   const streamingManagementReward = smallAreaDailyProfit * (tierInfo.streamingManagementPercent / 100);
   
   let supremeReward = 0;
-  if (tierInfo.isSupreme && companyWideDailyProfit) {
-    supremeReward = companyWideDailyProfit * 0.05;
+  if (tierInfo.isSupreme) {
+    const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
+    supremeReward = totalDailyProfit * 0.05;
   }
   
   const totalDailyReward = teamDividendReward + streamingManagementReward + supremeReward;

@@ -25,7 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Trophy, TrendingUp, Zap, Crown, ScrollArea } from 'lucide-react';
+import { Trophy, TrendingUp, Zap, Crown } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
 export default function Team() {
   const { t } = useLanguage();
@@ -35,14 +36,14 @@ export default function Team() {
     resolver: zodResolver(teamRewardInputSchema),
     defaultValues: {
       currentTier: 'VIP',
-      totalPerformance: 0,
-      smallAreaPerformance: 0,
-      smallAreaDailyProfit: 0,
-      companyWideDailyProfit: 0,
+      totalPerformanceRwa: 60,
+      smallAreaPerformanceRwa: 30,
+      dailyRate: 1.0,
     },
   });
 
   const currentTier = form.watch('currentTier');
+  const dailyRate = form.watch('dailyRate');
   const isSupreme = currentTier === 'Supreme';
 
   const onSubmit = (data: TeamRewardInput) => {
@@ -99,65 +100,72 @@ export default function Team() {
             </div>
 
             <div>
-              <Label htmlFor="totalPerformance" className="text-sm font-medium mb-2 block">
+              <Label className="text-sm font-medium mb-2 block">
+                {t.teamDailyRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
+              </Label>
+              <Slider
+                min={1.0}
+                max={1.5}
+                step={0.1}
+                value={[dailyRate || 1.0]}
+                onValueChange={([value]) => form.setValue('dailyRate', value)}
+                data-testid="slider-team-daily-rate"
+                className="mt-2"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>1.0%</span>
+                <span>1.5%</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Long-term RWA investment daily return rate
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="totalPerformanceRwa" className="text-sm font-medium mb-2 block">
                 {t.totalPerformance}
               </Label>
               <Input
-                id="totalPerformance"
+                id="totalPerformanceRwa"
                 type="number"
-                min="0"
-                {...form.register('totalPerformance', { valueAsNumber: true })}
-                data-testid="input-total-performance"
+                min="1"
+                step="1"
+                {...form.register('totalPerformanceRwa', { valueAsNumber: true })}
+                data-testid="input-total-performance-rwa"
                 className="font-mono"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                1 RWA = $100 USD
+              </p>
+              {form.formState.errors.totalPerformanceRwa && (
+                <p className="text-xs text-destructive mt-1">
+                  {form.formState.errors.totalPerformanceRwa.message}
+                </p>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="smallAreaPerformance" className="text-sm font-medium mb-2 block">
+              <Label htmlFor="smallAreaPerformanceRwa" className="text-sm font-medium mb-2 block">
                 {t.smallAreaPerformance}
               </Label>
               <Input
-                id="smallAreaPerformance"
+                id="smallAreaPerformanceRwa"
                 type="number"
-                min="0"
-                {...form.register('smallAreaPerformance', { valueAsNumber: true })}
-                data-testid="input-small-area-performance"
+                min="1"
+                step="1"
+                {...form.register('smallAreaPerformanceRwa', { valueAsNumber: true })}
+                data-testid="input-small-area-performance-rwa"
                 className="font-mono"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Must be ≥ 50% of total performance (1 RWA = $100 USD)
+              </p>
+              {form.formState.errors.smallAreaPerformanceRwa && (
+                <p className="text-xs text-destructive mt-1">
+                  {form.formState.errors.smallAreaPerformanceRwa.message}
+                </p>
+              )}
             </div>
-
-            <div>
-              <Label htmlFor="smallAreaDailyProfit" className="text-sm font-medium mb-2 block">
-                {t.smallAreaDailyProfit}
-              </Label>
-              <Input
-                id="smallAreaDailyProfit"
-                type="number"
-                min="0"
-                step="0.01"
-                {...form.register('smallAreaDailyProfit', { valueAsNumber: true })}
-                data-testid="input-small-area-profit"
-                className="font-mono"
-              />
-            </div>
-
-            {isSupreme && (
-              <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
-                <Label htmlFor="companyWideDailyProfit" className="text-sm font-medium mb-2 block flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-yellow-600" />
-                  {t.companyWideDailyProfit} (Supreme Only)
-                </Label>
-                <Input
-                  id="companyWideDailyProfit"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  {...form.register('companyWideDailyProfit', { valueAsNumber: true })}
-                  data-testid="input-company-profit"
-                  className="font-mono"
-                />
-              </div>
-            )}
           </div>
 
           <div className="flex gap-3">
