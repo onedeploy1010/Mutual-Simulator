@@ -37,7 +37,6 @@ export default function Team() {
     defaultValues: {
       currentTier: 'VIP',
       totalPerformanceRwa: 60,
-      smallAreaPerformanceRwa: 30,
       dailyRate: 1.0,
     },
   });
@@ -147,34 +146,11 @@ export default function Team() {
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                1 RWA = $100 USD
+                1 RWA = $100 USD · Small area is automatically set to 50% of total performance
               </p>
               {form.formState.errors.totalPerformanceRwa && (
                 <p className="text-xs text-destructive mt-1">
                   {form.formState.errors.totalPerformanceRwa.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="smallAreaPerformanceRwa" className="text-sm font-medium mb-2 block">
-                {t.smallAreaPerformance}
-              </Label>
-              <Input
-                id="smallAreaPerformanceRwa"
-                type="number"
-                min="1"
-                step="1"
-                {...form.register('smallAreaPerformanceRwa', { valueAsNumber: true })}
-                data-testid="input-small-area-performance-rwa"
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Must be ≥ 50% of total performance (1 RWA = $100 USD)
-              </p>
-              {form.formState.errors.smallAreaPerformanceRwa && (
-                <p className="text-xs text-destructive mt-1">
-                  {form.formState.errors.smallAreaPerformanceRwa.message}
                 </p>
               )}
             </div>
