@@ -37,12 +37,7 @@ export default function TeamDailyBreakdown() {
   const dailyData = useMemo((): DailyTeamReward[] => {
     if (!result || !input) return [];
     
-    console.log('TeamDailyBreakdown - result:', result);
-    console.log('TeamDailyBreakdown - streamingManagementBreakdown:', result.streamingManagementBreakdown);
-    console.log('TeamDailyBreakdown - breakdown length:', result.streamingManagementBreakdown?.length);
-    
     if (!result.streamingManagementBreakdown || result.streamingManagementBreakdown.length === 0) {
-      console.error('No streamingManagementBreakdown data available');
       return [];
     }
     
@@ -50,11 +45,6 @@ export default function TeamDailyBreakdown() {
     for (let day = 1; day <= 180; day++) {
       const breakdown = result.streamingManagementBreakdown[day - 1];
       const managementReward = breakdown?.releasedToday || 0;
-      
-      if (day <= 3 || day === 20 || day === 40 || day === 100) {
-        console.log(`Day ${day} breakdown:`, breakdown, 'managementReward:', managementReward);
-      }
-      
       const totalReward = result.teamDividendReward + managementReward + result.supremeReward;
       
       data.push({
