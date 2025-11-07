@@ -4,13 +4,14 @@
 A comprehensive Real World Assets (RWA) investment profit calculator with multi-tier rewards system. Users can calculate investment returns for short-term and long-term products, analyze referral rewards, and track team-based bonuses across 8 tier levels from VIP to Supreme.
 
 ## Project Status
-**Current Phase**: Frontend development complete with all core features
-**Last Updated**: Current session
+**Current Phase**: Frontend development complete with RWA-based inputs across all calculators
+**Last Updated**: November 7, 2025
 **Tech Stack**: React + TypeScript + Tailwind CSS + Recharts + Wouter
 
 ## Features Implemented
 
-### 1. Investment Calculator
+### 1. Investment Calculator (RWA-Based)
+- **Input**: RWA units (1 RWA = $100 USD)
 - **Short-term products**: 5-10 day duration, fixed 5% return
 - **Long-term products**: 180 days, 1-1.5% daily return with capital release
 - **Streaming bonus system**: 40% of returns distributed over 100-day cycle
@@ -18,17 +19,21 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 - **Interactive charts**: Daily profit progression and streaming release visualization
 - **Daily breakdown table**: Comprehensive per-day earnings with unlock percentages
 
-### 2. Referral Rewards System
+### 2. Referral Rewards System (RWA-Based, Unified Rate)
+- **Input**: RWA units for downline investments (1 RWA = $100 USD)
+- **Unified daily rate**: Single rate selector (1-1.5%) applies to both levels
 - **Direct rewards**: 20% of first-level downline daily profits
 - **Indirect rewards**: 10% of second-level downline daily profits
-- **Flexible inputs**: Configurable investment amounts and daily rates (1-1.5%)
 - **Monthly projections**: Automatic 30-day calculations
 
-### 3. Team Rewards Calculator
+### 3. Team Rewards Calculator (RWA-Based, Auto-Calculated)
+- **Input**: RWA units for team performance (1 RWA = $100 USD)
+- **Validation**: Small area performance must be ≥ 50% and ≤ total performance
+- **Auto-calculation**: Daily profits derived from RWA × 100 × daily rate (1-1.5%)
 - **8-tier system**: VIP → 1/2/3-Star Expert → 1/2/3-Star Ambassador → Supreme
-- **Team dividends**: 10-70% based on tier level
-- **Streaming management**: 0-30% additional management rewards
-- **Supreme bonus**: 5% of company-wide RWA daily profits
+- **Team dividends**: 10-70% of small area daily profit based on tier level
+- **Streaming management**: 0-30% of small area daily profit additional rewards
+- **Supreme bonus**: 5% of total team daily profits (auto-calculated from total performance)
 - **Requirements table**: Complete tier progression and community structure display
 
 ### 4. UI/UX Features
@@ -42,16 +47,24 @@ A comprehensive Real World Assets (RWA) investment profit calculator with multi-
 ## Architecture
 
 ### Data Schema (`shared/schema.ts`)
-- Investment types and validation schemas
+- **RWA-based inputs**: All investment amounts now in RWA units (1 RWA = 100 USD)
+- **Investment schema**: `rwaCount` (integer), `productType`, `duration`, `dailyRate`
+- **Referral schema**: `downlineRwaCount`, `secondLevelRwaCount` (optional), unified `dailyRate`
+- **Team schema**: `totalPerformanceRwa`, `smallAreaPerformanceRwa`, `dailyRate`, `currentTier`
+  - Zod validation: `smallAreaPerformanceRwa >= totalPerformanceRwa * 0.5`
+  - Zod validation: `smallAreaPerformanceRwa <= totalPerformanceRwa`
 - Team tier definitions with requirements
 - Translation strings for EN/ZH
 - Streaming release schedule configuration
 - TypeScript types for all calculations
 
 ### Calculation Engine (`client/src/lib/calculations.ts`)
-- `calculateInvestment()`: Processes short/long-term investment returns
-- `calculateReferralRewards()`: Computes direct and indirect referral bonuses
-- `calculateTeamRewards()`: Calculates tier-based team rewards
+- `calculateInvestment()`: Converts RWA to USD (×100), processes short/long-term returns
+- `calculateReferralRewards()`: Converts RWA to USD, applies unified daily rate to both levels
+- `calculateTeamRewards()`: Converts RWA to USD, auto-calculates daily profits from performance × rate
+  - Derives small area daily profit from `smallAreaPerformanceRwa × 100 × dailyRate / 100`
+  - Applies tier-based percentages to calculated daily profit
+  - Supreme bonus: `totalPerformanceRwa × 100 × dailyRate / 100 × 0.05`
 - Daily breakdown generation with unlock percentages
 
 ### Component Structure
@@ -87,11 +100,13 @@ client/src/
 ## Key Calculations
 
 ### Short-Term Investment
+- Investment amount = RWA count × 100 (USD)
 - Total return = Investment × 5%
 - Daily return = Total return ÷ Duration
 - Streaming bonus = Total return × 40% (released over 100 days)
 
 ### Long-Term Investment
+- Investment amount = RWA count × 100 (USD)
 - Daily return = Investment × Daily rate (1-1.5%)
 - Total return = Daily return × 180 days
 - Streaming bonus = Total return × 40% (released over 100 days)
@@ -106,13 +121,20 @@ client/src/
 - Day 100: All remaining locked amounts unlocked
 
 ### Referral Rewards
+- Downline investment = RWA count × 100 (USD)
+- Downline daily profit = Investment × Daily rate (1-1.5%)
 - Direct: Downline daily profit × 20%
 - Indirect: Second-level daily profit × 10%
+- Unified daily rate applies to both levels
 
 ### Team Rewards
+- Total performance = RWA count × 100 (USD)
+- Small area performance = RWA count × 100 (USD, must be ≥ 50% of total)
+- Small area daily profit = Small area performance × Daily rate (1-1.5%)
 - Team dividend = Small area daily profit × Tier dividend %
 - Streaming management = Small area daily profit × Tier management %
-- Supreme bonus = Company-wide daily profit × 5% (Supreme tier only)
+- Supreme bonus = Total daily profit × 5% (Supreme tier only)
+  - Total daily profit = Total performance × Daily rate (1-1.5%)
 
 ## User Preferences
 - **Language**: EN/ZH toggle in top navigation
@@ -127,13 +149,19 @@ client/src/
   - `/referral` - Referral Rewards
   - `/team` - Team Rewards
 
+## Recent Updates
+**November 7, 2025**: Converted all calculators to RWA-based inputs
+- Investment Calculator: Changed from USD to RWA count input (1 RWA = $100 USD)
+- Referral Rewards: Unified daily rate selector applies to both referral levels, RWA inputs
+- Team Rewards: Auto-calculates daily profits from RWA performance and rate, enforces 50% small area validation
+
 ## Next Steps (Backend & Integration)
 1. Implement storage interface for saving calculation scenarios
 2. Add API endpoints for calculation history
 3. Connect frontend to backend APIs
 4. Add loading states and error handling
 5. Implement data persistence layer
-6. Testing and architect review
+6. End-to-end testing
 
 ## Development Notes
 - All calculations performed client-side (no backend required for MVP)
