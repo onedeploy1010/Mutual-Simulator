@@ -159,6 +159,10 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const smallAreaDailyProfit = smallAreaPerformanceUsd * (dailyRate / 100);
   const teamDividendReward = smallAreaDailyProfit * (tierInfo.teamDividendPercent / 100);
   
+  // Team dividend is split: 90% USD, 10% MEC (1 USD = 1 MEC)
+  const teamDividendUsd = teamDividendReward * 0.9;
+  const teamDividendMec = teamDividendReward * 0.1;
+  
   const totalDailyProfit = totalPerformanceUsd * (dailyRate / 100);
   const totalDailyStreamingProfit = totalDailyProfit * 0.4;
   const streamingManagementReward = totalDailyStreamingProfit * (tierInfo.streamingManagementPercent / 100);
@@ -172,6 +176,8 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   
   return {
     teamDividendReward,
+    teamDividendUsd,
+    teamDividendMec,
     streamingManagementReward,
     supremeReward,
     totalDailyReward,

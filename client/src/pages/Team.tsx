@@ -282,12 +282,29 @@ export default function Team() {
       {result && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <MetricCard
-              icon={Trophy}
-              label={`${t.teamDividend} (${result.tierInfo.teamDividendPercent}%)`}
-              value={formatCurrency(result.teamDividendReward)}
-              testId="metric-team-dividend"
-            />
+            <Card className="p-4 space-y-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Trophy className="w-4 h-4" />
+                <span className="text-sm font-medium">{t.teamDividend} ({result.tierInfo.teamDividendPercent}%)</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t.teamDividendUsd}</span>
+                  <span className="font-mono text-lg font-semibold" data-testid="value-team-dividend-usd">
+                    {formatCurrency(result.teamDividendUsd)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-t border-border pt-1.5">
+                  <span className="text-xs text-muted-foreground">{t.teamDividendMec}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono text-lg font-semibold text-primary" data-testid="value-team-dividend-mec">
+                      {result.teamDividendMec.toFixed(2)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">MEC</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
             <MetricCard
               icon={Zap}
               label={`${t.streamingManagement} (${result.tierInfo.streamingManagementPercent}%)`}

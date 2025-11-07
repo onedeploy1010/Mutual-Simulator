@@ -213,6 +213,8 @@ export type TeamRewardInput = z.infer<typeof teamRewardInputSchema>;
 
 export interface TeamRewardResult {
   teamDividendReward: number;
+  teamDividendUsd: number;
+  teamDividendMec: number;
   streamingManagementReward: number;
   supremeReward: number;
   totalDailyReward: number;
@@ -267,6 +269,9 @@ export const translations = {
     smallAreaPerformance: 'Small Area Performance (RWA)',
     teamDailyRate: 'Daily Return Rate',
     teamDividend: 'Team Dividend',
+    teamDividendUsd: 'USD Reward (90%)',
+    teamDividendMec: 'MEC Tokens (10%)',
+    mecTokens: 'MEC Tokens',
     streamingManagement: 'Streaming Management',
     supremeReward: 'Supreme Reward',
     tierRequirements: 'Tier Requirements',
@@ -380,6 +385,9 @@ export const translations = {
     smallAreaPerformance: '小区业绩（RWA）',
     teamDailyRate: '每日收益率',
     teamDividend: '团队分红',
+    teamDividendUsd: 'USD奖励（90%）',
+    teamDividendMec: 'MEC代币（10%）',
+    mecTokens: 'MEC代币',
     streamingManagement: '推流管理',
     supremeReward: '至尊奖励',
     tierRequirements: '等级要求',
