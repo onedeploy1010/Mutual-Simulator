@@ -29,10 +29,39 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     totalReturn = dailyReturn * totalDays;
   }
   
+  const dailyBreakdown: DailyEarning[] = [];
+  
+  if (productType === 'short') {
+    let cumulativeProfit = 0;
+    for (let day = 1; day <= totalDays; day++) {
+      cumulativeProfit += dailyReturn;
+      
+      dailyBreakdown.push({
+        day,
+        taskNumber: day,
+        dailyProfit: dailyReturn,
+        streamingBonus: 0,
+        unlockPercentage: 0,
+        claimable: 0,
+        locked: 0,
+        cumulativeProfit,
+      });
+    }
+    
+    return {
+      dailyReturn,
+      monthlyReturn: dailyReturn * 30,
+      totalReturn,
+      totalStreamingBonus: 0,
+      dailyStreamingBonus: 0,
+      totalWithCapital: amount + totalReturn,
+      dailyBreakdown,
+    };
+  }
+  
   const totalStreamingBonus = totalReturn * 0.4;
   const streamingBonusPerTask = totalStreamingBonus / 100;
   
-  const dailyBreakdown: DailyEarning[] = [];
   const streamingAccumulator = new Map<number, { total: number; claimable: number; locked: number }>();
   
   for (let task = 1; task <= 100; task++) {

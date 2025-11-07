@@ -150,10 +150,15 @@ client/src/
   - `/team` - Team Rewards
 
 ## Recent Updates
-**November 7, 2025**: Converted all calculators to RWA-based inputs
-- Investment Calculator: Changed from USD to RWA count input (1 RWA = $100 USD)
-- Referral Rewards: Unified daily rate selector applies to both referral levels, RWA inputs
-- Team Rewards: Auto-calculates daily profits from RWA performance and rate, enforces 50% small area validation
+**November 7, 2025**: 
+- **RWA-based inputs**: Converted all calculators to use RWA units (1 RWA = $100 USD)
+  - Investment Calculator: Changed from USD to RWA count input
+  - Referral Rewards: Unified daily rate selector applies to both referral levels, RWA inputs
+  - Team Rewards: Auto-calculates daily profits from RWA performance and rate, enforces 50% small area validation
+- **Mobile optimization**: Daily breakdown table now uses responsive design
+  - Mobile (<768px): Card layout with labeled key-value pairs for easy reading
+  - Desktop (≥768px): Traditional table layout with sticky header
+  - Maintains all data fields and color coding across both views
 
 ## Next Steps (Backend & Integration)
 1. Implement storage interface for saving calculation scenarios
