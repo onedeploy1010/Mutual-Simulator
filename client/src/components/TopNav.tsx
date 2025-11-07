@@ -16,7 +16,7 @@ export function TopNav() {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-40 bg-card/95 border-b border-border/50 backdrop-blur-md shadow-sm">
+    <header className="sticky top-0 z-40 bg-card border-b border-card-border backdrop-blur-md shadow-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img 
