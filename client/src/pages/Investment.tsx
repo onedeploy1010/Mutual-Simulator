@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { investmentInputSchema, type InvestmentInput, type InvestmentResult, ProductType } from '@shared/schema';
 import { calculateInvestment } from '@/lib/calculations';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useInvestment } from '@/contexts/InvestmentContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ChevronDown, ChevronU
 export default function Investment() {
   const { t } = useLanguage();
   const [, navigate] = useLocation();
+  const { setInvestmentData } = useInvestment();
   const [result, setResult] = useState<InvestmentResult | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [currentFormValues, setCurrentFormValues] = useState<InvestmentInput | null>(null);
@@ -46,15 +48,8 @@ export default function Investment() {
   const handleViewDetailedBreakdown = () => {
     if (!result || !currentFormValues) return;
     
-    const investmentAmount = currentFormValues.rwaCount * 100;
-    
-    navigate('/daily-breakdown', {
-      state: {
-        dailyBreakdown: result.dailyBreakdown,
-        investmentAmount,
-        dailyRate: currentFormValues.dailyRate || 0,
-      }
-    });
+    setInvestmentData(result, currentFormValues);
+    navigate('/daily-breakdown');
   };
 
   const handleReset = () => {
