@@ -34,7 +34,7 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
 
 ### Feature Specifications
 - **Investment Calculator**:
-    - **Short-term**: 5-10 days, 5% fixed return.
+    - **Short-term**: 5-10 days (configurable), 5% fixed return.
     - **Long-term**: 180 days, 1-1.5% daily return with capital release, 40% streaming bonus over 100 days with 20-day cycle unlock milestones.
     - Interactive charts and daily breakdown tables.
 - **Referral Rewards**:
@@ -44,10 +44,10 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
     - Supports 8 tiers (VIP to Supreme) with specific RWA/USD performance ranges.
     - Supreme tier: 70% team dividend, 30% streaming management, plus 5% global Supreme bonus.
     - Total Performance and Small Area (50% of total performance) sliders for input.
-    - **All rewards split 90% USD / 10% MEC**:
-      - Team dividends (10-70% by tier)
-      - Streaming management rewards (0-30% by tier)
-      - Supreme bonus (5% for Supreme tier only)
+    - **Reward splits**:
+      - Team dividends (10-70% by tier): 90% USD / 10% MEC
+      - Streaming management rewards (0-30% by tier): 100% USD
+      - Supreme bonus (5% for Supreme tier only): 90% USD / 10% MEC
     - **Streaming Management Rewards**: Based on 40% streaming pool, released over 100 days with phased unlocks:
       - Day 20/40/60/80: Release 50% of each 20-day cycle, 50% locked
       - Day 100: Full unlock (all previously locked amounts released)
