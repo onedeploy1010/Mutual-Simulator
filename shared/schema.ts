@@ -235,7 +235,11 @@ export interface TeamRewardResult {
   supremeRewardUsd: number;
   supremeRewardMec: number;
   totalDailyReward: number;
+  totalDailyUsd: number;
+  totalDailyMec: number;
   totalMonthlyReward: number;
+  totalMonthlyUsd: number;
+  totalMonthlyMec: number;
   total180DayUsd: number;
   daily180DayUsd: number;
   total180DayMec: number;

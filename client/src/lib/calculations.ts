@@ -228,6 +228,12 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const totalDailyReward = teamDividendReward + streamingManagementReward + supremeReward;
   const totalMonthlyReward = totalDailyReward * 30;
   
+  // Daily and monthly USD/MEC breakdown
+  const totalDailyUsd = teamDividendUsd + streamingManagementUsd + supremeRewardUsd;
+  const totalDailyMec = teamDividendMec + supremeRewardMec; // Streaming is 100% USD
+  const totalMonthlyUsd = totalDailyUsd * 30;
+  const totalMonthlyMec = totalDailyMec * 30;
+  
   // 180-day calculations
   // Team dividend: 180 days (90% USD, 10% MEC)
   const teamDividend180Days = teamDividendReward * 180;
@@ -261,7 +267,11 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     supremeRewardUsd,
     supremeRewardMec,
     totalDailyReward,
+    totalDailyUsd,
+    totalDailyMec,
     totalMonthlyReward,
+    totalMonthlyUsd,
+    totalMonthlyMec,
     total180DayUsd,
     daily180DayUsd,
     total180DayMec,
