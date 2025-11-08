@@ -423,37 +423,63 @@ export default function Team() {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="p-4 bg-card rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">{t.daily}</p>
-                <p className="text-2xl font-bold font-mono text-foreground" data-testid="metric-total-team-reward">
-                  {formatCurrency(result.totalDailyReward)}
-                </p>
+              <div className="p-4 bg-card rounded-lg space-y-3">
+                <p className="text-xs text-muted-foreground mb-2">{t.daily}</p>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">USD</p>
+                    <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-daily-usd">
+                      {formatCurrency(result.totalDailyUsd)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">MEC</p>
+                    <p className="text-xl font-bold font-mono text-primary" data-testid="metric-daily-mec">
+                      {result.totalDailyMec.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="p-4 bg-card rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">{t.monthly}</p>
-                <p className="text-2xl font-bold font-mono text-foreground">
-                  {formatCurrency(result.totalMonthlyReward)}
-                </p>
+              
+              <div className="p-4 bg-card rounded-lg space-y-3">
+                <p className="text-xs text-muted-foreground mb-2">{t.monthly}</p>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">USD</p>
+                    <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-monthly-usd">
+                      {formatCurrency(result.totalMonthlyUsd)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">MEC</p>
+                    <p className="text-xl font-bold font-mono text-primary" data-testid="metric-monthly-mec">
+                      {result.totalMonthlyMec.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="p-4 bg-card rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">180 {t.days}</p>
-                <p className="text-2xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
-                  {formatCurrency(result.total180DayUsd)}
-                </p>
+              
+              <div className="p-4 bg-card rounded-lg space-y-3">
+                <p className="text-xs text-muted-foreground mb-2">180 {t.days}</p>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">USD</p>
+                    <p className="text-xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
+                      {formatCurrency(result.total180DayUsd)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground/70">MEC</p>
+                    <p className="text-xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
+                      {result.total180DayMec.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="p-4 bg-card rounded-lg">
-              <p className="text-sm font-medium text-foreground mb-3">180 {t.days} MEC {t.mecTokens}</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
-                  {result.total180DayMec.toFixed(2)}
-                </p>
-                <span className="text-sm text-muted-foreground">MEC</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {t.dailyMec}: {result.daily180DayMec.toFixed(2)} MEC @ {result.mecPrice} USD/MEC
-              </p>
+            <div className="text-xs text-muted-foreground text-center p-2 bg-muted/20 rounded-md">
+              @ {result.mecPrice} USD/MEC
             </div>
 
             <Button 
