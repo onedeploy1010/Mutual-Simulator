@@ -374,22 +374,10 @@ export default function Team() {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                  <span className="text-sm text-muted-foreground">90% USD</span>
+                  <span className="text-sm text-muted-foreground">100% USD</span>
                   <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-usd">
                     {formatCurrency(result.streamingManagementUsd)}
                   </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">10% MEC</span>
-                    <span className="text-xs text-muted-foreground">@ {result.mecPrice} USD/MEC</span>
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-mec">
-                      {result.streamingManagementMec.toFixed(2)}
-                    </span>
-                    <span className="text-xs text-muted-foreground">MEC</span>
-                  </div>
                 </div>
                 <div className="text-xs text-muted-foreground italic px-1">
                   {t.streamingManagement100DaysNote}

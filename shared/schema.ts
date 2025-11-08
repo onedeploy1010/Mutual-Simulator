@@ -230,7 +230,6 @@ export interface TeamRewardResult {
   teamDividendMec: number;
   streamingManagementReward: number;
   streamingManagementUsd: number;
-  streamingManagementMec: number;
   streamingManagementBreakdown: StreamingManagementDailyBreakdown[];
   supremeReward: number;
   supremeRewardUsd: number;

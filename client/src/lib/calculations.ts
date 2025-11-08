@@ -173,9 +173,8 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const streamingManagementTotal100Days = dailyStreamingRate * 100;
   const streamingManagementReward = streamingManagementTotal100Days / 100; // 平均每日（用于汇总显示）
   
-  // Streaming management is split: 90% USD, 10% MEC
-  const streamingManagementUsd = streamingManagementReward * 0.9;
-  const streamingManagementMec = (streamingManagementReward * 0.1) / mecPrice;
+  // Streaming management is 100% USD
+  const streamingManagementUsd = streamingManagementReward;
   
   // Generate 180-day streaming management breakdown with phased unlocks
   const streamingManagementBreakdown: StreamingManagementDailyBreakdown[] = [];
@@ -235,10 +234,9 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const teamDividend180DaysUsd = teamDividend180Days * 0.9;
   const teamDividend180DaysMecValue = teamDividend180Days * 0.1;
   
-  // Streaming management: only 100 days (90% USD, 10% MEC)
+  // Streaming management: only 100 days (100% USD)
   const streamingManagement180Days = streamingManagementTotal100Days;
-  const streamingManagement180DaysUsd = streamingManagement180Days * 0.9;
-  const streamingManagement180DaysMecValue = streamingManagement180Days * 0.1;
+  const streamingManagement180DaysUsd = streamingManagement180Days;
   
   // Supreme: 180 days (90% USD, 10% MEC)
   const supreme180Days = supremeReward * 180;
@@ -248,7 +246,7 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const total180DayUsd = teamDividend180DaysUsd + streamingManagement180DaysUsd + supreme180DaysUsd;
   const daily180DayUsd = total180DayUsd / 180;
   
-  const total180DayMecValue = teamDividend180DaysMecValue + streamingManagement180DaysMecValue + supreme180DaysMecValue;
+  const total180DayMecValue = teamDividend180DaysMecValue + supreme180DaysMecValue;
   const total180DayMec = total180DayMecValue / mecPrice;
   const daily180DayMec = total180DayMec / 180;
   
@@ -258,7 +256,6 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
     teamDividendMec,
     streamingManagementReward,
     streamingManagementUsd,
-    streamingManagementMec,
     streamingManagementBreakdown,
     supremeReward,
     supremeRewardUsd,
