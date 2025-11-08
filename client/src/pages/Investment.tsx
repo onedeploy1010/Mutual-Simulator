@@ -122,18 +122,22 @@ export default function Investment() {
 
             {productType === ProductType.SHORT && (
               <div>
-                <Label htmlFor="duration" className="text-sm font-medium mb-2 block">
-                  {t.duration}
+                <Label className="text-sm font-medium mb-2 block">
+                  {t.duration}: <span className="font-mono text-primary">{form.watch('duration') || 7} {t.days}</span>
                 </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  min="5"
-                  max="10"
-                  {...form.register('duration', { valueAsNumber: true })}
-                  data-testid="input-duration"
-                  className="font-mono"
+                <Slider
+                  min={5}
+                  max={10}
+                  step={1}
+                  value={[form.watch('duration') || 7]}
+                  onValueChange={([value]) => form.setValue('duration', value)}
+                  data-testid="slider-duration"
+                  className="mt-2"
                 />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>5 {t.days}</span>
+                  <span>10 {t.days}</span>
+                </div>
               </div>
             )}
 
