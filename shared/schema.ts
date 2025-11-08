@@ -14,7 +14,7 @@ export type ProductType = z.infer<typeof productTypeSchema>;
 export const investmentInputSchema = z.object({
   rwaCount: z.number().min(1).int(),
   productType: productTypeSchema,
-  duration: z.number().optional(),
+  duration: z.number().min(5).max(10).int().optional(),
   dailyRate: z.number().min(1.0).max(1.5).optional(),
 });
 
