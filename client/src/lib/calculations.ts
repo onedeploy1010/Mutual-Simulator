@@ -74,9 +74,10 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     };
   }
   
-  const dailyStreamingRate = dailyReturn * 0.4;
-  const cycleAccumulation = dailyStreamingRate * 20;
-  const totalStreamingBonus = dailyStreamingRate * 100;
+  // Long-term: 40% streaming bonus pool based on total 180-day return
+  const totalStreamingBonus = totalReturn * 0.4;  // 40% of total 180-day return
+  const dailyStreamingRate = totalStreamingBonus / 100;  // Released over 100 days
+  const cycleAccumulation = dailyStreamingRate * 20;  // Amount per 20-day milestone
   
   let cumulativeProfit = 0;
   let cumulativeStreamingBonus = 0;

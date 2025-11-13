@@ -80,7 +80,10 @@ export default function Investment() {
                   type="button"
                   variant={productType === ProductType.SHORT ? 'default' : 'outline'}
                   className="w-full"
-                  onClick={() => form.setValue('productType', ProductType.SHORT)}
+                  onClick={() => {
+                    form.setValue('productType', ProductType.SHORT);
+                    setResult(null);
+                  }}
                   data-testid="button-product-short"
                 >
                   {t.shortTerm}
@@ -89,7 +92,10 @@ export default function Investment() {
                   type="button"
                   variant={productType === ProductType.LONG ? 'default' : 'outline'}
                   className="w-full"
-                  onClick={() => form.setValue('productType', ProductType.LONG)}
+                  onClick={() => {
+                    form.setValue('productType', ProductType.LONG);
+                    setResult(null);
+                  }}
                   data-testid="button-product-long"
                 >
                   {t.longTerm}
