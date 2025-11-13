@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useLocation } from 'wouter';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { investmentInputSchema, type InvestmentInput, type InvestmentResult, ProductType } from '@shared/schema';
@@ -131,14 +131,20 @@ export default function Investment() {
                 <Label className="text-sm font-medium mb-2 block">
                   {t.duration}: <span className="font-mono text-primary">{form.watch('duration') || 7} {t.days}</span>
                 </Label>
-                <Slider
-                  min={5}
-                  max={10}
-                  step={1}
-                  value={[form.watch('duration') || 7]}
-                  onValueChange={([value]) => form.setValue('duration', value)}
-                  data-testid="slider-duration"
-                  className="mt-2"
+                <Controller
+                  name="duration"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Slider
+                      min={5}
+                      max={10}
+                      step={1}
+                      value={[field.value || 7]}
+                      onValueChange={([value]) => field.onChange(value)}
+                      data-testid="slider-duration"
+                      className="mt-2"
+                    />
+                  )}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>5 {t.days}</span>
@@ -152,14 +158,20 @@ export default function Investment() {
                 <Label className="text-sm font-medium mb-2 block">
                   {t.dailyReturnRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
                 </Label>
-                <Slider
-                  min={1.0}
-                  max={1.5}
-                  step={0.1}
-                  value={[dailyRate || 1.0]}
-                  onValueChange={([value]) => form.setValue('dailyRate', value)}
-                  data-testid="slider-daily-rate"
-                  className="mt-2"
+                <Controller
+                  name="dailyRate"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Slider
+                      min={1.0}
+                      max={1.5}
+                      step={0.1}
+                      value={[field.value || 1.0]}
+                      onValueChange={([value]) => field.onChange(value)}
+                      data-testid="slider-daily-rate"
+                      className="mt-2"
+                    />
+                  )}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>1.0%</span>

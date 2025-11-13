@@ -30,13 +30,18 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
 - **Calculation Engine**: Client-side JavaScript functions (`calculateInvestment()`, `calculateReferralRewards()`, `calculateTeamRewards()`) handle all profit calculations based on RWA units and daily rates.
 - **State Management**: `InvestmentContext` is used for sharing calculation results between pages.
 - **Component Structure**: Organized into `contexts`, `components`, and `pages` for modularity.
-- **Form Handling**: React Hook Form for managing input forms and validation.
+- **Form Handling**: React Hook Form with Controller for slider components to ensure proper form state management and accessibility.
 
 ### Feature Specifications
 - **Investment Calculator**:
-    - **Short-term**: 5-10 days (configurable), 5% fixed return.
-    - **Long-term**: 180 days, 1-1.5% daily return with capital release, 40% streaming bonus over 100 days with 20-day cycle unlock milestones.
+    - **Short-term**: 5-10 days (configurable), 5% fixed return, 40% streaming bonus (based on principal) released at cumulative task milestones (20/40/60/80/100 tasks across multiple investments).
+    - **Long-term**: 180 days, 1-1.5% daily return with capital release, 40% streaming bonus (based on total 180-day return) over 100 days with 20-day cycle unlock milestones.
     - Interactive charts and daily breakdown tables.
+    - **Streaming Bonus Mechanics**:
+      - Short-term: totalStreamingBonus = principal * 0.4 (always 40% of principal, regardless of duration)
+      - Long-term: totalStreamingBonus = totalReturn * 0.4 (40% of total 180-day return)
+      - Both types: Released in 100 days with milestone-based unlocks
+      - UI includes explanatory info cards for each product type
 - **Referral Rewards**:
     - Calculates direct (20% of first-level daily profits) and indirect (10% of second-level daily profits) rewards based on a unified daily rate.
     - Monthly projections.
