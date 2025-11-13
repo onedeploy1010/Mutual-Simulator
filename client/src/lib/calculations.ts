@@ -33,18 +33,32 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
   const dailyBreakdown: DailyEarning[] = [];
   
   if (productType === 'short') {
+    // Short-term also has 40% streaming bonus pool (released over 100 days)
+    const dailyStreamingRate = dailyReturn * 0.4;
+    const cycleAccumulation = dailyStreamingRate * 20;
+    const totalStreamingBonus = dailyStreamingRate * 100;
+    
     let cumulativeProfit = 0;
+    let cumulativeStreamingBonus = 0;
+    
     for (let day = 1; day <= totalDays; day++) {
-      cumulativeProfit += dailyReturn;
+      let streamingBonusToday = 0;
+      let unlockPercentage = 0;
+      
+      // Streaming bonus releases at days 20, 40, 60, 80, 100
+      // For short-term (5-10 days), none will be released during the investment period
+      // but user still participates in the streaming pool
+      
+      cumulativeProfit += dailyReturn + streamingBonusToday;
       
       dailyBreakdown.push({
         day,
         taskNumber: day,
         dailyProfit: dailyReturn,
-        streamingBonus: 0,
-        unlockPercentage: 0,
-        claimable: 0,
-        locked: 0,
+        streamingBonus: streamingBonusToday,
+        unlockPercentage,
+        claimable: cumulativeStreamingBonus,
+        locked: totalStreamingBonus - cumulativeStreamingBonus,
         cumulativeProfit,
       });
     }
@@ -53,9 +67,9 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
       dailyReturn,
       monthlyReturn: 0,
       totalReturn,
-      totalStreamingBonus: 0,
-      dailyStreamingBonus: 0,
-      totalWithCapital: amount + totalReturn,
+      totalStreamingBonus,
+      dailyStreamingBonus: dailyStreamingRate,
+      totalWithCapital: amount + totalReturn + totalStreamingBonus,
       dailyBreakdown,
     };
   }
