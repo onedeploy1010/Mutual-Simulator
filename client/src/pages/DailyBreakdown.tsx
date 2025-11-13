@@ -31,6 +31,7 @@ export default function DailyBreakdown() {
   const dailyBreakdown = result?.dailyBreakdown || [];
   const rwaCount = input?.rwaCount || 0;
   const dailyRate = input?.dailyRate || 0;
+  const productType = input?.productType || 'long';
 
   // Filter data
   const filteredData = useMemo(() => {
@@ -163,6 +164,15 @@ export default function DailyBreakdown() {
           )}
         </div>
       </Card>
+
+      {/* Streaming Bonus Info Card */}
+      {productType === 'short' && (
+        <Card className="p-4 bg-muted/30 border-primary/20">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{t.streamingBonusNote}:</span> {t.streamingBonusShortTermNote}
+          </p>
+        </Card>
+      )}
 
       {/* Table - Desktop */}
       <Card className="overflow-hidden hidden md:block">

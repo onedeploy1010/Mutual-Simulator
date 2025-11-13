@@ -33,10 +33,9 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
   const dailyBreakdown: DailyEarning[] = [];
   
   if (productType === 'short') {
-    // Short-term also has 40% streaming bonus pool (released over 100 days)
-    const dailyStreamingRate = dailyReturn * 0.4;
-    const cycleAccumulation = dailyStreamingRate * 20;
-    const totalStreamingBonus = dailyStreamingRate * 100;
+    // Short-term has 40% streaming bonus pool (based on principal, released at cumulative task milestones)
+    const totalStreamingBonus = amount * 0.4;  // Always 40% of principal
+    const dailyStreamingRate = totalStreamingBonus / 100;  // Average daily rate over 100 days
     
     let cumulativeProfit = 0;
     let cumulativeStreamingBonus = 0;
@@ -45,9 +44,10 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
       let streamingBonusToday = 0;
       let unlockPercentage = 0;
       
-      // Streaming bonus releases at days 20, 40, 60, 80, 100
-      // For short-term (5-10 days), none will be released during the investment period
-      // but user still participates in the streaming pool
+      // NOTE: Streaming bonus is NOT released during the 5-10 day investment period.
+      // Instead, it's released when the user completes cumulative tasks (20/40/60/80/100 tasks)
+      // across multiple investments. This daily breakdown shows the locked streaming pool
+      // that will be unlocked as the user continues investing and accumulating tasks.
       
       cumulativeProfit += dailyReturn + streamingBonusToday;
       
