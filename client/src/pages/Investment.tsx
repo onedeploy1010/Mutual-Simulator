@@ -197,15 +197,13 @@ export default function Investment() {
               value={formatCurrency(result.totalReturn)}
               testId="metric-total-return"
             />
-            {productType === ProductType.LONG && (
-              <MetricCard
-                icon={Zap}
-                label={t.streamingBonus}
-                value={formatCurrency(result.totalStreamingBonus)}
-                subtitle={`${formatCurrency(result.dailyStreamingBonus)} ${t.daily.toLowerCase()}`}
-                testId="metric-streaming-bonus"
-              />
-            )}
+            <MetricCard
+              icon={Zap}
+              label={t.streamingBonus}
+              value={formatCurrency(result.totalStreamingBonus)}
+              subtitle={`${formatCurrency(result.dailyStreamingBonus)} ${t.daily.toLowerCase()}`}
+              testId="metric-streaming-bonus"
+            />
             <MetricCard
               icon={PiggyBank}
               label={t.totalWithCapital}
@@ -216,12 +214,18 @@ export default function Investment() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ProfitProgressionChart dailyBreakdown={result.dailyBreakdown} />
-            {productType === ProductType.LONG && (
-              <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
-            )}
+            <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
           </div>
 
-          {productType === ProductType.LONG && result.dailyBreakdown.length === 180 && (
+          {productType === ProductType.SHORT && (
+            <Card className="p-4 bg-muted/30 border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{t.streamingBonusNote}:</span> {t.streamingBonusShortTermNote}
+              </p>
+            </Card>
+          )}
+
+          {result.dailyBreakdown.length > 0 && (
             <Card className="p-6">
               <Button
                 variant="default"

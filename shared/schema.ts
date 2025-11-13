@@ -375,6 +375,8 @@ export const translations = {
     tierInfo: 'Tier Information',
     rewardSummary: 'Reward Summary',
     streamingManagement100DaysNote: '* Released over 100 days only',
+    streamingBonusNote: 'Note',
+    streamingBonusShortTermNote: 'Streaming bonus is released when you complete 20, 40, 60, 80, and 100 tasks cumulatively. Continue investing to unlock your streaming rewards!',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -500,6 +502,8 @@ export const translations = {
     tierInfo: '等级信息',
     rewardSummary: '奖励汇总',
     streamingManagement100DaysNote: '* 仅在前100天释放',
+    streamingBonusNote: '说明',
+    streamingBonusShortTermNote: '推流收益将在您累计完成20次、40次、60次、80次和100次任务时释放。继续投资以解锁您的推流奖励！',
   },
 };
 
