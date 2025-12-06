@@ -88,7 +88,7 @@ export interface TeamTierInfo {
   requirementMin: number;
   requirementMax: number | null;
   communityRequirement: string;
-  smallAreaMinPercent: number;
+  communityRequirementZh: string;
   teamDividendPercent: number;
   streamingManagementPercent: number;
   isSupreme: boolean;
@@ -100,7 +100,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 6000,
     requirementMax: 20000,
     communityRequirement: '-',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '-',
     teamDividendPercent: 10,
     streamingManagementPercent: 0,
     isSupreme: false,
@@ -110,7 +110,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 20000,
     requirementMax: 60000,
     communityRequirement: 'Two communities with VIP',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有VIP',
     teamDividendPercent: 20,
     streamingManagementPercent: 5,
     isSupreme: false,
@@ -120,7 +120,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 60000,
     requirementMax: 200000,
     communityRequirement: 'Two communities with 1-Star Expert',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有1星专家',
     teamDividendPercent: 30,
     streamingManagementPercent: 10,
     isSupreme: false,
@@ -130,7 +130,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 200000,
     requirementMax: 600000,
     communityRequirement: 'Two communities with 2-Star Expert',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有2星专家',
     teamDividendPercent: 40,
     streamingManagementPercent: 15,
     isSupreme: false,
@@ -140,7 +140,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 600000,
     requirementMax: 2000000,
     communityRequirement: 'Two communities with 3-Star Expert',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有3星专家',
     teamDividendPercent: 50,
     streamingManagementPercent: 20,
     isSupreme: false,
@@ -150,7 +150,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 2000000,
     requirementMax: 6000000,
     communityRequirement: 'Two communities with 1-Star Ambassador',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有1星大使',
     teamDividendPercent: 60,
     streamingManagementPercent: 25,
     isSupreme: false,
@@ -160,7 +160,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 6000000,
     requirementMax: null,
     communityRequirement: 'Two communities with 2-Star Ambassador',
-    smallAreaMinPercent: 50,
+    communityRequirementZh: '两个社区各有2星大使',
     teamDividendPercent: 70,
     streamingManagementPercent: 30,
     isSupreme: false,
@@ -170,7 +170,7 @@ export const teamTiers: TeamTierInfo[] = [
     requirementMin: 0,
     requirementMax: null,
     communityRequirement: 'Two communities with 3-Star Ambassador',
-    smallAreaMinPercent: 0,
+    communityRequirementZh: '两个社区各有3星大使',
     teamDividendPercent: 70,
     streamingManagementPercent: 30,
     isSupreme: true,
@@ -180,7 +180,6 @@ export const teamTiers: TeamTierInfo[] = [
 export const teamRewardInputSchema = z.object({
   currentTier: z.string(),
   totalPerformanceRwa: z.number().min(1).int(),
-  smallAreaPerformanceRwa: z.number().min(1).int(),
   dailyRate: z.number().min(1.0).max(1.5),
   mecPrice: z.number().refine((val) => [1, 2, 4, 8, 16, 32].includes(val), {
     message: "MEC price must be one of: 1, 2, 4, 8, 16, 32 USD",
@@ -197,18 +196,6 @@ export const teamRewardInputSchema = z.object({
   {
     message: "Total performance must be within the selected tier range",
     path: ["totalPerformanceRwa"],
-  }
-).refine(
-  (data) => data.smallAreaPerformanceRwa >= data.totalPerformanceRwa * 0.5,
-  {
-    message: "Small area performance must be at least 50% of total performance",
-    path: ["smallAreaPerformanceRwa"],
-  }
-).refine(
-  (data) => data.smallAreaPerformanceRwa <= data.totalPerformanceRwa,
-  {
-    message: "Small area performance cannot exceed total performance",
-    path: ["smallAreaPerformanceRwa"],
   }
 );
 

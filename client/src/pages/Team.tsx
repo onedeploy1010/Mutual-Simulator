@@ -23,7 +23,7 @@ import { Trophy, TrendingUp, Zap, Crown, ListOrdered } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 export default function Team() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [, navigate] = useLocation();
   const { setTeamData } = useTeam();
   const [result, setResult] = useState<TeamRewardResult | null>(null);
@@ -49,7 +49,6 @@ export default function Team() {
     defaultValues: {
       currentTier: 'VIP',
       totalPerformanceRwa: 60,
-      smallAreaPerformanceRwa: 30,
       dailyRate: 1.0,
       mecPrice: 1,
     },
@@ -65,9 +64,6 @@ export default function Team() {
   const maxTotalRwa = tierInfo && tierInfo.requirementMax 
     ? Math.floor(tierInfo.requirementMax / 100) 
     : Math.max(minTotalRwa * 10, 100000);
-  
-  const minSmallAreaRwa = Math.max(1, Math.ceil((totalPerformanceRwa || 1) * 0.5));
-  const maxSmallAreaRwa = Math.max(1, totalPerformanceRwa || 1);
 
   const onSubmit = (data: TeamRewardInput) => {
     const calculatedResult = calculateTeamRewards(data);
@@ -127,8 +123,6 @@ export default function Team() {
                       : Math.max(newMinTotal * 10, 100000);
                     const safeTotal = Math.max(newMinTotal, Math.min(totalPerformanceRwa || newMinTotal, newMaxTotal));
                     form.setValue('totalPerformanceRwa', safeTotal);
-                    const safeSmallArea = Math.max(1, Math.ceil(safeTotal * 0.5));
-                    form.setValue('smallAreaPerformanceRwa', safeSmallArea);
                   }
                 }}
               >
@@ -171,17 +165,13 @@ export default function Team() {
                       </div>
                     </div>
                     {tierInfo.communityRequirement && tierInfo.communityRequirement !== '-' && (
-                      <div className="text-xs">
-                        <span className="text-muted-foreground">{t.communityStructure}: </span>
-                        <span className="text-foreground/80">
-                          {(() => {
-                            const match = tierInfo.communityRequirement.match(/Two communities with (.+)/);
-                            if (match) {
-                              return `${t.twoCommunities} ${getTierTranslation(match[1])}`;
-                            }
-                            return tierInfo.communityRequirement;
-                          })()}
-                        </span>
+                      <div className="p-2 bg-primary/10 rounded-md border border-primary/30">
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-primary font-medium">{t.communityStructure}:</span>
+                          <span className="text-foreground font-medium">
+                            {language === 'zh' ? tierInfo.communityRequirementZh : tierInfo.communityRequirement}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -242,14 +232,7 @@ export default function Team() {
                 max={maxTotalRwa}
                 step={1}
                 value={[totalPerformanceRwa || minTotalRwa]}
-                onValueChange={([value]) => {
-                  form.setValue('totalPerformanceRwa', value);
-                  const newMinSmall = Math.ceil(value * 0.5);
-                  const currentSmall = form.getValues('smallAreaPerformanceRwa');
-                  if (currentSmall < newMinSmall || currentSmall > value) {
-                    form.setValue('smallAreaPerformanceRwa', newMinSmall);
-                  }
-                }}
+                onValueChange={([value]) => form.setValue('totalPerformanceRwa', value)}
                 data-testid="slider-total-performance"
                 className="mt-2"
               />
@@ -263,33 +246,6 @@ export default function Team() {
               {form.formState.errors.totalPerformanceRwa && (
                 <p className="text-xs text-destructive mt-1">
                   {form.formState.errors.totalPerformanceRwa.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label className="text-sm font-medium mb-2 block">
-                {t.smallAreaPerformance}: <span className="font-mono text-primary">{form.watch('smallAreaPerformanceRwa') || 0} RWA</span>
-              </Label>
-              <Slider
-                min={minSmallAreaRwa}
-                max={maxSmallAreaRwa}
-                step={1}
-                value={[form.watch('smallAreaPerformanceRwa') || minSmallAreaRwa]}
-                onValueChange={([value]) => form.setValue('smallAreaPerformanceRwa', value)}
-                data-testid="slider-small-area-performance"
-                className="mt-2"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>{minSmallAreaRwa} RWA (50%)</span>
-                <span>{maxSmallAreaRwa} RWA (100%)</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {t.smallAreaRangeDesc}
-              </p>
-              {form.formState.errors.smallAreaPerformanceRwa && (
-                <p className="text-xs text-destructive mt-1">
-                  {form.formState.errors.smallAreaPerformanceRwa.message}
                 </p>
               )}
             </div>

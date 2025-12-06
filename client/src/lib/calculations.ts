@@ -170,17 +170,18 @@ export function calculateReferralRewards(input: ReferralInput): ReferralReward {
 }
 
 export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
-  const { currentTier, totalPerformanceRwa, smallAreaPerformanceRwa, dailyRate, mecPrice } = input;
+  const { currentTier, totalPerformanceRwa, dailyRate, mecPrice } = input;
   
   const tierInfo = teamTiers.find(t => t.tier === currentTier);
   if (!tierInfo) {
     throw new Error('Invalid tier');
   }
   
-  const smallAreaPerformanceUsd = smallAreaPerformanceRwa * 100;
+  // 使用整个团队业绩计算（不再使用小区业绩）
+  const totalPerformanceUsd = totalPerformanceRwa * 100;
   
-  // 基础分红收入 = 小区业绩 × 每日收益率
-  const baseDividendIncome = smallAreaPerformanceUsd * (dailyRate / 100);
+  // 基础分红收入 = 团队总业绩 × 每日收益率
+  const baseDividendIncome = totalPerformanceUsd * (dailyRate / 100);
   
   // 团队分红奖励 = 基础分红收入 × 分红比例 (每日发放)
   const teamDividendReward = baseDividendIncome * (tierInfo.teamDividendPercent / 100);
@@ -189,12 +190,13 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const teamDividendUsd = teamDividendReward * 0.9;
   const teamDividendMec = (teamDividendReward * 0.1) / mecPrice;
   
-  // 推流管理奖励：基础分红收入的40%作为推流池，然后按管理比例分配，100天释放
-  const dailyStreamingPool = baseDividendIncome * 0.4;
-  const dailyStreamingRate = dailyStreamingPool * (tierInfo.streamingManagementPercent / 100);
+  // 推流管理奖励：每日分红 × 40%（推流池）× 管理比例，100天释放
+  // 公式: 每日推流管理 = baseDividendIncome × 40% × streamingManagementPercent%
+  const dailyStreamingAmount = baseDividendIncome * 0.4;  // 每日推流 = 每日分红 × 40%
+  const dailyStreamingRate = dailyStreamingAmount * (tierInfo.streamingManagementPercent / 100);
   const cycleAccumulation = dailyStreamingRate * 20; // 每20天累积
   const streamingManagementTotal100Days = dailyStreamingRate * 100;
-  const streamingManagementReward = streamingManagementTotal100Days / 100; // 平均每日（用于汇总显示）
+  const streamingManagementReward = dailyStreamingRate; // 每日推流管理奖励
   
   // Streaming management is 100% USD
   const streamingManagementUsd = streamingManagementReward;
