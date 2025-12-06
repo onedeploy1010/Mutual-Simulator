@@ -235,13 +235,12 @@ export default function Investment() {
             <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
           </div>
 
-          {productType === ProductType.SHORT && (
-            <Card className="p-4 bg-muted/30 border-primary/20">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{t.streamingBonusNote}:</span> {t.streamingBonusShortTermNote}
-              </p>
-            </Card>
-          )}
+          <Card className="p-4 bg-muted/30 border-primary/20">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{t.streamingBonusNote}:</span>{' '}
+              {productType === ProductType.SHORT ? t.streamingBonusShortTermNote : t.streamingBonusLongTermNote}
+            </p>
+          </Card>
 
           {result.dailyBreakdown.length > 0 && (
             <Card className="p-6">

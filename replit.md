@@ -34,12 +34,13 @@ The RWA Profit Simulator is a tool designed to calculate investment returns and 
 
 ### Feature Specifications
 - **Investment Calculator**:
-    - **Short-term**: 5-10 days (configurable), 5% fixed return, 40% streaming bonus (based on principal) released at cumulative task milestones (20/40/60/80/100 tasks across multiple investments).
-    - **Long-term**: 180 days, 1-1.5% daily return with capital release, 40% streaming bonus (based on total 180-day return) over 100 days with 20-day cycle unlock milestones.
+    - **Short-term**: 5-10 days (configurable), 5% fixed return, 40% streaming bonus (based on daily dividend) released at cumulative task milestones (20/40/60/80/100 tasks across multiple investments).
+    - **Long-term**: 180 days, 1-1.5% daily return with capital release, 40% streaming bonus (based on daily dividend) over 100 days with 20-day cycle unlock milestones.
     - Interactive charts and daily breakdown tables.
     - **Streaming Bonus Mechanics**:
-      - Short-term: totalStreamingBonus = principal * 0.4 (always 40% of principal, regardless of duration)
-      - Long-term: totalStreamingBonus = totalReturn * 0.4 (40% of total 180-day return)
+      - Formula: Streaming bonus = Daily dividend × 40%
+      - Short-term: 0.2%-0.4% daily streaming (can estimate 0.3%), 100 days release
+      - Long-term: 0.4%-0.6% daily streaming, 100 days release
       - Both types: Released in 100 days with milestone-based unlocks
       - UI includes explanatory info cards for each product type
 - **Referral Rewards**:

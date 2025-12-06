@@ -21,21 +21,30 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
   
   if (productType === 'short') {
     totalDays = duration || 7;
-    totalReturn = amount * 0.05;
-    dailyReturn = totalReturn / totalDays;
+    totalReturn = amount * 0.05;  // 5% total return
+    dailyReturn = totalReturn / totalDays;  // 0.5%-1% daily (5%/5days to 5%/10days)
   } else {
     totalDays = 180;
     const rate = dailyRate || 1.0;
-    dailyReturn = amount * (rate / 100);
+    dailyReturn = amount * (rate / 100);  // 1%-1.5% daily
     totalReturn = dailyReturn * totalDays;
   }
   
   const dailyBreakdown: DailyEarning[] = [];
   
+  // STREAMING BONUS FORMULA: 每日分红收益 × 40%
+  // Short-term: daily dividend rate = 0.5%-1%, streaming = 0.2%-0.4% daily (estimate 0.3%)
+  // Long-term: daily dividend rate = 1%-1.5%, streaming = 0.4%-0.6% daily
+  
   if (productType === 'short') {
-    // Short-term has 40% streaming bonus pool (based on principal, released at cumulative task milestones)
-    const totalStreamingBonus = amount * 0.4;  // Always 40% of principal
-    const dailyStreamingRate = totalStreamingBonus / 100;  // Average daily rate over 100 days
+    // Short-term streaming: 每日分红 × 40%
+    // Daily dividend rate = 5% / duration = 0.5%-1%
+    // Daily streaming rate = daily dividend × 40% = 0.2%-0.4%
+    // Using actual calculation (not 0.3% estimate) for accuracy
+    const dailyDividendRate = 0.05 / totalDays;  // 0.5%-1% depending on duration
+    const dailyStreamingRate = dailyDividendRate * 0.4;  // 0.2%-0.4%
+    const dailyStreamingAmount = amount * dailyStreamingRate;  // Actual daily streaming in USD
+    const totalStreamingBonus = dailyStreamingAmount * 100;  // 100 days release
     
     let cumulativeProfit = 0;
     let cumulativeStreamingBonus = 0;
@@ -44,10 +53,8 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
       let streamingBonusToday = 0;
       let unlockPercentage = 0;
       
-      // NOTE: Streaming bonus is NOT released during the 5-10 day investment period.
-      // Instead, it's released when the user completes cumulative tasks (20/40/60/80/100 tasks)
-      // across multiple investments. This daily breakdown shows the locked streaming pool
-      // that will be unlocked as the user continues investing and accumulating tasks.
+      // NOTE: Streaming bonus is released at cumulative task milestones (20/40/60/80/100)
+      // across multiple investments, not during the single investment period
       
       cumulativeProfit += dailyReturn + streamingBonusToday;
       
@@ -68,16 +75,17 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
       monthlyReturn: 0,
       totalReturn,
       totalStreamingBonus,
-      dailyStreamingBonus: dailyStreamingRate,
+      dailyStreamingBonus: dailyStreamingAmount,
       totalWithCapital: amount + totalReturn + totalStreamingBonus,
       dailyBreakdown,
     };
   }
   
-  // Long-term: 40% streaming bonus pool based on total 180-day return
-  const totalStreamingBonus = totalReturn * 0.4;  // 40% of total 180-day return
-  const dailyStreamingRate = totalStreamingBonus / 100;  // Released over 100 days
-  const cycleAccumulation = dailyStreamingRate * 20;  // Amount per 20-day milestone
+  // Long-term: 每日分红 × 40% streaming bonus
+  // Daily streaming = dailyReturn × 40%, released over 100 days
+  const dailyStreamingAmount = dailyReturn * 0.4;  // 每日推流奖励
+  const totalStreamingBonus = dailyStreamingAmount * 100;  // 100天总推流
+  const cycleAccumulation = dailyStreamingAmount * 20;  // 每20天累积
   
   let cumulativeProfit = 0;
   let cumulativeStreamingBonus = 0;
@@ -117,7 +125,7 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     monthlyReturn: dailyReturn * 30,
     totalReturn,
     totalStreamingBonus,
-    dailyStreamingBonus: dailyStreamingRate,
+    dailyStreamingBonus: dailyStreamingAmount,
     totalWithCapital: amount + totalReturn + totalStreamingBonus,
     dailyBreakdown,
   };
