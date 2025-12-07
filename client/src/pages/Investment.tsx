@@ -381,6 +381,25 @@ export default function Investment() {
                 <span>5 {t.days}</span>
                 <span>10 {t.days}</span>
               </div>
+              
+              <div className="mt-4 p-4 bg-gradient-to-br from-primary/10 to-chart-1/10 rounded-lg border border-primary/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">{language === 'zh' ? '估算每日利率' : 'Est. Daily Rate'}</span>
+                  <span className="font-mono font-bold text-xl text-primary">
+                    {(5 / (form.watch('duration') || 8)).toFixed(2)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{language === 'zh' ? '总收益率' : 'Total Return'}</span>
+                  <span className="font-mono font-semibold text-lg text-foreground">5%</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border/50">
+                  {language === 'zh' 
+                    ? `5% ÷ ${form.watch('duration') || 8}天 = 每日${(5 / (form.watch('duration') || 8)).toFixed(2)}%` 
+                    : `5% ÷ ${form.watch('duration') || 8} days = ${(5 / (form.watch('duration') || 8)).toFixed(2)}% daily`
+                  }
+                </p>
+              </div>
             </div>
           )}
 
