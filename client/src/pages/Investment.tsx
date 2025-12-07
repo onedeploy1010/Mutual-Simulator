@@ -39,7 +39,6 @@ export default function Investment() {
 
   const productType = form.watch('productType');
   const dailyRate = form.watch('dailyRate');
-  const streamingRate = form.watch('streamingRate');
   const rwaCount = form.watch('rwaCount');
 
   const onSubmit = (data: InvestmentInput) => {
@@ -165,9 +164,9 @@ export default function Investment() {
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div>
-            <Label className="text-base font-semibold mb-4 block text-center">
+            <Label className="text-base md:text-lg font-semibold mb-4 block text-center">
               {t.dailyReturnRate}
             </Label>
             <div className="text-center mb-4">
@@ -191,34 +190,8 @@ export default function Investment() {
               <span>1.0%</span>
               <span>1.5%</span>
             </div>
-          </div>
-          <div>
-            <Label className="text-base font-semibold mb-4 block text-center">
-              {t.streamingRate}
-            </Label>
-            <div className="text-center mb-4">
-              <span className="metric-value-lg text-chart-2">{streamingRate?.toFixed(2)}%</span>
-            </div>
-            <Controller
-              name="streamingRate"
-              control={form.control}
-              render={({ field }) => (
-                <Slider
-                  min={0.5}
-                  max={1.0}
-                  step={0.05}
-                  value={[field.value || 0.75]}
-                  onValueChange={([value]) => field.onChange(value)}
-                  data-testid="slider-streaming-rate"
-                />
-              )}
-            />
-            <div className="flex justify-between text-sm text-muted-foreground mt-2">
-              <span>0.5%</span>
-              <span>1.0%</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              {t.streamingRateDesc}
+            <p className="text-sm text-muted-foreground mt-4 text-center p-3 bg-primary/10 rounded-lg">
+              {t.streamingFormula}: {dailyRate?.toFixed(2)}% × 40% = {((dailyRate || 1.25) * 0.4).toFixed(2)}% {t.daily}
             </p>
           </div>
         </div>
@@ -442,59 +415,33 @@ export default function Investment() {
               )}
 
               {productType === ProductType.LONG && (
-                <>
-                  <div>
-                    <Label className="text-base font-semibold mb-3 block">
-                      {t.dailyReturnRate}: <span className="font-mono text-primary text-xl">{dailyRate?.toFixed(2)}%</span>
-                    </Label>
-                    <Controller
-                      name="dailyRate"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Slider
-                          min={1.0}
-                          max={1.5}
-                          step={0.05}
-                          value={[field.value || 1.25]}
-                          onValueChange={([value]) => field.onChange(value)}
-                          data-testid="slider-daily-rate"
-                          className="mt-3"
-                        />
-                      )}
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                      <span>1.0%</span>
-                      <span>1.5%</span>
-                    </div>
+                <div>
+                  <Label className="text-base font-semibold mb-3 block">
+                    {t.dailyReturnRate}: <span className="font-mono text-primary text-xl">{dailyRate?.toFixed(2)}%</span>
+                  </Label>
+                  <Controller
+                    name="dailyRate"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Slider
+                        min={1.0}
+                        max={1.5}
+                        step={0.05}
+                        value={[field.value || 1.25]}
+                        onValueChange={([value]) => field.onChange(value)}
+                        data-testid="slider-daily-rate"
+                        className="mt-3"
+                      />
+                    )}
+                  />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                    <span>1.0%</span>
+                    <span>1.5%</span>
                   </div>
-                  <div>
-                    <Label className="text-base font-semibold mb-3 block">
-                      {t.streamingRate}: <span className="font-mono text-chart-2 text-xl">{streamingRate?.toFixed(2)}%</span>
-                    </Label>
-                    <Controller
-                      name="streamingRate"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Slider
-                          min={0.5}
-                          max={1.0}
-                          step={0.05}
-                          value={[field.value || 0.75]}
-                          onValueChange={([value]) => field.onChange(value)}
-                          data-testid="slider-streaming-rate"
-                          className="mt-3"
-                        />
-                      )}
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                      <span>0.5%</span>
-                      <span>1.0%</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      {t.streamingRateDesc}
-                    </p>
-                  </div>
-                </>
+                  <p className="text-sm text-muted-foreground mt-4 p-3 bg-primary/10 rounded-lg">
+                    {t.streamingFormula}: {dailyRate?.toFixed(2)}% × 40% = {((dailyRate || 1.25) * 0.4).toFixed(2)}% {t.daily}
+                  </p>
+                </div>
               )}
             </div>
 

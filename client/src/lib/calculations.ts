@@ -81,10 +81,9 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     };
   }
   
-  // Long-term: 推流奖励使用 0.5%-1% 利率（与短线相同），而非利息利率
-  // Streaming rate comes from user input (0.5%-1%), then × 40%
-  const streamingRatePercent = input.streamingRate || 0.75;  // Default 0.75% (average)
-  const dailyStreamingAmount = amount * (streamingRatePercent / 100) * 0.4;  // 推流 = 本金 × 推流利率 × 40%
+  // Long-term: 推流奖励 = 日利息收益 × 40%（与短线计算方式相同）
+  // Daily streaming = daily interest × 40%
+  const dailyStreamingAmount = dailyReturn * 0.4;  // 推流 = 日利息 × 40%
   const totalStreamingBonus = dailyStreamingAmount * 100;  // 100天总推流
   const cycleAccumulation = dailyStreamingAmount * 20;  // 每20天累积
   
