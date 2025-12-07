@@ -16,7 +16,7 @@ import { MetricCard } from '@/components/MetricCard';
 import { StreamingReleaseChart } from '@/components/StreamingReleaseChart';
 import { ProfitProgressionChart } from '@/components/ProfitProgressionChart';
 import { MobileWizard } from '@/components/MobileWizard';
-import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered, ChevronRight } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered, ChevronRight, Calculator } from 'lucide-react';
 
 export default function Investment() {
   const { t } = useLanguage();
@@ -207,7 +207,7 @@ export default function Investment() {
 
   const ResultsSection = result && (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-2 gap-4">
         <MetricCard
           icon={DollarSign}
           label={t.dailyReturn}
@@ -249,17 +249,17 @@ export default function Investment() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        <Card className="p-4 md:p-6 card-luxury glass-card">
+      <div className="grid grid-cols-1 gap-4">
+        <Card className="p-4 xl:p-6 card-luxury glass-card">
           <ProfitProgressionChart dailyBreakdown={result.dailyBreakdown} />
         </Card>
-        <Card className="p-4 md:p-6 card-luxury glass-card">
+        <Card className="p-4 xl:p-6 card-luxury glass-card">
           <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
         </Card>
       </div>
 
-      <Card className="p-4 md:p-6 bg-muted/30 border-primary/20">
-        <p className="text-sm md:text-base text-muted-foreground">
+      <Card className="p-4 bg-muted/30 border-primary/20">
+        <p className="text-sm text-muted-foreground">
           <span className="font-semibold text-foreground">{t.streamingBonusNote}:</span>{' '}
           {productType === ProductType.SHORT ? t.streamingBonusShortTermNote : t.streamingBonusLongTermNote}
         </p>
@@ -269,7 +269,7 @@ export default function Investment() {
         <Button
           variant="default"
           size="lg"
-          className="w-full h-14 text-lg"
+          className="w-full h-12 xl:h-14 text-base xl:text-lg"
           onClick={handleViewDetailedBreakdown}
           data-testid="button-view-detailed-breakdown"
         >
@@ -279,6 +279,143 @@ export default function Investment() {
         </Button>
       )}
     </div>
+  );
+
+  const FormSection = (
+    <Card className="p-6 xl:p-8 card-luxury glass-card">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-5">
+          <div>
+            <Label className="text-base xl:text-lg font-semibold mb-4 block">{t.productType}</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant={productType === ProductType.SHORT ? 'default' : 'outline'}
+                className="w-full h-12 xl:h-14 text-sm xl:text-base"
+                onClick={() => {
+                  form.setValue('productType', ProductType.SHORT);
+                  setResult(null);
+                }}
+                data-testid="button-product-short"
+              >
+                {t.shortTerm}
+              </Button>
+              <Button
+                type="button"
+                variant={productType === ProductType.LONG ? 'default' : 'outline'}
+                className="w-full h-12 xl:h-14 text-sm xl:text-base"
+                onClick={() => {
+                  form.setValue('productType', ProductType.LONG);
+                  setResult(null);
+                }}
+                data-testid="button-product-long"
+              >
+                {t.longTerm}
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="rwaCount" className="text-base xl:text-lg font-semibold mb-3 block">
+              {t.investmentAmount}
+            </Label>
+            <Input
+              id="rwaCount"
+              type="number"
+              step="1"
+              min="1"
+              {...form.register('rwaCount', { valueAsNumber: true })}
+              data-testid="input-rwaCount"
+              className="font-mono text-lg xl:text-xl h-12 xl:h-14"
+            />
+            {form.formState.errors.rwaCount && (
+              <p className="text-sm text-destructive mt-2">
+                {form.formState.errors.rwaCount.message}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground mt-2">
+              1 RWA = $100 USD = <span className="font-mono font-semibold text-primary">${(rwaCount || 1) * 100}</span>
+            </p>
+          </div>
+
+          {productType === ProductType.SHORT && (
+            <div>
+              <Label className="text-base xl:text-lg font-semibold mb-3 block">
+                {t.duration}: <span className="font-mono text-primary text-lg xl:text-xl">{form.watch('duration') || 8} {t.days}</span>
+              </Label>
+              <Controller
+                name="duration"
+                control={form.control}
+                render={({ field }) => (
+                  <Slider
+                    min={5}
+                    max={10}
+                    step={1}
+                    value={[field.value || 8]}
+                    onValueChange={([value]) => field.onChange(value)}
+                    data-testid="slider-duration"
+                    className="mt-4"
+                  />
+                )}
+              />
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                <span>5 {t.days}</span>
+                <span>10 {t.days}</span>
+              </div>
+            </div>
+          )}
+
+          {productType === ProductType.LONG && (
+            <div>
+              <Label className="text-base xl:text-lg font-semibold mb-3 block">
+                {t.dailyReturnRate}: <span className="font-mono text-primary text-lg xl:text-xl">{dailyRate?.toFixed(2)}%</span>
+              </Label>
+              <Controller
+                name="dailyRate"
+                control={form.control}
+                render={({ field }) => (
+                  <Slider
+                    min={1.0}
+                    max={1.5}
+                    step={0.05}
+                    value={[field.value || 1.25]}
+                    onValueChange={([value]) => field.onChange(value)}
+                    data-testid="slider-daily-rate"
+                    className="mt-3"
+                  />
+                )}
+              />
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                <span>1.0%</span>
+                <span>1.5%</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-4 p-3 bg-primary/10 rounded-lg">
+                {t.streamingFormula}: 0.5%-1% × 40% = 0.2%-0.4% {t.daily}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 pt-4">
+          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg" data-testid="button-calculate">
+            <Calculator className="w-5 h-5 mr-2" />
+            {t.calculate}
+          </Button>
+          <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset">
+            {t.reset}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+
+  const EmptyResultsPlaceholder = (
+    <Card className="p-12 text-center card-luxury glass-card h-full flex items-center justify-center min-h-[400px]">
+      <div className="space-y-4">
+        <TrendingUp className="w-16 h-16 mx-auto text-muted-foreground/30" />
+        <p className="text-muted-foreground text-lg">{t.selectTierAndCalculate}</p>
+      </div>
+    </Card>
   );
 
   if (isMobile) {
@@ -319,156 +456,29 @@ export default function Investment() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="mb-8">
+    <div className="space-y-6 xl:space-y-8">
+      <div className="mb-6 xl:mb-8">
         <h2 className="section-header text-foreground flex items-center gap-3">
           <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
           {t.investmentCalculator}
         </h2>
-        <p className="text-base text-muted-foreground mt-2 ml-5">
+        <p className="text-base xl:text-lg text-muted-foreground mt-2 ml-5">
           {productType === ProductType.SHORT ? t.shortTermDesc : t.longTermDesc}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="p-8 card-luxury glass-card lg:col-span-1">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-6">
-              <div>
-                <Label className="text-base font-semibold mb-4 block">{t.productType}</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-                    className="w-full h-12"
-                    onClick={() => {
-                      form.setValue('productType', ProductType.SHORT);
-                      setResult(null);
-                    }}
-                    data-testid="button-product-short"
-                  >
-                    {t.shortTerm}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={productType === ProductType.LONG ? 'default' : 'outline'}
-                    className="w-full h-12"
-                    onClick={() => {
-                      form.setValue('productType', ProductType.LONG);
-                      setResult(null);
-                    }}
-                    data-testid="button-product-long"
-                  >
-                    {t.longTerm}
-                  </Button>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="rwaCount" className="text-base font-semibold mb-3 block">
-                  {t.investmentAmount}
-                </Label>
-                <Input
-                  id="rwaCount"
-                  type="number"
-                  step="1"
-                  min="1"
-                  {...form.register('rwaCount', { valueAsNumber: true })}
-                  data-testid="input-rwaCount"
-                  className="font-mono text-xl h-14"
-                />
-                {form.formState.errors.rwaCount && (
-                  <p className="text-sm text-destructive mt-2">
-                    {form.formState.errors.rwaCount.message}
-                  </p>
-                )}
-                <p className="text-sm text-muted-foreground mt-2">
-                  1 RWA = $100 USD = <span className="font-mono font-semibold text-primary">${(rwaCount || 1) * 100}</span>
-                </p>
-              </div>
-
-              {productType === ProductType.SHORT && (
-                <div>
-                  <Label className="text-base font-semibold mb-3 block">
-                    {t.duration}: <span className="font-mono text-primary text-xl">{form.watch('duration') || 8} {t.days}</span>
-                  </Label>
-                  <Controller
-                    name="duration"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Slider
-                        min={5}
-                        max={10}
-                        step={1}
-                        value={[field.value || 8]}
-                        onValueChange={([value]) => field.onChange(value)}
-                        data-testid="slider-duration"
-                        className="mt-4"
-                      />
-                    )}
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                    <span>5 {t.days}</span>
-                    <span>10 {t.days}</span>
-                  </div>
-                </div>
-              )}
-
-              {productType === ProductType.LONG && (
-                <div>
-                  <Label className="text-base font-semibold mb-3 block">
-                    {t.dailyReturnRate}: <span className="font-mono text-primary text-xl">{dailyRate?.toFixed(2)}%</span>
-                  </Label>
-                  <Controller
-                    name="dailyRate"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Slider
-                        min={1.0}
-                        max={1.5}
-                        step={0.05}
-                        value={[field.value || 1.25]}
-                        onValueChange={([value]) => field.onChange(value)}
-                        data-testid="slider-daily-rate"
-                        className="mt-3"
-                      />
-                    )}
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                    <span>1.0%</span>
-                    <span>1.5%</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-4 p-3 bg-primary/10 rounded-lg">
-                    {t.streamingFormula}: 0.5%-1% × 40% = 0.2%-0.4% {t.daily}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" size="lg" className="flex-1 h-14 text-lg" data-testid="button-calculate">
-                {t.calculate}
-              </Button>
-              <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset">
-                {t.reset}
-              </Button>
-            </div>
-          </form>
-        </Card>
-
-        <div className="lg:col-span-2">
-          {result ? (
-            ResultsSection
-          ) : (
-            <Card className="p-12 card-luxury glass-card flex flex-col items-center justify-center min-h-[400px]">
-              <div className="text-center text-muted-foreground">
-                <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                <p className="text-lg">{t.calculate} {t.investment.toLowerCase()}</p>
-                <p className="text-sm mt-2">{t.shortTermDesc}</p>
-              </div>
-            </Card>
-          )}
+      <div className="hidden xl:grid xl:grid-cols-5 gap-8">
+        <div className="xl:col-span-2">
+          {FormSection}
         </div>
+        <div className="xl:col-span-3">
+          {result ? ResultsSection : EmptyResultsPlaceholder}
+        </div>
+      </div>
+
+      <div className="xl:hidden space-y-6">
+        {FormSection}
+        {ResultsSection}
       </div>
     </div>
   );
