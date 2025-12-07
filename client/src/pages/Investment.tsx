@@ -72,39 +72,78 @@ export default function Investment() {
   };
 
   const ProductTypeStep = (
-    <div className="space-y-6">
-      <Label className="text-base md:text-lg font-semibold block text-center mb-4">{t.productType}</Label>
-      <div className="grid grid-cols-1 gap-4">
-        <Button
-          type="button"
-          variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-          className="w-full h-auto py-3 text-lg"
-          onClick={() => {
-            form.setValue('productType', ProductType.SHORT);
-            setResult(null);
-          }}
-          data-testid="button-product-short"
-        >
-          <div className="flex flex-col items-center">
-            <span className="font-semibold">{t.shortTerm}</span>
-            <span className="text-xs opacity-80">{t.shortTermDesc}</span>
-          </div>
-        </Button>
-        <Button
-          type="button"
-          variant={productType === ProductType.LONG ? 'default' : 'outline'}
-          className="w-full h-auto py-3 text-lg"
-          onClick={() => {
-            form.setValue('productType', ProductType.LONG);
-            setResult(null);
-          }}
-          data-testid="button-product-long"
-        >
-          <div className="flex flex-col items-center">
-            <span className="font-semibold">{t.longTerm}</span>
-            <span className="text-xs opacity-80">{t.longTermDesc}</span>
-          </div>
-        </Button>
+    <div className="space-y-4">
+      <div className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30">
+        <Label className="text-base font-semibold mb-2 block text-center flex items-center justify-center gap-2">
+          <TrendingUp className="w-5 h-5 text-cyan-500" />
+          <span className="text-cyan-700 dark:text-cyan-300">{t.productType}</span>
+        </Label>
+        <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 text-center mb-4 flex items-center justify-center gap-1">
+          <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
+          {language === 'zh' ? '点击选择产品类型' : 'Click to select product type'}
+        </p>
+        <div className="grid grid-cols-1 gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Button
+              type="button"
+              variant={productType === ProductType.SHORT ? 'default' : 'outline'}
+              className={`w-full h-auto py-4 text-base transition-all duration-300 ${
+                productType === ProductType.SHORT 
+                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+              }`}
+              onClick={() => {
+                form.setValue('productType', ProductType.SHORT);
+                setResult(null);
+              }}
+              data-testid="button-product-short"
+            >
+              <div className="flex flex-col items-center gap-1">
+                <span className="font-semibold text-lg">{t.shortTerm}</span>
+                <span className="text-xs opacity-80">{t.shortTermDesc}</span>
+                {productType === ProductType.SHORT ? (
+                  <span className="text-[10px] font-medium bg-white/30 px-2 py-0.5 rounded-full mt-1">{language === 'zh' ? '已选' : 'Selected'}</span>
+                ) : (
+                  <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">{language === 'zh' ? '点击选择' : 'Click to select'}</span>
+                )}
+              </div>
+            </Button>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <Button
+              type="button"
+              variant={productType === ProductType.LONG ? 'default' : 'outline'}
+              className={`w-full h-auto py-4 text-base transition-all duration-300 ${
+                productType === ProductType.LONG 
+                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+              }`}
+              onClick={() => {
+                form.setValue('productType', ProductType.LONG);
+                setResult(null);
+              }}
+              data-testid="button-product-long"
+            >
+              <div className="flex flex-col items-center gap-1">
+                <span className="font-semibold text-lg">{t.longTerm}</span>
+                <span className="text-xs opacity-80">{t.longTermDesc}</span>
+                {productType === ProductType.LONG ? (
+                  <span className="text-[10px] font-medium bg-white/30 px-2 py-0.5 rounded-full mt-1">{language === 'zh' ? '已选' : 'Selected'}</span>
+                ) : (
+                  <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">{language === 'zh' ? '点击选择' : 'Click to select'}</span>
+                )}
+              </div>
+            </Button>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
