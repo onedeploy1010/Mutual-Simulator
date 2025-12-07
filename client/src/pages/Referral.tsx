@@ -22,7 +22,7 @@ export default function Referral() {
     defaultValues: {
       downlineRwaCount: 1,
       secondLevelRwaCount: 0,
-      dailyRate: 1.0,
+      dailyRate: 1.25,
     },
   });
 
@@ -73,7 +73,7 @@ export default function Referral() {
                     min={1.0}
                     max={1.5}
                     step={0.1}
-                    value={[dailyRate || 1.0]}
+                    value={[dailyRate || 1.25]}
                     onValueChange={([value]) => form.setValue('dailyRate', value)}
                     data-testid="slider-daily-rate"
                     className="mt-2"

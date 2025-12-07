@@ -49,7 +49,7 @@ export default function Team() {
     defaultValues: {
       currentTier: 'VIP',
       totalPerformanceRwa: 60,
-      dailyRate: 1.0,
+      dailyRate: 1.25,
       mecPrice: 1,
     },
   });
@@ -187,7 +187,7 @@ export default function Team() {
                 min={1.0}
                 max={1.5}
                 step={0.1}
-                value={[dailyRate || 1.0]}
+                value={[dailyRate || 1.25]}
                 onValueChange={([value]) => form.setValue('dailyRate', value)}
                 data-testid="slider-team-daily-rate"
                 className="mt-2"
