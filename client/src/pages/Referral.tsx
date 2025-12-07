@@ -13,7 +13,7 @@ import { Slider } from '@/components/ui/slider';
 import { MetricCard } from '@/components/MetricCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, UserPlus, TrendingUp, Calculator, Gift, Sparkles } from 'lucide-react';
+import { Users, UserPlus, TrendingUp, Calculator } from 'lucide-react';
 
 export default function Referral() {
   const { t } = useLanguage();
@@ -139,14 +139,14 @@ export default function Referral() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="p-4 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 dark:from-violet-500/15 dark:to-fuchsia-500/15 rounded-xl border-2 border-violet-500/30"
+            className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30"
           >
             <div className="flex items-center justify-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-violet-500" />
-              <span className="text-base font-semibold text-violet-700 dark:text-violet-300">{t.dailyReturnRateReferral}</span>
+              <TrendingUp className="w-5 h-5 text-cyan-500" />
+              <span className="text-base font-semibold text-cyan-700 dark:text-cyan-300">{t.dailyReturnRateReferral}</span>
             </div>
             <div className="text-center mb-3">
-              <span className="font-mono text-3xl font-bold text-violet-600 dark:text-violet-400">{dailyRate?.toFixed(2)}%</span>
+              <span className="font-mono text-3xl font-bold text-cyan-600 dark:text-cyan-400">{dailyRate?.toFixed(2)}%</span>
             </div>
             <Slider
               min={1.0}
@@ -161,7 +161,7 @@ export default function Referral() {
               <span>1.0%</span>
               <span>1.5%</span>
             </div>
-            <p className="text-xs text-violet-600/80 dark:text-violet-400/80 mt-3 text-center">
+            <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 mt-3 text-center">
               {t.rateAppliesBothLevels}
             </p>
           </motion.div>
@@ -171,18 +171,18 @@ export default function Referral() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="p-4 bg-gradient-to-br from-rose-500/10 to-pink-500/10 dark:from-rose-500/15 dark:to-pink-500/15 rounded-xl border-2 border-rose-500/30"
+            className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30"
           >
             <div className="flex items-center gap-2 mb-3">
-              <UserPlus className="w-5 h-5 text-rose-500" />
-              <h3 className="text-base font-semibold text-rose-700 dark:text-rose-300">
+              <UserPlus className="w-5 h-5 text-cyan-500" />
+              <h3 className="text-base font-semibold text-cyan-700 dark:text-cyan-300">
                 Level 1 - {t.directReward}
               </h3>
-              <span className="ml-auto text-xs font-mono bg-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full">20%</span>
+              <span className="ml-auto text-xs font-mono bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 rounded-full">20%</span>
             </div>
 
             <div>
-              <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block text-rose-700/80 dark:text-rose-300/80">
+              <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block text-cyan-700/80 dark:text-cyan-300/80">
                 {t.downlineInvestment}
               </Label>
               <Input
@@ -205,19 +205,19 @@ export default function Referral() {
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="p-4 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 rounded-xl border-2 border-purple-500/30"
+            className="p-4 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/15 dark:to-indigo-500/15 rounded-xl border-2 border-blue-500/30"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Users className="w-5 h-5 text-purple-500" />
-              <h3 className="text-base font-semibold text-purple-700 dark:text-purple-300">
+              <Users className="w-5 h-5 text-blue-500" />
+              <h3 className="text-base font-semibold text-blue-700 dark:text-blue-300">
                 Level 2 - {t.indirectReward}
               </h3>
-              <span className="text-xs text-purple-600/70 dark:text-purple-400/70">(Optional)</span>
-              <span className="ml-auto text-xs font-mono bg-purple-500/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">10%</span>
+              <span className="text-xs text-blue-600/70 dark:text-blue-400/70">(Optional)</span>
+              <span className="ml-auto text-xs font-mono bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">10%</span>
             </div>
 
             <div>
-              <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block text-purple-700/80 dark:text-purple-300/80">
+              <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block text-blue-700/80 dark:text-blue-300/80">
                 {t.secondLevelInvestment}
               </Label>
               <Input
@@ -237,7 +237,7 @@ export default function Referral() {
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 border-0" data-testid="button-calculate-referral">
+          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg" data-testid="button-calculate-referral">
             <Calculator className="w-5 h-5 mr-2" />
             {t.calculate}
           </Button>
@@ -254,7 +254,7 @@ export default function Referral() {
       <div className="space-y-6">
         <div className="mb-4">
           <h2 className="section-header text-foreground flex items-center gap-3">
-            <div className="w-1.5 h-10 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
+            <div className="w-1.5 h-10 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full"></div>
             {t.referralRewards}
           </h2>
           <p className="text-sm text-muted-foreground mt-2 ml-5">
@@ -285,7 +285,7 @@ export default function Referral() {
     <div className="space-y-6 md:space-y-8">
       <div className="mb-6 md:mb-8">
         <h2 className="section-header text-foreground flex items-center gap-3">
-          <div className="w-1.5 h-10 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
+          <div className="w-1.5 h-10 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full"></div>
           {t.referralRewards}
         </h2>
         <p className="text-base xl:text-lg text-muted-foreground mt-2 ml-5">
