@@ -93,22 +93,22 @@ export default function Team() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-          <div className="w-1 h-8 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+    <div className="space-y-6 md:space-y-8">
+      <div className="mb-6 md:mb-8">
+        <h2 className="section-header text-foreground flex items-center gap-3">
+          <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
           {t.teamRewards}
         </h2>
-        <p className="text-sm text-muted-foreground ml-3">
+        <p className="text-sm md:text-base text-muted-foreground mt-2 ml-5">
           {t.calculateTeamRewardsDesc}
         </p>
       </div>
 
-      <Card className="p-6 card-premium shadow-md">
+      <Card className="p-4 md:p-8 card-luxury glass-card">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="currentTier" className="text-sm font-medium mb-2 block">
+              <Label htmlFor="currentTier" className="text-base md:text-lg font-semibold mb-3 block">
                 {t.currentTier}
               </Label>
               <Select
@@ -180,8 +180,8 @@ export default function Team() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium mb-2 block">
-                {t.teamDailyRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
+              <Label className="text-base md:text-lg font-semibold mb-3 block">
+                {t.teamDailyRate}: <span className="font-mono text-primary text-xl">{dailyRate?.toFixed(2)}%</span>
               </Label>
               <Slider
                 min={1.0}
@@ -202,7 +202,7 @@ export default function Team() {
             </div>
 
             <div>
-              <Label htmlFor="mecPrice" className="text-sm font-medium mb-2 block">
+              <Label htmlFor="mecPrice" className="text-base md:text-lg font-semibold mb-3 block">
                 {t.mecPrice}
               </Label>
               <Select
@@ -224,8 +224,8 @@ export default function Team() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium mb-2 block">
-                {t.totalPerformance}: <span className="font-mono text-primary">{totalPerformanceRwa || 0} RWA</span>
+              <Label className="text-base md:text-lg font-semibold mb-3 block">
+                {t.totalPerformance}: <span className="font-mono text-primary text-xl">{totalPerformanceRwa || 0} RWA</span>
               </Label>
               <Slider
                 min={minTotalRwa}
@@ -251,11 +251,11 @@ export default function Team() {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" className="flex-1" data-testid="button-calculate-team">
+          <div className="flex gap-3 pt-4">
+            <Button type="submit" size="lg" className="flex-1 h-14 text-lg" data-testid="button-calculate-team">
               {t.calculate}
             </Button>
-            <Button type="button" variant="outline" onClick={handleReset} data-testid="button-reset-team">
+            <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-team">
               {t.reset}
             </Button>
           </div>
@@ -264,7 +264,7 @@ export default function Team() {
 
       {result && (
         <>
-          <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
+          <Card className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20 card-luxury">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-foreground">{t.tierInfo}</h3>
@@ -293,11 +293,11 @@ export default function Team() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-semibold">{t.teamDividend}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <Card className="p-4 md:p-6 card-luxury glass-card">
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <Trophy className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                <h3 className="text-base md:text-lg font-semibold">{t.teamDividend}</h3>
                 <span className="text-sm text-muted-foreground">({result.tierInfo.teamDividendPercent}%)</span>
               </div>
               <div className="space-y-3">

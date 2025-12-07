@@ -43,13 +43,13 @@ export default function Referral() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-          <div className="w-1 h-8 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+    <div className="space-y-6 md:space-y-8">
+      <div className="mb-6 md:mb-8">
+        <h2 className="section-header text-foreground flex items-center gap-3">
+          <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
           {t.referralRewards}
         </h2>
-        <p className="text-sm text-muted-foreground ml-3">
+        <p className="text-sm md:text-base text-muted-foreground mt-2 ml-5">
           {t.referralDesc}
         </p>
       </div>
@@ -61,13 +61,13 @@ export default function Referral() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="direct" className="space-y-6 mt-6">
-          <Card className="p-6 card-premium shadow-md">
+        <TabsContent value="direct" className="space-y-6 md:space-y-8 mt-6">
+          <Card className="p-4 md:p-8 card-luxury glass-card">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">
-                    {t.dailyReturnRateReferral}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
+                  <Label className="text-base md:text-lg font-semibold mb-3 block">
+                    {t.dailyReturnRateReferral}: <span className="font-mono text-primary text-xl">{dailyRate?.toFixed(2)}%</span>
                   </Label>
                   <Slider
                     min={1.0}
@@ -87,14 +87,14 @@ export default function Referral() {
                   </p>
                 </div>
 
-                <div className="border-l-4 border-l-primary pl-4">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
+                <div className="border-l-4 border-l-primary pl-4 md:pl-6 py-2">
+                  <h3 className="text-base md:text-lg font-semibold text-foreground mb-4">
                     Level 1 - {t.directReward}
                   </h3>
 
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block">
+                      <Label htmlFor="downlineRwaCount" className="text-base font-medium mb-3 block">
                         {t.downlineInvestment}
                       </Label>
                       <Input
@@ -113,14 +113,14 @@ export default function Referral() {
                   </div>
                 </div>
 
-                <div className="border-l-4 border-l-chart-3 pl-4">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
-                    Level 2 - {t.indirectReward} <span className="text-xs text-muted-foreground">(Optional)</span>
+                <div className="border-l-4 border-l-chart-3 pl-4 md:pl-6 py-2">
+                  <h3 className="text-base md:text-lg font-semibold text-foreground mb-4">
+                    Level 2 - {t.indirectReward} <span className="text-sm text-muted-foreground">(Optional)</span>
                   </h3>
 
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block">
+                      <Label htmlFor="secondLevelRwaCount" className="text-base font-medium mb-3 block">
                         {t.secondLevelInvestment}
                       </Label>
                       <Input
@@ -140,11 +140,11 @@ export default function Referral() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button type="submit" className="flex-1" data-testid="button-calculate-referral">
+              <div className="flex gap-3 pt-4">
+                <Button type="submit" size="lg" className="flex-1 h-14 text-lg" data-testid="button-calculate-referral">
                   {t.calculate}
                 </Button>
-                <Button type="button" variant="outline" onClick={handleReset} data-testid="button-reset-referral">
+                <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-referral">
                   {t.reset}
                 </Button>
               </div>
@@ -153,13 +153,14 @@ export default function Referral() {
 
           {result && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <MetricCard
                   icon={UserPlus}
                   label={`${t.directReward} - ${t.daily}`}
                   value={formatCurrency(result.directDailyReward)}
                   subtitle={`${formatCurrency(result.directMonthlyReward)} ${t.monthly.toLowerCase()}`}
                   testId="metric-direct-reward"
+                  large
                 />
                 <MetricCard
                   icon={Users}
@@ -167,6 +168,7 @@ export default function Referral() {
                   value={formatCurrency(result.indirectDailyReward)}
                   subtitle={`${formatCurrency(result.indirectMonthlyReward)} ${t.monthly.toLowerCase()}`}
                   testId="metric-indirect-reward"
+                  large
                 />
                 <MetricCard
                   icon={TrendingUp}
@@ -174,12 +176,14 @@ export default function Referral() {
                   value={formatCurrency(result.totalDailyReward)}
                   subtitle={`${formatCurrency(result.totalMonthlyReward)} ${t.monthly.toLowerCase()}`}
                   testId="metric-total-referral-reward"
+                  large
+                  highlight
                 />
               </div>
 
-              <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-2/5 border-primary/20">
+              <Card className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-chart-2/5 border-primary/20 card-luxury">
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Reward Breakdown</h3>
+                  <h3 className="text-lg md:text-xl font-semibold text-foreground">Reward Breakdown</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center p-3 bg-card rounded-md">
