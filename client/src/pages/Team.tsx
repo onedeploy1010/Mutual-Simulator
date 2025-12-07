@@ -267,7 +267,7 @@ export default function Team() {
     </div>
   );
 
-  const FormSection = (
+  const TierSelectionSection = (
     <div className="space-y-4">
       <Card className="p-4 xl:p-6 card-luxury bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/15 dark:to-orange-500/15 border-2 border-amber-500/30">
         <Label className="text-base xl:text-lg font-semibold mb-2 block text-center flex items-center justify-center gap-2">
@@ -356,8 +356,11 @@ export default function Team() {
       </Card>
 
       <TeamTierVisualization currentTier={currentTier} />
-      
-      <Card className="p-4 xl:p-6 card-luxury glass-card">
+    </div>
+  );
+
+  const ParametersSection = (
+    <Card className="p-4 xl:p-6 card-luxury glass-card h-fit">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-4">
             {(() => {
@@ -472,7 +475,13 @@ export default function Team() {
             </Button>
           </div>
         </form>
-      </Card>
+    </Card>
+  );
+
+  const MobileFormSection = (
+    <div className="space-y-4">
+      {TierSelectionSection}
+      {ParametersSection}
     </div>
   );
 
@@ -490,7 +499,7 @@ export default function Team() {
         </div>
 
         {!showResults ? (
-          FormSection
+          MobileFormSection
         ) : (
           <AnimatePresence mode="wait">
             <motion.div
@@ -520,8 +529,13 @@ export default function Team() {
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        {FormSection}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8">
+        <div className="space-y-4">
+          {TierSelectionSection}
+        </div>
+        <div>
+          {ParametersSection}
+        </div>
       </div>
 
       <Dialog open={showResults} onOpenChange={setShowResults}>
