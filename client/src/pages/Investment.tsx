@@ -16,7 +16,9 @@ import { MetricCard } from '@/components/MetricCard';
 import { StreamingReleaseChart } from '@/components/StreamingReleaseChart';
 import { ProfitProgressionChart } from '@/components/ProfitProgressionChart';
 import { MobileWizard } from '@/components/MobileWizard';
-import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered, ChevronRight, Calculator } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered, ChevronRight, Calculator, X } from 'lucide-react';
 
 export default function Investment() {
   const { t } = useLanguage();
@@ -24,6 +26,7 @@ export default function Investment() {
   const { setInvestmentData } = useInvestment();
   const [result, setResult] = useState<InvestmentResult | null>(null);
   const [currentFormValues, setCurrentFormValues] = useState<InvestmentInput | null>(null);
+  const [showResults, setShowResults] = useState(false);
   const isMobile = useIsMobile();
 
   const form = useForm<InvestmentInput>({
@@ -45,6 +48,7 @@ export default function Investment() {
     const calculatedResult = calculateInvestment(data);
     setResult(calculatedResult);
     setCurrentFormValues(data);
+    setShowResults(true);
   };
 
   const handleViewDetailedBreakdown = () => {
@@ -56,6 +60,11 @@ export default function Investment() {
   const handleReset = () => {
     form.reset();
     setResult(null);
+    setShowResults(false);
+  };
+
+  const handleCloseResults = () => {
+    setShowResults(false);
   };
 
   const formatCurrency = (value: number) => {
@@ -205,9 +214,9 @@ export default function Investment() {
     { id: 'rate', title: productType === ProductType.SHORT ? t.duration : t.dailyReturnRate, content: RateStep },
   ];
 
-  const ResultsSection = result && (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-2 xl:grid-cols-2 gap-4">
+  const ResultsContent = result && (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
         <MetricCard
           icon={DollarSign}
           label={t.dailyReturn}
@@ -250,10 +259,10 @@ export default function Investment() {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        <Card className="p-4 xl:p-6 card-luxury glass-card">
+        <Card className="p-4 card-luxury glass-card">
           <ProfitProgressionChart dailyBreakdown={result.dailyBreakdown} />
         </Card>
-        <Card className="p-4 xl:p-6 card-luxury glass-card">
+        <Card className="p-4 card-luxury glass-card">
           <StreamingReleaseChart dailyBreakdown={result.dailyBreakdown} />
         </Card>
       </div>
@@ -269,7 +278,7 @@ export default function Investment() {
         <Button
           variant="default"
           size="lg"
-          className="w-full h-12 xl:h-14 text-base xl:text-lg"
+          className="w-full h-12 text-base"
           onClick={handleViewDetailedBreakdown}
           data-testid="button-view-detailed-breakdown"
         >
@@ -278,6 +287,16 @@ export default function Investment() {
           <ChevronRight className="w-5 h-5 ml-2" />
         </Button>
       )}
+
+      <Button
+        variant="outline"
+        size="lg"
+        className="w-full"
+        onClick={handleCloseResults}
+        data-testid="button-close-results"
+      >
+        {t.backToForm}
+      </Button>
     </div>
   );
 
@@ -409,15 +428,6 @@ export default function Investment() {
     </Card>
   );
 
-  const EmptyResultsPlaceholder = (
-    <Card className="p-12 text-center card-luxury glass-card h-full flex items-center justify-center min-h-[400px]">
-      <div className="space-y-4">
-        <TrendingUp className="w-16 h-16 mx-auto text-muted-foreground/30" />
-        <p className="text-muted-foreground text-lg">{t.selectTierAndCalculate}</p>
-      </div>
-    </Card>
-  );
-
   if (isMobile) {
     return (
       <div className="space-y-6">
@@ -431,25 +441,24 @@ export default function Investment() {
           </p>
         </div>
 
-        {!result ? (
+        {!showResults ? (
           <MobileWizard
             steps={mobileSteps}
             onComplete={() => form.handleSubmit(onSubmit)()}
             isValid={form.formState.isValid || true}
           />
         ) : (
-          <>
-            {ResultsSection}
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={handleReset}
-              data-testid="button-reset"
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -50, scale: 0.95 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
-              {t.reset}
-            </Button>
-          </>
+              {ResultsContent}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
     );
@@ -467,19 +476,28 @@ export default function Investment() {
         </p>
       </div>
 
-      <div className="hidden xl:grid xl:grid-cols-5 gap-8">
-        <div className="xl:col-span-2">
-          {FormSection}
-        </div>
-        <div className="xl:col-span-3">
-          {result ? ResultsSection : EmptyResultsPlaceholder}
-        </div>
+      <div className="max-w-2xl mx-auto">
+        {FormSection}
       </div>
 
-      <div className="xl:hidden space-y-6">
-        {FormSection}
-        {ResultsSection}
-      </div>
+      <Dialog open={showResults} onOpenChange={setShowResults}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="p-6"
+          >
+            <DialogHeader className="mb-6">
+              <DialogTitle className="flex items-center gap-3 text-xl">
+                <div className="w-1.5 h-8 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+                {t.resultsSummary}
+              </DialogTitle>
+            </DialogHeader>
+            {ResultsContent}
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
