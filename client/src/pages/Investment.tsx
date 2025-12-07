@@ -191,7 +191,7 @@ export default function Investment() {
               <span>1.5%</span>
             </div>
             <p className="text-sm text-muted-foreground mt-4 text-center p-3 bg-primary/10 rounded-lg">
-              {t.streamingFormula}: {dailyRate?.toFixed(2)}% × 40% = {((dailyRate || 1.25) * 0.4).toFixed(2)}% {t.daily}
+              {t.streamingFormula}: 0.5%-1% × 40% = 0.2%-0.4% {t.daily}
             </p>
           </div>
         </div>
@@ -439,7 +439,7 @@ export default function Investment() {
                     <span>1.5%</span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-4 p-3 bg-primary/10 rounded-lg">
-                    {t.streamingFormula}: {dailyRate?.toFixed(2)}% × 40% = {((dailyRate || 1.25) * 0.4).toFixed(2)}% {t.daily}
+                    {t.streamingFormula}: 0.5%-1% × 40% = 0.2%-0.4% {t.daily}
                   </p>
                 </div>
               )}
