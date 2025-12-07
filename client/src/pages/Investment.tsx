@@ -382,10 +382,10 @@ export default function Investment() {
                 <span>10 {t.days}</span>
               </div>
               
-              <div className="mt-4 p-4 bg-gradient-to-br from-primary/10 to-chart-1/10 rounded-lg border border-primary/20">
+              <div className="mt-4 p-4 bg-gradient-to-br from-emerald-500/15 to-teal-500/15 dark:from-emerald-500/20 dark:to-teal-500/20 rounded-lg border-2 border-emerald-500/40 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">{language === 'zh' ? '估算每日利率' : 'Est. Daily Rate'}</span>
-                  <span className="font-mono font-bold text-xl text-primary">
+                  <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{language === 'zh' ? '估算每日利率' : 'Est. Daily Rate'}</span>
+                  <span className="font-mono font-bold text-2xl text-emerald-600 dark:text-emerald-400">
                     {(5 / (form.watch('duration') || 8)).toFixed(2)}%
                   </span>
                 </div>
@@ -393,7 +393,7 @@ export default function Investment() {
                   <span className="text-sm text-muted-foreground">{language === 'zh' ? '总收益率' : 'Total Return'}</span>
                   <span className="font-mono font-semibold text-lg text-foreground">5%</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border/50">
+                <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-2 pt-2 border-t border-emerald-500/30">
                   {language === 'zh' 
                     ? `5% ÷ ${form.watch('duration') || 8}天 = 每日${(5 / (form.watch('duration') || 8)).toFixed(2)}%` 
                     : `5% ÷ ${form.watch('duration') || 8} days = ${(5 / (form.watch('duration') || 8)).toFixed(2)}% daily`
