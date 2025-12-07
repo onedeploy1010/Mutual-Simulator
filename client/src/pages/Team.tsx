@@ -101,45 +101,74 @@ export default function Team() {
     return value.toLocaleString('en-US');
   };
 
+  const handleTierChange = (value: string) => {
+    form.setValue('currentTier', value);
+    const newTierInfo = teamTiers.find(t => t.tier === value);
+    if (newTierInfo) {
+      const newMinTotal = Math.max(1, Math.ceil(newTierInfo.requirementMin / 100));
+      const newMaxTotal = newTierInfo.requirementMax 
+        ? Math.floor(newTierInfo.requirementMax / 100)
+        : Math.max(newMinTotal * 10, 100000);
+      const safeTotal = Math.max(newMinTotal, Math.min(totalPerformanceRwa || newMinTotal, newMaxTotal));
+      form.setValue('totalPerformanceRwa', safeTotal);
+    }
+  };
+
   const renderFormView = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Tier Tab Selector - Above Visualization */}
+      <Card className="p-3 md:p-4 card-luxury">
+        <Label className="text-sm md:text-base font-semibold mb-3 block text-center">
+          {t.currentTier}
+        </Label>
+        <div className="grid grid-cols-4 gap-1 md:gap-2">
+          {teamTiers.slice(0, 4).map((tier) => (
+            <Button
+              key={tier.tier}
+              type="button"
+              variant={currentTier === tier.tier ? 'default' : 'outline'}
+              size="sm"
+              className={`h-auto py-2 px-1 text-[10px] md:text-xs flex flex-col items-center gap-0.5 ${currentTier === tier.tier ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+              onClick={() => handleTierChange(tier.tier)}
+              data-testid={`tab-tier-${tier.tier}`}
+            >
+              <span className="font-medium truncate w-full text-center">
+                {language === 'zh' 
+                  ? (tier.tier === 'VIP' ? 'VIP' : tier.tier.includes('Expert') ? `${tier.tier.charAt(0)}星达人` : tier.tier)
+                  : (tier.tier === 'VIP' ? 'VIP' : tier.tier.replace('-Star Expert', '★E'))
+                }
+              </span>
+            </Button>
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-1 md:gap-2 mt-1 md:mt-2">
+          {teamTiers.slice(4).map((tier) => (
+            <Button
+              key={tier.tier}
+              type="button"
+              variant={currentTier === tier.tier ? 'default' : 'outline'}
+              size="sm"
+              className={`h-auto py-2 px-1 text-[10px] md:text-xs flex flex-col items-center gap-0.5 ${currentTier === tier.tier ? 'ring-2 ring-primary ring-offset-1' : ''} ${tier.tier === 'Supreme' ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50' : ''}`}
+              onClick={() => handleTierChange(tier.tier)}
+              data-testid={`tab-tier-${tier.tier}`}
+            >
+              <span className="font-medium truncate w-full text-center flex items-center justify-center gap-0.5">
+                {tier.tier === 'Supreme' && <Crown className="w-3 h-3 text-yellow-500" />}
+                {language === 'zh' 
+                  ? (tier.tier === 'Supreme' ? '至尊' : tier.tier.includes('Ambassador') ? `${tier.tier.charAt(0)}星大使` : tier.tier)
+                  : (tier.tier === 'Supreme' ? 'Supreme' : tier.tier.replace('-Star Ambassador', '★A'))
+                }
+              </span>
+            </Button>
+          ))}
+        </div>
+      </Card>
+
       <TeamTierVisualization currentTier={currentTier} />
       
       <Card className="p-4 md:p-8 card-luxury glass-card">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="currentTier" className="text-base md:text-lg font-semibold mb-3 block">
-                {t.currentTier}
-              </Label>
-              <Select
-                value={currentTier}
-                onValueChange={(value) => {
-                  form.setValue('currentTier', value);
-                  const newTierInfo = teamTiers.find(t => t.tier === value);
-                  if (newTierInfo) {
-                    const newMinTotal = Math.max(1, Math.ceil(newTierInfo.requirementMin / 100));
-                    const newMaxTotal = newTierInfo.requirementMax 
-                      ? Math.floor(newTierInfo.requirementMax / 100)
-                      : Math.max(newMinTotal * 10, 100000);
-                    const safeTotal = Math.max(newMinTotal, Math.min(totalPerformanceRwa || newMinTotal, newMaxTotal));
-                    form.setValue('totalPerformanceRwa', safeTotal);
-                  }
-                }}
-              >
-                <SelectTrigger data-testid="select-tier">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {teamTiers.map((tier) => (
-                    <SelectItem key={tier.tier} value={tier.tier} data-testid={`option-tier-${tier.tier}`}>
-                      <div className="flex items-center gap-2">
-                        <TierBadge tier={tier.tier} />
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               {(() => {
                 const tierInfo = teamTiers.find(t => t.tier === currentTier);
                 if (!tierInfo) return null;
@@ -178,7 +207,6 @@ export default function Team() {
                   </div>
                 );
               })()}
-            </div>
 
             <div>
               <Label className="text-base md:text-lg font-semibold mb-3 block">
