@@ -268,7 +268,7 @@ export default function Team() {
   );
 
   const TierSelectionSection = (
-    <div className="space-y-4">
+    <div className="space-y-4 flex-1 flex flex-col">
       <Card className="p-4 xl:p-6 card-luxury bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/15 dark:to-orange-500/15 border-2 border-amber-500/30">
         <Label className="text-base xl:text-lg font-semibold mb-2 block text-center flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-amber-500" />
@@ -355,12 +355,14 @@ export default function Team() {
         </div>
       </Card>
 
-      <TeamTierVisualization currentTier={currentTier} />
+      <div className="flex-1">
+        <TeamTierVisualization currentTier={currentTier} />
+      </div>
     </div>
   );
 
   const ParametersSection = (
-    <Card className="p-4 xl:p-6 card-luxury glass-card h-fit">
+    <Card className="p-4 xl:p-6 card-luxury glass-card h-full flex flex-col">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-4">
             {(() => {
@@ -529,11 +531,11 @@ export default function Team() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+        <div className="space-y-4 flex flex-col">
           {TierSelectionSection}
         </div>
-        <div>
+        <div className="flex flex-col">
           {ParametersSection}
         </div>
       </div>
