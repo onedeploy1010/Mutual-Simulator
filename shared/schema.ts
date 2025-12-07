@@ -376,6 +376,8 @@ export const translations = {
     viewResults: 'View Results',
     backToForm: 'Back',
     resultsSummary: 'Results Summary',
+    totalEarnings: 'Total Earnings',
+    selectTierAndCalculate: 'Select a tier and click Calculate to view reward results',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -514,6 +516,8 @@ export const translations = {
     viewResults: '查看结果',
     backToForm: '返回',
     resultsSummary: '结果统计',
+    totalEarnings: '收益统计',
+    selectTierAndCalculate: '选择层级并点击计算查看奖励结果',
   },
 };
 

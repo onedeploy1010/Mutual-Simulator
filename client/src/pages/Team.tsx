@@ -520,6 +520,297 @@ export default function Team() {
     );
   };
 
+  const renderDesktopLayout = () => (
+    <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+      <div className="xl:col-span-2 space-y-4">
+        <Card className="p-4 card-luxury">
+          <Label className="text-sm font-semibold mb-3 block text-center">
+            {t.currentTier}
+          </Label>
+          <div className="grid grid-cols-4 gap-2">
+            {teamTiers.slice(0, 4).map((tier) => (
+              <Button
+                key={tier.tier}
+                type="button"
+                variant={currentTier === tier.tier ? 'default' : 'outline'}
+                size="sm"
+                className={`h-auto py-2 px-2 text-xs flex flex-col items-center gap-0.5 ${currentTier === tier.tier ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                onClick={() => handleTierChange(tier.tier)}
+                data-testid={`tab-tier-${tier.tier}`}
+              >
+                <span className="font-medium">
+                  {language === 'zh' 
+                    ? (tier.tier === 'VIP' ? 'VIP' : tier.tier.includes('Expert') ? `${tier.tier.charAt(0)}星达人` : tier.tier)
+                    : (tier.tier === 'VIP' ? 'VIP' : tier.tier.replace('-Star Expert', '★E'))
+                  }
+                </span>
+              </Button>
+            ))}
+          </div>
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            {teamTiers.slice(4).map((tier) => (
+              <Button
+                key={tier.tier}
+                type="button"
+                variant={currentTier === tier.tier ? 'default' : 'outline'}
+                size="sm"
+                className={`h-auto py-2 px-2 text-xs flex flex-col items-center gap-0.5 ${currentTier === tier.tier ? 'ring-2 ring-primary ring-offset-1' : ''} ${tier.tier === 'Supreme' ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50' : ''}`}
+                onClick={() => handleTierChange(tier.tier)}
+                data-testid={`tab-tier-desktop-${tier.tier}`}
+              >
+                <span className="font-medium flex items-center gap-0.5">
+                  {tier.tier === 'Supreme' && <Crown className="w-3 h-3 text-yellow-500" />}
+                  {language === 'zh' 
+                    ? (tier.tier === 'Supreme' ? '至尊' : tier.tier.includes('Ambassador') ? `${tier.tier.charAt(0)}星大使` : tier.tier)
+                    : (tier.tier === 'Supreme' ? 'Supreme' : tier.tier.replace('-Star Ambassador', '★A'))
+                  }
+                </span>
+              </Button>
+            ))}
+          </div>
+        </Card>
+
+        <TeamTierVisualization currentTier={currentTier} />
+
+        <Card className="p-6 card-luxury glass-card">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {(() => {
+              const tierInfo = teamTiers.find(t => t.tier === currentTier);
+              if (!tierInfo) return null;
+              
+              return (
+                <div className="p-3 bg-muted/30 rounded-md border border-border/50 space-y-2">
+                  {!tierInfo.isSupreme && (
+                    <div className="text-xs">
+                      <span className="text-muted-foreground">{t.performanceRange}: </span>
+                      <span className="font-mono font-medium text-foreground">
+                        {formatNumber(tierInfo.requirementMin / 100)} - {tierInfo.requirementMax ? formatNumber(tierInfo.requirementMax / 100) : '∞'} RWA
+                      </span>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-xs">
+                      <span className="text-muted-foreground">{t.dividend}: </span>
+                      <span className="font-mono font-semibold text-primary">{tierInfo.teamDividendPercent}%</span>
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-muted-foreground">{t.management}: </span>
+                      <span className="font-mono font-semibold text-chart-3">{tierInfo.streamingManagementPercent}%</span>
+                    </div>
+                  </div>
+                  {tierInfo.communityRequirement && tierInfo.communityRequirement !== '-' && (
+                    <div className="p-2 bg-primary/10 rounded-md border border-primary/30">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-primary font-medium">{t.communityStructure}:</span>
+                        <span className="text-foreground font-medium">
+                          {language === 'zh' ? tierInfo.communityRequirementZh : tierInfo.communityRequirement}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">
+                {t.teamDailyRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(2)}%</span>
+              </Label>
+              <Slider
+                min={1.0}
+                max={1.5}
+                step={0.1}
+                value={[dailyRate || 1.25]}
+                onValueChange={([value]) => form.setValue('dailyRate', value)}
+                data-testid="slider-team-daily-rate-desktop"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>1.0%</span>
+                <span>1.5%</span>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">
+                {t.mecPrice}
+              </Label>
+              <Select
+                value={form.watch('mecPrice')?.toString()}
+                onValueChange={(value) => form.setValue('mecPrice', Number(value))}
+              >
+                <SelectTrigger data-testid="select-mec-price-desktop">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 USD</SelectItem>
+                  <SelectItem value="2">2 USD</SelectItem>
+                  <SelectItem value="4">4 USD</SelectItem>
+                  <SelectItem value="8">8 USD</SelectItem>
+                  <SelectItem value="16">16 USD</SelectItem>
+                  <SelectItem value="32">32 USD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">
+                {t.totalPerformance}: <span className="font-mono text-primary">{totalPerformanceRwa || 0} RWA</span>
+              </Label>
+              <Slider
+                min={minTotalRwa}
+                max={maxTotalRwa}
+                step={1}
+                value={[totalPerformanceRwa || minTotalRwa]}
+                onValueChange={([value]) => form.setValue('totalPerformanceRwa', value)}
+                data-testid="slider-total-performance-desktop"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>{minTotalRwa} RWA</span>
+                <span>{maxTotalRwa === 1000 ? '∞' : `${maxTotalRwa} RWA`}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                1 RWA = $100 USD
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" size="lg" className="flex-1" data-testid="button-calculate-team-desktop">
+                <Calculator className="w-4 h-4 mr-2" />
+                {t.calculate}
+              </Button>
+              <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-team-desktop">
+                {t.reset}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      </div>
+
+      <div className="xl:col-span-3">
+        {result ? (
+          <div className="space-y-6">
+            <Card className="p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20 card-luxury">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{t.tierInfo}</h3>
+                <TierBadge tier={result.tierInfo.tier} />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 bg-card rounded-md text-center">
+                  <p className="text-xs text-muted-foreground mb-1">{t.dividend}</p>
+                  <p className="text-2xl font-bold font-mono text-primary">{result.tierInfo.teamDividendPercent}%</p>
+                </div>
+                <div className="p-3 bg-card rounded-md text-center">
+                  <p className="text-xs text-muted-foreground mb-1">{t.management}</p>
+                  <p className="text-2xl font-bold font-mono text-chart-3">{result.tierInfo.streamingManagementPercent}%</p>
+                </div>
+                {result.tierInfo.isSupreme && (
+                  <div className="p-3 bg-card rounded-md text-center">
+                    <p className="text-xs text-muted-foreground mb-1">Supreme</p>
+                    <p className="text-2xl font-bold font-mono text-chart-1">5%</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-5 card-luxury glass-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">{t.teamDividend}</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                    <span className="text-sm text-muted-foreground">90% USD</span>
+                    <span className="font-mono text-lg font-semibold">{formatCurrency(result.teamDividendUsd)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-primary/5 rounded-md">
+                    <span className="text-sm text-muted-foreground">10% MEC</span>
+                    <span className="font-mono text-lg font-semibold text-primary">{result.teamDividendMec.toFixed(2)} MEC</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-5 card-luxury glass-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-chart-3" />
+                  <h3 className="font-semibold">{t.streamingManagement}</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                    <span className="text-sm text-muted-foreground">100% USD</span>
+                    <span className="font-mono text-lg font-semibold">{formatCurrency(result.streamingManagementUsd)}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">{t.streamingManagement100DaysNote}</p>
+                </div>
+              </Card>
+            </div>
+
+            {result.tierInfo.isSupreme && (
+              <Card className="p-5 card-luxury">
+                <div className="flex items-center gap-2 mb-4">
+                  <Crown className="w-5 h-5 text-chart-1" />
+                  <h3 className="font-semibold">{t.supremeReward}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                    <span className="text-sm text-muted-foreground">90% USD</span>
+                    <span className="font-mono text-lg font-semibold">{formatCurrency(result.supremeRewardUsd)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-primary/5 rounded-md">
+                    <span className="text-sm text-muted-foreground">10% MEC</span>
+                    <span className="font-mono text-lg font-semibold text-primary">{result.supremeRewardMec.toFixed(2)} MEC</span>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            <Card className="p-5 bg-gradient-to-br from-chart-1/10 to-primary/10 card-luxury">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                {t.totalEarnings}
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 bg-card rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground mb-2">{t.daily}</p>
+                  <p className="text-lg font-bold font-mono">{formatCurrency(result.totalDailyUsd)}</p>
+                  <p className="text-sm font-mono text-primary">{result.totalDailyMec.toFixed(2)} MEC</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground mb-2">{t.monthly}</p>
+                  <p className="text-lg font-bold font-mono">{formatCurrency(result.totalMonthlyUsd)}</p>
+                  <p className="text-sm font-mono text-primary">{result.totalMonthlyMec.toFixed(2)} MEC</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg text-center">
+                  <p className="text-xs text-muted-foreground mb-2">180 {t.days}</p>
+                  <p className="text-lg font-bold font-mono">{formatCurrency(result.total180DayUsd)}</p>
+                  <p className="text-sm font-mono text-primary">{result.total180DayMec.toFixed(2)} MEC</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-3">@ {result.mecPrice} USD/MEC</p>
+            </Card>
+
+            <Button 
+              onClick={handleViewDetailedBreakdown}
+              className="w-full h-12"
+              data-testid="button-view-team-breakdown-desktop"
+            >
+              <ListOrdered className="w-4 h-4 mr-2" />
+              {t.viewDetailedBreakdown}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        ) : (
+          <Card className="p-12 text-center card-luxury glass-card h-full flex items-center justify-center min-h-[400px]">
+            <div className="space-y-4">
+              <Trophy className="w-16 h-16 mx-auto text-muted-foreground/30" />
+              <p className="text-muted-foreground text-lg">{t.selectTierAndCalculate || '选择层级并点击计算查看奖励结果'}</p>
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="mb-6 md:mb-8">
@@ -532,8 +823,14 @@ export default function Team() {
         </p>
       </div>
 
-      {viewState === 'form' && renderFormView()}
-      {viewState === 'results' && renderResultsView()}
+      <div className="hidden xl:block">
+        {renderDesktopLayout()}
+      </div>
+
+      <div className="xl:hidden">
+        {viewState === 'form' && renderFormView()}
+        {viewState === 'results' && renderResultsView()}
+      </div>
     </div>
   );
 }
