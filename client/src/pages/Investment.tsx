@@ -104,16 +104,23 @@ export default function Investment() {
               }}
               data-testid="button-product-short"
             >
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-2 w-full px-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="w-5 h-5 shrink-0" />
                   <span className="font-bold text-xl">{t.shortTerm}</span>
                 </div>
-                <span className="text-sm opacity-90">{t.shortTermDesc}</span>
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-medium opacity-95">
+                    {language === 'zh' ? '5-10天 · 每日0.5%-1%' : '5-10 days · 0.5%-1% daily'}
+                  </p>
+                  <p className="text-xs opacity-80">
+                    {language === 'zh' ? '5%总收益时返还本金' : 'Principal at 5% return'}
+                  </p>
+                </div>
                 {productType === ProductType.SHORT ? (
                   <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '5-10天 · 点击选择' : '5-10 days · Tap to select'}</span>
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '点击选择' : 'Tap to select'}</span>
                 )}
               </div>
             </Button>
@@ -137,16 +144,23 @@ export default function Investment() {
               }}
               data-testid="button-product-long"
             >
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-2 w-full px-2">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
+                  <TrendingUp className="w-5 h-5 shrink-0" />
                   <span className="font-bold text-xl">{t.longTerm}</span>
                 </div>
-                <span className="text-sm opacity-90">{t.longTermDesc}</span>
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-medium opacity-95">
+                    {language === 'zh' ? '180天 · 每日1%-1.5%' : '180 days · 1%-1.5% daily'}
+                  </p>
+                  <p className="text-xs opacity-80">
+                    {language === 'zh' ? '180天后返还本金' : 'Principal at day 180'}
+                  </p>
+                </div>
                 {productType === ProductType.LONG ? (
                   <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '180天 · 点击选择' : '180 days · Tap to select'}</span>
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '点击选择' : 'Tap to select'}</span>
                 )}
               </div>
             </Button>
