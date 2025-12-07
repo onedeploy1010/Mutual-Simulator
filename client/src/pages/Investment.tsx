@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DollarSign, TrendingUp, Calendar, Zap, PiggyBank, ListOrdered, ChevronRight, Calculator, X } from 'lucide-react';
 
 export default function Investment() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [, navigate] = useLocation();
   const { setInvestmentData } = useInvestment();
   const [result, setResult] = useState<InvestmentResult | null>(null);
