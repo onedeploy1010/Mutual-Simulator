@@ -33,8 +33,8 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
   const dailyBreakdown: DailyEarning[] = [];
   
   // STREAMING BONUS FORMULA: 每日分红收益 × 40%
-  // Short-term: daily dividend rate = 0.5%-1%, streaming = 0.2%-0.4% daily (estimate 0.3%)
-  // Long-term: daily dividend rate = 1%-1.5%, streaming = 0.4%-0.6% daily
+  // Short-term: daily dividend rate = 0.5%-1% (5%/duration), streaming = 0.2%-0.4% daily
+  // Long-term: streaming rate also uses 0.5%-1% (same as short-term), streaming = 0.2%-0.4% daily
   
   if (productType === 'short') {
     // Short-term streaming: 每日分红 × 40%
@@ -81,9 +81,10 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     };
   }
   
-  // Long-term: 每日分红 × 40% streaming bonus
-  // Daily streaming = dailyReturn × 40%, released over 100 days
-  const dailyStreamingAmount = dailyReturn * 0.4;  // 每日推流奖励
+  // Long-term: 推流奖励使用 0.5%-1% 利率（与短线相同），而非利息利率
+  // Streaming rate comes from user input (0.5%-1%), then × 40%
+  const streamingRatePercent = input.streamingRate || 0.75;  // Default 0.75% (average)
+  const dailyStreamingAmount = amount * (streamingRatePercent / 100) * 0.4;  // 推流 = 本金 × 推流利率 × 40%
   const totalStreamingBonus = dailyStreamingAmount * 100;  // 100天总推流
   const cycleAccumulation = dailyStreamingAmount * 20;  // 每20天累积
   

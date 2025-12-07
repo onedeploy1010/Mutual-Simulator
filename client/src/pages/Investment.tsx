@@ -28,13 +28,15 @@ export default function Investment() {
     defaultValues: {
       rwaCount: 1,
       productType: ProductType.SHORT,
-      duration: 7,
-      dailyRate: 1.0,
+      duration: 8, // Default to average (5+10)/2 = 7.5 → 8
+      dailyRate: 1.25, // Default to average (1.0+1.5)/2 = 1.25
+      streamingRate: 0.75, // Default to average (0.5+1.0)/2 = 0.75
     },
   });
 
   const productType = form.watch('productType');
   const dailyRate = form.watch('dailyRate');
+  const streamingRate = form.watch('streamingRate');
 
   const onSubmit = (data: InvestmentInput) => {
     const calculatedResult = calculateInvestment(data);
@@ -129,7 +131,7 @@ export default function Investment() {
             {productType === ProductType.SHORT && (
               <div>
                 <Label className="text-sm font-medium mb-2 block">
-                  {t.duration}: <span className="font-mono text-primary">{form.watch('duration') || 7} {t.days}</span>
+                  {t.duration}: <span className="font-mono text-primary">{form.watch('duration') || 8} {t.days}</span>
                 </Label>
                 <Controller
                   name="duration"
@@ -139,7 +141,7 @@ export default function Investment() {
                       min={5}
                       max={10}
                       step={1}
-                      value={[field.value || 7]}
+                      value={[field.value || 8]}
                       onValueChange={([value]) => field.onChange(value)}
                       data-testid="slider-duration"
                       className="mt-2"
@@ -154,30 +156,59 @@ export default function Investment() {
             )}
 
             {productType === ProductType.LONG && (
-              <div>
-                <Label className="text-sm font-medium mb-2 block">
-                  {t.dailyReturnRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(1)}%</span>
-                </Label>
-                <Controller
-                  name="dailyRate"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Slider
-                      min={1.0}
-                      max={1.5}
-                      step={0.1}
-                      value={[field.value || 1.0]}
-                      onValueChange={([value]) => field.onChange(value)}
-                      data-testid="slider-daily-rate"
-                      className="mt-2"
-                    />
-                  )}
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>1.0%</span>
-                  <span>1.5%</span>
+              <>
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">
+                    {t.dailyReturnRate}: <span className="font-mono text-primary">{dailyRate?.toFixed(2)}%</span>
+                  </Label>
+                  <Controller
+                    name="dailyRate"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Slider
+                        min={1.0}
+                        max={1.5}
+                        step={0.05}
+                        value={[field.value || 1.25]}
+                        onValueChange={([value]) => field.onChange(value)}
+                        data-testid="slider-daily-rate"
+                        className="mt-2"
+                      />
+                    )}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>1.0%</span>
+                    <span>1.5%</span>
+                  </div>
                 </div>
-              </div>
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">
+                    {t.streamingRate}: <span className="font-mono text-primary">{streamingRate?.toFixed(2)}%</span>
+                  </Label>
+                  <Controller
+                    name="streamingRate"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Slider
+                        min={0.5}
+                        max={1.0}
+                        step={0.05}
+                        value={[field.value || 0.75]}
+                        onValueChange={([value]) => field.onChange(value)}
+                        data-testid="slider-streaming-rate"
+                        className="mt-2"
+                      />
+                    )}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>0.5%</span>
+                    <span>1.0%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t.streamingRateDesc}
+                  </p>
+                </div>
+              </>
             )}
           </div>
 

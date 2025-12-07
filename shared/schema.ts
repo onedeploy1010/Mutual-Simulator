@@ -16,6 +16,7 @@ export const investmentInputSchema = z.object({
   productType: productTypeSchema,
   duration: z.number().min(5).max(10).int().optional(),
   dailyRate: z.number().min(1.0).max(1.5).optional(),
+  streamingRate: z.number().min(0.5).max(1.0).optional(), // Long-term streaming rate (same as short-term)
 });
 
 export type InvestmentInput = z.infer<typeof investmentInputSchema>;
@@ -250,6 +251,8 @@ export const translations = {
     investmentAmount: 'Investment Amount (RWA)',
     duration: 'Duration (Days)',
     dailyReturnRate: 'Daily Return Rate',
+    streamingRate: 'Streaming Rate',
+    streamingRateDesc: 'Streaming bonus = daily dividend × 40%',
     calculate: 'Calculate',
     reset: 'Reset',
     dailyReturn: 'Daily Return',
@@ -378,6 +381,8 @@ export const translations = {
     investmentAmount: '投资金额 (RWA)',
     duration: '投资周期（天）',
     dailyReturnRate: '每日收益率',
+    streamingRate: '推流利率',
+    streamingRateDesc: '推流奖励 = 每日分红 × 40%',
     calculate: '计算',
     reset: '重置',
     dailyReturn: '每日收益',
