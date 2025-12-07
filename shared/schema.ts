@@ -370,6 +370,12 @@ export const translations = {
     streamingBonusNote: 'Streaming Bonus Formula',
     streamingBonusShortTermNote: 'Streaming bonus = Daily dividend × 40% (0.2%-0.4% daily, estimated 0.3%). Released at cumulative task milestones: 20, 40, 60, 80, 100 tasks. Continue investing to unlock!',
     streamingBonusLongTermNote: 'Streaming bonus = Daily dividend × 40% (0.4%-0.6% daily). Released at days 20, 40, 60, 80, 100 with phased unlocks.',
+    tierStructure: 'Tier Structure',
+    achieved: 'Achieved',
+    currentLevel: 'Current',
+    viewResults: 'View Results',
+    backToForm: 'Back',
+    resultsSummary: 'Results Summary',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -502,6 +508,12 @@ export const translations = {
     streamingBonusNote: '推流计算公式',
     streamingBonusShortTermNote: '推流收益 = 每日分红 × 40%（每日0.2%-0.4%，可按0.3%估算）。在累计完成20/40/60/80/100次任务时释放。继续投资以解锁！',
     streamingBonusLongTermNote: '推流收益 = 每日分红 × 40%（每日0.4%-0.6%）。在第20/40/60/80/100天分阶段释放。',
+    tierStructure: '层级结构',
+    achieved: '已达成',
+    currentLevel: '当前',
+    viewResults: '查看结果',
+    backToForm: '返回',
+    resultsSummary: '结果统计',
   },
 };
 

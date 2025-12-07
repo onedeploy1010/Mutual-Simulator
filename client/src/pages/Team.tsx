@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MetricCard } from '@/components/MetricCard';
 import { TierBadge } from '@/components/TierBadge';
+import { TeamTierVisualization } from '@/components/TeamTierVisualization';
 import {
   Select,
   SelectContent,
@@ -19,8 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trophy, TrendingUp, Zap, Crown, ListOrdered } from 'lucide-react';
+import { Trophy, TrendingUp, Zap, Crown, ListOrdered, ArrowLeft, ArrowRight, Calculator } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+
+type ViewState = 'form' | 'results' | 'daily';
 
 export default function Team() {
   const { t, language } = useLanguage();
@@ -28,6 +31,7 @@ export default function Team() {
   const { setTeamData } = useTeam();
   const [result, setResult] = useState<TeamRewardResult | null>(null);
   const [currentFormValues, setCurrentFormValues] = useState<TeamRewardInput | null>(null);
+  const [viewState, setViewState] = useState<ViewState>('form');
 
   const getTierTranslation = (tierName: string) => {
     const tierMap: Record<string, keyof typeof t> = {
@@ -69,11 +73,11 @@ export default function Team() {
     const calculatedResult = calculateTeamRewards(data);
     setResult(calculatedResult);
     setCurrentFormValues(data);
+    setViewState('results');
   };
 
   const handleViewDetailedBreakdown = () => {
     if (!result || !currentFormValues) return;
-    
     setTeamData(result, currentFormValues);
     navigate('/team-daily-breakdown');
   };
@@ -81,6 +85,11 @@ export default function Team() {
   const handleReset = () => {
     form.reset();
     setResult(null);
+    setViewState('form');
+  };
+
+  const handleBackToForm = () => {
+    setViewState('form');
   };
 
   const formatCurrency = (value: number | undefined) => {
@@ -92,18 +101,10 @@ export default function Team() {
     return value.toLocaleString('en-US');
   };
 
-  return (
-    <div className="space-y-6 md:space-y-8">
-      <div className="mb-6 md:mb-8">
-        <h2 className="section-header text-foreground flex items-center gap-3">
-          <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
-          {t.teamRewards}
-        </h2>
-        <p className="text-sm md:text-base text-muted-foreground mt-2 ml-5">
-          {t.calculateTeamRewardsDesc}
-        </p>
-      </div>
-
+  const renderFormView = () => (
+    <div className="space-y-6">
+      <TeamTierVisualization currentTier={currentTier} animated={true} />
+      
       <Card className="p-4 md:p-8 card-luxury glass-card">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
@@ -253,6 +254,7 @@ export default function Team() {
 
           <div className="flex gap-3 pt-4">
             <Button type="submit" size="lg" className="flex-1 h-14 text-lg" data-testid="button-calculate-team">
+              <Calculator className="w-5 h-5 mr-2" />
               {t.calculate}
             </Button>
             <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-team">
@@ -261,195 +263,249 @@ export default function Team() {
           </div>
         </form>
       </Card>
+    </div>
+  );
 
-      {result && (
-        <>
-          <Card className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20 card-luxury">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">{t.tierInfo}</h3>
-                <TierBadge tier={result.tierInfo.tier} />
+  const renderResultsView = () => {
+    if (!result) return null;
+
+    return (
+      <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={handleBackToForm}
+            className="flex items-center gap-2"
+            data-testid="button-back-to-form"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t.backToForm}
+          </Button>
+          <h2 className="text-lg font-semibold">{t.resultsSummary}</h2>
+        </div>
+
+        <Card className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20 card-luxury">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="text-lg font-semibold text-foreground">{t.tierInfo}</h3>
+              <TierBadge tier={result.tierInfo.tier} />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3 bg-card rounded-md">
+                <p className="text-xs text-muted-foreground mb-1">{t.dividend}</p>
+                <p className="text-xl font-bold font-mono text-primary">
+                  {result.tierInfo.teamDividendPercent}%
+                </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="p-3 bg-card rounded-md">
+                <p className="text-xs text-muted-foreground mb-1">{t.management}</p>
+                <p className="text-xl font-bold font-mono text-chart-3">
+                  {result.tierInfo.streamingManagementPercent}%
+                </p>
+              </div>
+              {result.tierInfo.isSupreme && (
                 <div className="p-3 bg-card rounded-md">
-                  <p className="text-xs text-muted-foreground mb-1">{t.dividend}</p>
-                  <p className="text-xl font-bold font-mono text-primary">
-                    {result.tierInfo.teamDividendPercent}%
-                  </p>
+                  <p className="text-xs text-muted-foreground mb-1">Supreme</p>
+                  <p className="text-xl font-bold font-mono text-chart-1">5%</p>
                 </div>
-                <div className="p-3 bg-card rounded-md">
-                  <p className="text-xs text-muted-foreground mb-1">{t.management}</p>
-                  <p className="text-xl font-bold font-mono text-chart-3">
-                    {result.tierInfo.streamingManagementPercent}%
-                  </p>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <Card className="p-4 md:p-6 card-luxury glass-card">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <Trophy className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+              <h3 className="text-base md:text-lg font-semibold">{t.teamDividend}</h3>
+              <span className="text-sm text-muted-foreground">({result.tierInfo.teamDividendPercent}%)</span>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                <span className="text-sm text-muted-foreground">90% USD</span>
+                <span className="font-mono text-lg font-semibold" data-testid="value-team-dividend-usd">
+                  {formatCurrency(result.teamDividendUsd)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-primary/5 rounded-md">
+                <span className="text-sm text-muted-foreground">10% MEC</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-mono text-lg font-semibold text-primary" data-testid="value-team-dividend-mec">
+                    {result.teamDividendMec.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">MEC</span>
                 </div>
-                {result.tierInfo.isSupreme && (
-                  <div className="p-3 bg-card rounded-md">
-                    <p className="text-xs text-muted-foreground mb-1">Supreme</p>
-                    <p className="text-xl font-bold font-mono text-chart-1">5%</p>
-                  </div>
-                )}
+              </div>
+              <div className="text-xs text-muted-foreground text-right">
+                @ {result.mecPrice} USD/MEC
               </div>
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <Card className="p-4 md:p-6 card-luxury glass-card">
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <Trophy className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                <h3 className="text-base md:text-lg font-semibold">{t.teamDividend}</h3>
-                <span className="text-sm text-muted-foreground">({result.tierInfo.teamDividendPercent}%)</span>
+          <Card className="p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-chart-3" />
+              <h3 className="text-base font-semibold">{t.streamingManagement}</h3>
+              <span className="text-sm text-muted-foreground">({result.tierInfo.streamingManagementPercent}%)</span>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                <span className="text-sm text-muted-foreground">100% USD</span>
+                <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-usd">
+                  {formatCurrency(result.streamingManagementUsd)}
+                </span>
+              </div>
+              <div className="text-xs text-muted-foreground italic px-1">
+                {t.streamingManagement100DaysNote}
+              </div>
+            </div>
+          </Card>
+
+          {result.tierInfo.isSupreme && (
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Crown className="w-5 h-5 text-chart-1" />
+                <h3 className="text-base font-semibold">{t.supremeReward}</h3>
+                <span className="text-sm text-muted-foreground">(5%)</span>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
                   <span className="text-sm text-muted-foreground">90% USD</span>
-                  <span className="font-mono text-lg font-semibold" data-testid="value-team-dividend-usd">
-                    {formatCurrency(result.teamDividendUsd)}
+                  <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-usd">
+                    {formatCurrency(result.supremeRewardUsd)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-md">
-                  <span className="text-sm text-muted-foreground">10% MEC</span>
-                  <div className="flex items-center gap-1">
-                    <span className="font-mono text-lg font-semibold text-primary" data-testid="value-team-dividend-mec">
-                      {result.teamDividendMec.toFixed(2)}
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">10% MEC</span>
+                    <span className="text-xs text-muted-foreground">@ {result.mecPrice} USD/MEC</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-mec">
+                      {result.supremeRewardMec.toFixed(2)}
                     </span>
                     <span className="text-xs text-muted-foreground">MEC</span>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground text-right">
-                  @ {result.mecPrice} USD/MEC
-                </div>
               </div>
             </Card>
+          )}
+        </div>
 
-            <Card className="p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Zap className="w-5 h-5 text-chart-3" />
-                <h3 className="text-base font-semibold">{t.streamingManagement}</h3>
-                <span className="text-sm text-muted-foreground">({result.tierInfo.streamingManagementPercent}%)</span>
+        <Card className="p-6 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/30">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" />
+            {t.rewardSummary}
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="p-4 bg-card rounded-lg space-y-3">
+              <p className="text-xs text-muted-foreground mb-2">{t.daily}</p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground/70">USD</p>
+                  <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-daily-usd">
+                    {formatCurrency(result.totalDailyUsd)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground/70">MEC</p>
+                  <p className="text-xl font-bold font-mono text-primary" data-testid="metric-daily-mec">
+                    {result.totalDailyMec.toFixed(2)}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                  <span className="text-sm text-muted-foreground">100% USD</span>
-                  <span className="font-mono text-lg font-semibold" data-testid="metric-streaming-management-usd">
-                    {formatCurrency(result.streamingManagementUsd)}
-                  </span>
+            </div>
+            
+            <div className="p-4 bg-card rounded-lg space-y-3">
+              <p className="text-xs text-muted-foreground mb-2">{t.monthly}</p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground/70">USD</p>
+                  <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-monthly-usd">
+                    {formatCurrency(result.totalMonthlyUsd)}
+                  </p>
                 </div>
-                <div className="text-xs text-muted-foreground italic px-1">
-                  {t.streamingManagement100DaysNote}
+                <div>
+                  <p className="text-xs text-muted-foreground/70">MEC</p>
+                  <p className="text-xl font-bold font-mono text-primary" data-testid="metric-monthly-mec">
+                    {result.totalMonthlyMec.toFixed(2)}
+                  </p>
                 </div>
               </div>
-            </Card>
-
-            {result.tierInfo.isSupreme && (
-              <Card className="p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Crown className="w-5 h-5 text-chart-1" />
-                  <h3 className="text-base font-semibold">{t.supremeReward}</h3>
-                  <span className="text-sm text-muted-foreground">(5%)</span>
+            </div>
+            
+            <div className="p-4 bg-card rounded-lg space-y-3">
+              <p className="text-xs text-muted-foreground mb-2">180 {t.days}</p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground/70">USD</p>
+                  <p className="text-xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
+                    {formatCurrency(result.total180DayUsd)}
+                  </p>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <span className="text-sm text-muted-foreground">90% USD</span>
-                    <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-usd">
-                      {formatCurrency(result.supremeRewardUsd)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">10% MEC</span>
-                      <span className="text-xs text-muted-foreground">@ {result.mecPrice} USD/MEC</span>
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-mono text-lg font-semibold" data-testid="metric-supreme-reward-mec">
-                        {result.supremeRewardMec.toFixed(2)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">MEC</span>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-xs text-muted-foreground/70">MEC</p>
+                  <p className="text-xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
+                    {result.total180DayMec.toFixed(2)}
+                  </p>
                 </div>
-              </Card>
-            )}
+              </div>
+            </div>
           </div>
 
-          <Card className="p-6 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/30">
-            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              {t.rewardSummary}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="p-4 bg-card rounded-lg space-y-3">
-                <p className="text-xs text-muted-foreground mb-2">{t.daily}</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">USD</p>
-                    <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-daily-usd">
-                      {formatCurrency(result.totalDailyUsd)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">MEC</p>
-                    <p className="text-xl font-bold font-mono text-primary" data-testid="metric-daily-mec">
-                      {result.totalDailyMec.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-4 bg-card rounded-lg space-y-3">
-                <p className="text-xs text-muted-foreground mb-2">{t.monthly}</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">USD</p>
-                    <p className="text-xl font-bold font-mono text-foreground" data-testid="metric-monthly-usd">
-                      {formatCurrency(result.totalMonthlyUsd)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">MEC</p>
-                    <p className="text-xl font-bold font-mono text-primary" data-testid="metric-monthly-mec">
-                      {result.totalMonthlyMec.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-4 bg-card rounded-lg space-y-3">
-                <p className="text-xs text-muted-foreground mb-2">180 {t.days}</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">USD</p>
-                    <p className="text-xl font-bold font-mono text-foreground" data-testid="value-180-day-usd">
-                      {formatCurrency(result.total180DayUsd)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground/70">MEC</p>
-                    <p className="text-xl font-bold font-mono text-primary" data-testid="value-180-day-mec">
-                      {result.total180DayMec.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="text-xs text-muted-foreground text-center p-2 bg-muted/20 rounded-md">
+            @ {result.mecPrice} USD/MEC
+          </div>
 
-            <div className="text-xs text-muted-foreground text-center p-2 bg-muted/20 rounded-md">
-              @ {result.mecPrice} USD/MEC
-            </div>
+          <Button 
+            onClick={handleViewDetailedBreakdown}
+            className="w-full mt-4 h-14 text-lg"
+            data-testid="button-view-team-breakdown"
+          >
+            <ListOrdered className="w-5 h-5 mr-2" />
+            {t.viewDetailedBreakdown}
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Card>
 
-            <Button 
-              onClick={handleViewDetailedBreakdown}
-              variant="outline" 
-              className="w-full mt-4"
-              data-testid="button-view-team-breakdown"
-            >
-              <ListOrdered className="w-4 h-4 mr-2" />
-              {t.viewDetailedBreakdown}
-            </Button>
-          </Card>
-        </>
-      )}
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToForm}
+            className="flex-1 h-12"
+            data-testid="button-modify-params"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t.backToForm}
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={handleReset}
+            className="h-12"
+            data-testid="button-reset-results"
+          >
+            {t.reset}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <div className="mb-6 md:mb-8">
+        <h2 className="section-header text-foreground flex items-center gap-3">
+          <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+          {t.teamRewards}
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground mt-2 ml-5">
+          {t.calculateTeamRewardsDesc}
+        </p>
+      </div>
+
+      {viewState === 'form' && renderFormView()}
+      {viewState === 'results' && renderResultsView()}
     </div>
   );
 }
