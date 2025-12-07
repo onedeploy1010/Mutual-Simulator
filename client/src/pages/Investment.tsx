@@ -69,7 +69,7 @@ export default function Investment() {
         <Button
           type="button"
           variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-          className="w-full h-16 text-lg"
+          className="w-full h-auto py-3 text-lg"
           onClick={() => {
             form.setValue('productType', ProductType.SHORT);
             setResult(null);
@@ -78,13 +78,13 @@ export default function Investment() {
         >
           <div className="flex flex-col items-center">
             <span className="font-semibold">{t.shortTerm}</span>
-            <span className="text-xs opacity-80">5-10 {t.days}, 5% {t.totalReturn}</span>
+            <span className="text-xs opacity-80">{t.shortTermDesc}</span>
           </div>
         </Button>
         <Button
           type="button"
           variant={productType === ProductType.LONG ? 'default' : 'outline'}
-          className="w-full h-16 text-lg"
+          className="w-full h-auto py-3 text-lg"
           onClick={() => {
             form.setValue('productType', ProductType.LONG);
             setResult(null);
@@ -93,7 +93,7 @@ export default function Investment() {
         >
           <div className="flex flex-col items-center">
             <span className="font-semibold">{t.longTerm}</span>
-            <span className="text-xs opacity-80">180 {t.days}, 1-1.5% {t.daily}</span>
+            <span className="text-xs opacity-80">{t.longTermDesc}</span>
           </div>
         </Button>
       </div>
