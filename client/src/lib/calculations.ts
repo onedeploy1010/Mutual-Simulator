@@ -81,9 +81,11 @@ export function calculateInvestment(input: InvestmentInput): InvestmentResult {
     };
   }
   
-  // Long-term: 推流奖励 = 日利息收益 × 40%（与短线计算方式相同）
-  // Daily streaming = daily interest × 40%
-  const dailyStreamingAmount = dailyReturn * 0.4;  // 推流 = 日利息 × 40%
+  // Long-term: 推流奖励 = 统一基础利率(0.5%-1%) × 40% = 0.2%-0.4%
+  // 与短线产品使用相同的推流计算公式，不使用长线的1-1.5%日收益率
+  // 默认使用0.75%（0.5%-1%的中间值）作为推流基础利率
+  const streamingBaseRate = input.streamingRate || 0.75;  // 统一推流基础利率 0.5%-1%
+  const dailyStreamingAmount = amount * (streamingBaseRate / 100) * 0.4;  // 推流 = 本金 × 基础利率 × 40%
   const totalStreamingBonus = dailyStreamingAmount * 100;  // 100天总推流
   const cycleAccumulation = dailyStreamingAmount * 20;  // 每20天累积
   
@@ -190,9 +192,11 @@ export function calculateTeamRewards(input: TeamRewardInput): TeamRewardResult {
   const teamDividendUsd = teamDividendReward * 0.9;
   const teamDividendMec = (teamDividendReward * 0.1) / mecPrice;
   
-  // 推流管理奖励：每日分红 × 40%（推流池）× 管理比例，100天释放
-  // 公式: 每日推流管理 = baseDividendIncome × 40% × streamingManagementPercent%
-  const dailyStreamingAmount = baseDividendIncome * 0.4;  // 每日推流 = 每日分红 × 40%
+  // 推流管理奖励：统一使用0.5%-1%基础利率 × 40%（与投资计算一致）
+  // 公式: 每日推流 = 团队业绩 × 统一基础利率(0.75%) × 40% × 管理比例
+  // 不使用dailyRate(1-1.5%)，而是使用统一的0.75%基础利率
+  const streamingBaseRate = 0.75;  // 统一推流基础利率 (0.5%-1%的中间值)
+  const dailyStreamingAmount = totalPerformanceUsd * (streamingBaseRate / 100) * 0.4;  // 每日推流 = 业绩 × 0.75% × 40%
   const dailyStreamingRate = dailyStreamingAmount * (tierInfo.streamingManagementPercent / 100);
   const cycleAccumulation = dailyStreamingRate * 20; // 每20天累积
   const streamingManagementTotal100Days = dailyStreamingRate * 100;
