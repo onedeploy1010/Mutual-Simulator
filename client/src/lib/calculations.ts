@@ -164,10 +164,13 @@ export function calculateReferralRewards(input: ReferralInput): ReferralReward {
   return {
     directDailyReward,
     directMonthlyReward: directDailyReward * 30,
+    direct180DayReward: directDailyReward * 180,
     indirectDailyReward,
     indirectMonthlyReward: indirectDailyReward * 30,
+    indirect180DayReward: indirectDailyReward * 180,
     totalDailyReward: directDailyReward + indirectDailyReward,
     totalMonthlyReward: (directDailyReward + indirectDailyReward) * 30,
+    total180DayReward: (directDailyReward + indirectDailyReward) * 180,
   };
 }
 

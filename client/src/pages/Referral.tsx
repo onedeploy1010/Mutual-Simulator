@@ -96,12 +96,22 @@ export default function Referral() {
                 <span className="font-mono font-semibold">{formatCurrency(result.indirectDailyReward)}</span>
               </div>
             </div>
-            <div className="flex items-center justify-center p-6 bg-card rounded-md">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">{t.monthly} {t.totalReward}</p>
-                <p className="text-2xl xl:text-3xl font-bold font-mono text-primary">
-                  {formatCurrency(result.totalMonthlyReward)}
-                </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center justify-center p-4 bg-card rounded-md">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground mb-1">{t.monthly} {t.totalReward}</p>
+                  <p className="text-xl xl:text-2xl font-bold font-mono text-primary">
+                    {formatCurrency(result.totalMonthlyReward)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center p-4 bg-gradient-to-br from-chart-1/10 to-chart-2/10 rounded-md border border-chart-1/30">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground mb-1">180 {t.days} {t.totalReward}</p>
+                  <p className="text-xl xl:text-2xl font-bold font-mono text-chart-1" data-testid="value-180-day-referral">
+                    {formatCurrency(result.total180DayReward)}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

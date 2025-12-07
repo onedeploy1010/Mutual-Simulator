@@ -68,10 +68,13 @@ export type ReferralInput = z.infer<typeof referralInputSchema>;
 export interface ReferralReward {
   directDailyReward: number;
   directMonthlyReward: number;
+  direct180DayReward: number;
   indirectDailyReward: number;
   indirectMonthlyReward: number;
+  indirect180DayReward: number;
   totalDailyReward: number;
   totalMonthlyReward: number;
+  total180DayReward: number;
 }
 
 export type TeamTier = 
