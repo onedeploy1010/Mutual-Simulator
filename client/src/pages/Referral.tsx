@@ -131,22 +131,22 @@ export default function Referral() {
   );
 
   const FormSection = (
-    <Card className="p-4 md:p-6 xl:p-8 card-luxury glass-card">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-5">
+    <Card className="p-3 md:p-5 xl:p-6 card-luxury glass-card">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-3">
           {/* Rate Selection */}
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30"
+            transition={{ duration: 0.25 }}
+            className="p-3 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-lg border-2 border-cyan-500/30"
           >
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <TrendingUp className="w-5 h-5 text-cyan-500" />
-              <span className="text-base font-semibold text-cyan-700 dark:text-cyan-300">{t.dailyReturnRateReferral}</span>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <TrendingUp className="w-4 h-4 text-cyan-500" />
+              <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">{t.dailyReturnRateReferral}</span>
             </div>
-            <div className="text-center mb-3">
-              <span className="font-mono text-3xl font-bold text-cyan-600 dark:text-cyan-400">{dailyRate?.toFixed(2)}%</span>
+            <div className="text-center mb-2">
+              <span className="font-mono text-2xl font-bold text-cyan-600 dark:text-cyan-400">{dailyRate?.toFixed(2)}%</span>
             </div>
             <Slider
               min={1.0}
@@ -155,90 +155,79 @@ export default function Referral() {
               value={[dailyRate || 1.25]}
               onValueChange={([value]) => form.setValue('dailyRate', value)}
               data-testid="slider-daily-rate"
-              className="mt-2"
             />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>1.0%</span>
               <span>1.5%</span>
             </div>
-            <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 mt-3 text-center">
+            <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 mt-2 text-center">
               {t.rateAppliesBothLevels}
             </p>
           </motion.div>
 
           {/* Level 1 - Direct Reward */}
           <motion.div 
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30"
+            transition={{ duration: 0.25, delay: 0.08 }}
+            className="p-3 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-lg border-2 border-cyan-500/30"
           >
-            <div className="flex items-center gap-2 mb-3">
-              <UserPlus className="w-5 h-5 text-cyan-500" />
-              <h3 className="text-base font-semibold text-cyan-700 dark:text-cyan-300">
+            <div className="flex items-center gap-2 mb-2">
+              <UserPlus className="w-4 h-4 text-cyan-500" />
+              <h3 className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
                 Level 1 - {t.directReward}
               </h3>
               <span className="ml-auto text-xs font-mono bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 rounded-full">20%</span>
             </div>
-
-            <div>
-              <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block text-cyan-700/80 dark:text-cyan-300/80">
-                {t.downlineInvestment}
-              </Label>
-              <Input
-                id="downlineRwaCount"
-                type="number"
-                step="1"
-                min="1"
-                {...form.register('downlineRwaCount', { valueAsNumber: true })}
-                data-testid="input-downline-rwa"
-                className="font-mono h-12 text-lg"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                1 RWA = $100 USD
-              </p>
-            </div>
+            <Label htmlFor="downlineRwaCount" className="text-xs font-medium mb-1 block text-cyan-700/80 dark:text-cyan-300/80">
+              {t.downlineInvestment}
+            </Label>
+            <Input
+              id="downlineRwaCount"
+              type="number"
+              step="1"
+              min="1"
+              {...form.register('downlineRwaCount', { valueAsNumber: true })}
+              data-testid="input-downline-rwa"
+              className="font-mono h-10"
+            />
+            <p className="text-xs text-muted-foreground mt-1">1 RWA = $100 USD</p>
           </motion.div>
 
           {/* Level 2 - Indirect Reward */}
           <motion.div 
-            initial={{ opacity: 0, x: 10 }}
+            initial={{ opacity: 0, x: 8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="p-4 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/15 dark:to-indigo-500/15 rounded-xl border-2 border-blue-500/30"
+            transition={{ duration: 0.25, delay: 0.15 }}
+            className="p-3 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/15 dark:to-indigo-500/15 rounded-lg border-2 border-blue-500/30"
           >
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="w-5 h-5 text-blue-500" />
-              <h3 className="text-base font-semibold text-blue-700 dark:text-blue-300">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-blue-500" />
+              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                 Level 2 - {t.indirectReward}
               </h3>
               <span className="text-xs text-blue-600/70 dark:text-blue-400/70">(Optional)</span>
               <span className="ml-auto text-xs font-mono bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">10%</span>
             </div>
-
-            <div>
-              <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block text-blue-700/80 dark:text-blue-300/80">
-                {t.secondLevelInvestment}
-              </Label>
-              <Input
-                id="secondLevelRwaCount"
-                type="number"
-                step="1"
-                min="0"
-                {...form.register('secondLevelRwaCount', { valueAsNumber: true })}
-                data-testid="input-second-level-rwa"
-                className="font-mono h-12 text-lg"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                1 RWA = $100 USD
-              </p>
-            </div>
+            <Label htmlFor="secondLevelRwaCount" className="text-xs font-medium mb-1 block text-blue-700/80 dark:text-blue-300/80">
+              {t.secondLevelInvestment}
+            </Label>
+            <Input
+              id="secondLevelRwaCount"
+              type="number"
+              step="1"
+              min="0"
+              {...form.register('secondLevelRwaCount', { valueAsNumber: true })}
+              data-testid="input-second-level-rwa"
+              className="font-mono h-10"
+            />
+            <p className="text-xs text-muted-foreground mt-1">1 RWA = $100 USD</p>
           </motion.div>
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg" data-testid="button-calculate-referral">
-            <Calculator className="w-5 h-5 mr-2" />
+        <div className="flex gap-3 pt-2">
+          <Button type="submit" size="lg" className="flex-1 h-11" data-testid="button-calculate-referral">
+            <Calculator className="w-4 h-4 mr-2" />
             {t.calculate}
           </Button>
           <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-referral">
@@ -251,13 +240,13 @@ export default function Referral() {
 
   if (isMobile) {
     return (
-      <div className="space-y-6">
-        <div className="mb-4">
-          <h2 className="section-header text-foreground flex items-center gap-3">
-            <div className="w-1.5 h-10 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full"></div>
+      <div className="space-y-4">
+        <div className="mb-2">
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <div className="w-1 h-6 bg-gradient-to-b from-cyan-500 to-blue-500 rounded-full"></div>
             {t.referralRewards}
           </h2>
-          <p className="text-sm text-muted-foreground mt-2 ml-5">
+          <p className="text-xs text-muted-foreground mt-1 ml-3">
             {t.referralDesc}
           </p>
         </div>
