@@ -15,14 +15,14 @@ interface TierRequirement {
 }
 
 const tierRequirements: TierRequirement[] = [
-  { tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '-', requirementZh: '-', performance: '1,000-5,999', performanceZh: '1,000-5,999' },
-  { tier: '1-Star Expert', label: '1★ Expert', labelZh: '1星达人', requirement: '2× VIP', requirementZh: '2个VIP', performance: '6,000-29,999', performanceZh: '6,000-29,999' },
-  { tier: '2-Star Expert', label: '2★ Expert', labelZh: '2星达人', requirement: '2× 1★', requirementZh: '2个1星', performance: '30,000-99,999', performanceZh: '30,000-99,999' },
-  { tier: '3-Star Expert', label: '3★ Expert', labelZh: '3星达人', requirement: '2× 2★', requirementZh: '2个2星', performance: '100,000-299,999', performanceZh: '100,000-299,999' },
-  { tier: '1-Star Ambassador', label: '1★ Amb', labelZh: '1星大使', requirement: '2× 3★E', requirementZh: '2个3星达人', performance: '300,000-999,999', performanceZh: '300,000-999,999' },
-  { tier: '2-Star Ambassador', label: '2★ Amb', labelZh: '2星大使', requirement: '2× 1★A', requirementZh: '2个1星大使', performance: '1M-2.99M', performanceZh: '100万-299万' },
-  { tier: '3-Star Ambassador', label: '3★ Amb', labelZh: '3星大使', requirement: '2× 2★A', requirementZh: '2个2星大使', performance: '3M-9.99M', performanceZh: '300万-999万' },
-  { tier: 'Supreme', label: 'Supreme', labelZh: '至尊', requirement: '2× 3★A', requirementZh: '2个3星大使', performance: '10M+', performanceZh: '1000万+' },
+  { tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '-', requirementZh: '-', performance: '6,000-19,999', performanceZh: '6,000-19,999' },
+  { tier: '1-Star Expert', label: '1★ Expert', labelZh: '1星达人', requirement: '2× VIP', requirementZh: '2个VIP', performance: '20,000-59,999', performanceZh: '20,000-59,999' },
+  { tier: '2-Star Expert', label: '2★ Expert', labelZh: '2星达人', requirement: '2× 1★', requirementZh: '2个1星', performance: '60,000-199,999', performanceZh: '60,000-199,999' },
+  { tier: '3-Star Expert', label: '3★ Expert', labelZh: '3星达人', requirement: '2× 2★', requirementZh: '2个2星', performance: '200,000-599,999', performanceZh: '20万-59万' },
+  { tier: '1-Star Ambassador', label: '1★ Amb', labelZh: '1星大使', requirement: '2× 3★E', requirementZh: '2个3星达人', performance: '600,000-1.99M', performanceZh: '60万-199万' },
+  { tier: '2-Star Ambassador', label: '2★ Amb', labelZh: '2星大使', requirement: '2× 1★A', requirementZh: '2个1星大使', performance: '2M-5.99M', performanceZh: '200万-599万' },
+  { tier: '3-Star Ambassador', label: '3★ Amb', labelZh: '3星大使', requirement: '2× 2★A', requirementZh: '2个2星大使', performance: '6M+', performanceZh: '600万+' },
+  { tier: 'Supreme', label: 'Supreme', labelZh: '至尊', requirement: '2× 3★A', requirementZh: '2个3星大使', performance: '6M+', performanceZh: '600万+' },
 ];
 
 interface TeamTierVisualizationProps {
