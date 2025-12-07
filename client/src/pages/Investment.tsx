@@ -72,19 +72,19 @@ export default function Investment() {
   };
 
   const ProductTypeStep = (
-    <div className="space-y-3">
-      <div className="p-5 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-2xl border-2 border-cyan-500/30">
-        <div className="text-center mb-5">
-          <div className="inline-flex items-center justify-center gap-2 mb-2">
-            <TrendingUp className="w-6 h-6 text-cyan-500" />
-            <span className="text-xl font-bold text-cyan-700 dark:text-cyan-300">{t.productType}</span>
+    <div>
+      <div className="p-3 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30">
+        <div className="text-center mb-3">
+          <div className="inline-flex items-center justify-center gap-2 mb-1">
+            <TrendingUp className="w-5 h-5 text-cyan-500" />
+            <span className="text-lg font-bold text-cyan-700 dark:text-cyan-300">{t.productType}</span>
           </div>
-          <p className="text-sm text-cyan-600/80 dark:text-cyan-400/80 flex items-center justify-center gap-2">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
+          <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 flex items-center justify-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
             {language === 'zh' ? '点击选择产品类型' : 'Tap to select product type'}
           </p>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -93,9 +93,9 @@ export default function Investment() {
             <Button
               type="button"
               variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-              className={`w-full h-auto min-h-[88px] py-5 transition-all duration-300 ${
+              className={`w-full h-auto min-h-[72px] py-3 transition-all duration-300 ${
                 productType === ProductType.SHORT 
-                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-xl shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  ? 'ring-2 ring-cyan-500 ring-offset-1 shadow-lg shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
                   : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-2 border-dashed border-cyan-500/40'
               }`}
               onClick={() => {
@@ -104,23 +104,18 @@ export default function Investment() {
               }}
               data-testid="button-product-short"
             >
-              <div className="flex flex-col items-center gap-2 w-full px-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 shrink-0" />
-                  <span className="font-bold text-xl">{t.shortTerm}</span>
+              <div className="flex flex-col items-center gap-1 w-full px-1">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 shrink-0" />
+                  <span className="font-bold text-lg">{t.shortTerm}</span>
                 </div>
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-medium opacity-95">
-                    {language === 'zh' ? '5-10天 · 每日0.5%-1%' : '5-10 days · 0.5%-1% daily'}
-                  </p>
-                  <p className="text-xs opacity-80">
-                    {language === 'zh' ? '5%总收益时返还本金' : 'Principal at 5% return'}
-                  </p>
-                </div>
+                <p className="text-xs font-medium opacity-90">
+                  {language === 'zh' ? '5-10天 · 每日0.5%-1% · 5%返本' : '5-10d · 0.5%-1%/day · 5% return'}
+                </p>
                 {productType === ProductType.SHORT ? (
-                  <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
+                  <span className="text-[10px] font-semibold bg-white/25 px-2 py-0.5 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '点击选择' : 'Tap to select'}</span>
+                  <span className="text-[10px] text-cyan-600 dark:text-cyan-400">{language === 'zh' ? '点击选择' : 'Tap'}</span>
                 )}
               </div>
             </Button>
@@ -133,9 +128,9 @@ export default function Investment() {
             <Button
               type="button"
               variant={productType === ProductType.LONG ? 'default' : 'outline'}
-              className={`w-full h-auto min-h-[88px] py-5 transition-all duration-300 ${
+              className={`w-full h-auto min-h-[72px] py-3 transition-all duration-300 ${
                 productType === ProductType.LONG 
-                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-xl shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  ? 'ring-2 ring-cyan-500 ring-offset-1 shadow-lg shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
                   : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-2 border-dashed border-cyan-500/40'
               }`}
               onClick={() => {
@@ -144,23 +139,18 @@ export default function Investment() {
               }}
               data-testid="button-product-long"
             >
-              <div className="flex flex-col items-center gap-2 w-full px-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 shrink-0" />
-                  <span className="font-bold text-xl">{t.longTerm}</span>
+              <div className="flex flex-col items-center gap-1 w-full px-1">
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 shrink-0" />
+                  <span className="font-bold text-lg">{t.longTerm}</span>
                 </div>
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-medium opacity-95">
-                    {language === 'zh' ? '180天 · 每日1%-1.5%' : '180 days · 1%-1.5% daily'}
-                  </p>
-                  <p className="text-xs opacity-80">
-                    {language === 'zh' ? '180天后返还本金' : 'Principal at day 180'}
-                  </p>
-                </div>
+                <p className="text-xs font-medium opacity-90">
+                  {language === 'zh' ? '180天 · 每日1%-1.5% · 到期返本' : '180d · 1%-1.5%/day · end return'}
+                </p>
                 {productType === ProductType.LONG ? (
-                  <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
+                  <span className="text-[10px] font-semibold bg-white/25 px-2 py-0.5 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '点击选择' : 'Tap to select'}</span>
+                  <span className="text-[10px] text-cyan-600 dark:text-cyan-400">{language === 'zh' ? '点击选择' : 'Tap'}</span>
                 )}
               </div>
             </Button>

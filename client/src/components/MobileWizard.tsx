@@ -34,8 +34,8 @@ export function MobileWizard({ steps, onComplete, isValid = true }: MobileWizard
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-center gap-2 mb-8">
+    <div className="space-y-4">
+      <div className="flex items-center justify-center gap-2 mb-4">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">
             <div
@@ -60,20 +60,20 @@ export function MobileWizard({ steps, onComplete, isValid = true }: MobileWizard
         ))}
       </div>
 
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-foreground">
+      <div className="text-center mb-3">
+        <h3 className="text-lg font-semibold text-foreground">
           {steps[currentStep].title}
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-0.5">
           {t.step} {currentStep + 1} / {steps.length}
         </p>
       </div>
 
-      <Card className="p-6 card-luxury glass-card">
+      <Card className="p-4 card-luxury glass-card">
         {steps[currentStep].content}
       </Card>
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-2">
         {currentStep > 0 && (
           <Button
             type="button"
