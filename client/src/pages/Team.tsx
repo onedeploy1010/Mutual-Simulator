@@ -269,13 +269,13 @@ export default function Team() {
 
   const FormSection = (
     <div className="space-y-4">
-      <Card className="p-4 xl:p-6 card-luxury bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
+      <Card className="p-4 xl:p-6 card-luxury bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/15 dark:to-orange-500/15 border-2 border-amber-500/30">
         <Label className="text-base xl:text-lg font-semibold mb-2 block text-center flex items-center justify-center gap-2">
-          <Trophy className="w-5 h-5 text-primary" />
-          {t.currentTier}
+          <Trophy className="w-5 h-5 text-amber-500" />
+          <span className="text-amber-700 dark:text-amber-300">{t.currentTier}</span>
         </Label>
-        <p className="text-xs text-muted-foreground text-center mb-4 flex items-center justify-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        <p className="text-xs text-amber-600/80 dark:text-amber-400/80 text-center mb-4 flex items-center justify-center gap-1">
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
           {language === 'zh' ? '点击选择您的达标等级' : 'Click to select your tier level'}
         </p>
         <div className="grid grid-cols-4 gap-2">
@@ -292,8 +292,8 @@ export default function Team() {
                 size="sm"
                 className={`w-full h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-300 cursor-pointer ${
                   currentTier === tier.tier 
-                    ? 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80 animate-pulse' 
-                    : 'hover:border-primary hover:bg-primary/10 hover:scale-102 hover:shadow-md border-dashed'
+                    ? 'ring-2 ring-amber-500 ring-offset-2 shadow-lg shadow-amber-500/40 scale-105 bg-gradient-to-br from-amber-500 to-orange-500 text-white border-amber-500' 
+                    : 'hover:border-amber-500 hover:bg-amber-500/10 hover:scale-102 hover:shadow-md border-dashed border-amber-500/40'
                 }`}
                 onClick={() => handleTierChange(tier.tier)}
                 data-testid={`tab-tier-${tier.tier}`}
@@ -305,9 +305,9 @@ export default function Team() {
                   }
                 </span>
                 {currentTier === tier.tier ? (
-                  <span className="text-[10px] font-medium bg-white/20 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  <span className="text-[10px] font-medium bg-white/30 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground opacity-60">{language === 'zh' ? '点击选择' : 'Click'}</span>
+                  <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70">{language === 'zh' ? '点击选择' : 'Click'}</span>
                 )}
               </Button>
             </motion.div>
@@ -328,11 +328,11 @@ export default function Team() {
                 className={`w-full h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-300 cursor-pointer ${
                   currentTier === tier.tier 
                     ? tier.tier === 'Supreme'
-                      ? 'ring-2 ring-yellow-500 ring-offset-2 shadow-lg shadow-yellow-500/30 scale-105 bg-gradient-to-br from-yellow-500 to-orange-500 text-white'
-                      : 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80 animate-pulse'
+                      ? 'ring-2 ring-yellow-400 ring-offset-2 shadow-lg shadow-yellow-400/50 scale-105 bg-gradient-to-br from-yellow-400 to-amber-500 text-white border-yellow-400'
+                      : 'ring-2 ring-amber-500 ring-offset-2 shadow-lg shadow-amber-500/40 scale-105 bg-gradient-to-br from-amber-500 to-orange-500 text-white border-amber-500'
                     : tier.tier === 'Supreme' 
-                      ? 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30 border-dashed hover:border-yellow-500 hover:from-yellow-500/20 hover:to-orange-500/20 hover:scale-102 hover:shadow-md' 
-                      : 'hover:border-primary hover:bg-primary/10 hover:scale-102 hover:shadow-md border-dashed'
+                      ? 'bg-gradient-to-r from-yellow-400/15 to-amber-500/15 border-yellow-400/40 border-dashed hover:border-yellow-400 hover:from-yellow-400/25 hover:to-amber-500/25 hover:scale-102 hover:shadow-md' 
+                      : 'hover:border-amber-500 hover:bg-amber-500/10 hover:scale-102 hover:shadow-md border-dashed border-amber-500/40'
                 }`}
                 onClick={() => handleTierChange(tier.tier)}
                 data-testid={`tab-tier-${tier.tier}`}
@@ -345,9 +345,9 @@ export default function Team() {
                   }
                 </span>
                 {currentTier === tier.tier ? (
-                  <span className="text-[10px] font-medium bg-white/20 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  <span className="text-[10px] font-medium bg-white/30 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground opacity-60">{language === 'zh' ? '点击选择' : 'Click'}</span>
+                  <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70">{language === 'zh' ? '点击选择' : 'Click'}</span>
                 )}
               </Button>
             </motion.div>
