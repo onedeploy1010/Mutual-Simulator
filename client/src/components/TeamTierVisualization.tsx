@@ -1,416 +1,200 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
-import { TierBadge } from '@/components/TierBadge';
-import { ChevronDown, Users, Crown } from 'lucide-react';
+import { Users, Crown, ChevronUp } from 'lucide-react';
 import type { TeamTier } from '@shared/schema';
 
-interface TierNode {
-  id: string;
-  tier: string;
+interface TierRequirement {
+  tier: TeamTier;
   label: string;
   labelZh: string;
   requirement: string;
   requirementZh: string;
-  children?: TierNode[];
-  level: number;
+  performance: string;
+  performanceZh: string;
 }
 
-const tierStructure: TierNode = {
-  id: 'supreme',
-  tier: 'Supreme',
-  label: 'Supreme',
-  labelZh: '至尊',
-  requirement: '2× 3★ Ambassador',
-  requirementZh: '2个3星大使',
-  level: 0,
-  children: [
-    {
-      id: 'amb3-1',
-      tier: '3-Star Ambassador',
-      label: '3★ Ambassador',
-      labelZh: '3星大使',
-      requirement: '2× 2★ Ambassador',
-      requirementZh: '2个2星大使',
-      level: 1,
-      children: [
-        {
-          id: 'amb2-1',
-          tier: '2-Star Ambassador',
-          label: '2★ Ambassador',
-          labelZh: '2星大使',
-          requirement: '2× 1★ Ambassador',
-          requirementZh: '2个1星大使',
-          level: 2,
-          children: [
-            {
-              id: 'amb1-1',
-              tier: '1-Star Ambassador',
-              label: '1★ Ambassador',
-              labelZh: '1星大使',
-              requirement: '2× 3★ Expert',
-              requirementZh: '2个3星达人',
-              level: 3,
-              children: [
-                {
-                  id: 'exp3-1',
-                  tier: '3-Star Expert',
-                  label: '3★ Expert',
-                  labelZh: '3星达人',
-                  requirement: '2× 2★ Expert',
-                  requirementZh: '2个2星达人',
-                  level: 4,
-                  children: [
-                    {
-                      id: 'exp2-1',
-                      tier: '2-Star Expert',
-                      label: '2★ Expert',
-                      labelZh: '2星达人',
-                      requirement: '2× 1★ Expert',
-                      requirementZh: '2个1星达人',
-                      level: 5,
-                      children: [
-                        {
-                          id: 'exp1-1',
-                          tier: '1-Star Expert',
-                          label: '1★ Expert',
-                          labelZh: '1星达人',
-                          requirement: '2× VIP',
-                          requirementZh: '2个VIP',
-                          level: 6,
-                          children: [
-                            { id: 'vip-1', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                            { id: 'vip-2', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                          ]
-                        },
-                        {
-                          id: 'exp1-2',
-                          tier: '1-Star Expert',
-                          label: '1★ Expert',
-                          labelZh: '1星达人',
-                          requirement: '2× VIP',
-                          requirementZh: '2个VIP',
-                          level: 6,
-                          children: [
-                            { id: 'vip-3', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                            { id: 'vip-4', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                          ]
-                        },
-                      ]
-                    },
-                    {
-                      id: 'exp2-2',
-                      tier: '2-Star Expert',
-                      label: '2★ Expert',
-                      labelZh: '2星达人',
-                      requirement: '2× 1★ Expert',
-                      requirementZh: '2个1星达人',
-                      level: 5,
-                      children: [
-                        {
-                          id: 'exp1-3',
-                          tier: '1-Star Expert',
-                          label: '1★ Expert',
-                          labelZh: '1星达人',
-                          requirement: '2× VIP',
-                          requirementZh: '2个VIP',
-                          level: 6,
-                          children: [
-                            { id: 'vip-5', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                            { id: 'vip-6', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                          ]
-                        },
-                        {
-                          id: 'exp1-4',
-                          tier: '1-Star Expert',
-                          label: '1★ Expert',
-                          labelZh: '1星达人',
-                          requirement: '2× VIP',
-                          requirementZh: '2个VIP',
-                          level: 6,
-                          children: [
-                            { id: 'vip-7', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                            { id: 'vip-8', tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '', requirementZh: '', level: 7 },
-                          ]
-                        },
-                      ]
-                    },
-                  ]
-                },
-                {
-                  id: 'exp3-2',
-                  tier: '3-Star Expert',
-                  label: '3★ Expert',
-                  labelZh: '3星达人',
-                  requirement: '2× 2★ Expert',
-                  requirementZh: '2个2星达人',
-                  level: 4,
-                }
-              ]
-            },
-            {
-              id: 'amb1-2',
-              tier: '1-Star Ambassador',
-              label: '1★ Ambassador',
-              labelZh: '1星大使',
-              requirement: '2× 3★ Expert',
-              requirementZh: '2个3星达人',
-              level: 3,
-            }
-          ]
-        },
-        {
-          id: 'amb2-2',
-          tier: '2-Star Ambassador',
-          label: '2★ Ambassador',
-          labelZh: '2星大使',
-          requirement: '2× 1★ Ambassador',
-          requirementZh: '2个1星大使',
-          level: 2,
-        }
-      ]
-    },
-    {
-      id: 'amb3-2',
-      tier: '3-Star Ambassador',
-      label: '3★ Ambassador',
-      labelZh: '3星大使',
-      requirement: '2× 2★ Ambassador',
-      requirementZh: '2个2星大使',
-      level: 1,
-    }
-  ]
-};
-
-const tierOrder = [
-  'VIP',
-  '1-Star Expert',
-  '2-Star Expert', 
-  '3-Star Expert',
-  '1-Star Ambassador',
-  '2-Star Ambassador',
-  '3-Star Ambassador',
-  'Supreme'
+const tierRequirements: TierRequirement[] = [
+  { tier: 'VIP', label: 'VIP', labelZh: 'VIP', requirement: '-', requirementZh: '-', performance: '1,000-5,999', performanceZh: '1,000-5,999' },
+  { tier: '1-Star Expert', label: '1★ Expert', labelZh: '1星达人', requirement: '2× VIP', requirementZh: '2个VIP', performance: '6,000-29,999', performanceZh: '6,000-29,999' },
+  { tier: '2-Star Expert', label: '2★ Expert', labelZh: '2星达人', requirement: '2× 1★', requirementZh: '2个1星', performance: '30,000-99,999', performanceZh: '30,000-99,999' },
+  { tier: '3-Star Expert', label: '3★ Expert', labelZh: '3星达人', requirement: '2× 2★', requirementZh: '2个2星', performance: '100,000-299,999', performanceZh: '100,000-299,999' },
+  { tier: '1-Star Ambassador', label: '1★ Amb', labelZh: '1星大使', requirement: '2× 3★E', requirementZh: '2个3星达人', performance: '300,000-999,999', performanceZh: '300,000-999,999' },
+  { tier: '2-Star Ambassador', label: '2★ Amb', labelZh: '2星大使', requirement: '2× 1★A', requirementZh: '2个1星大使', performance: '1M-2.99M', performanceZh: '100万-299万' },
+  { tier: '3-Star Ambassador', label: '3★ Amb', labelZh: '3星大使', requirement: '2× 2★A', requirementZh: '2个2星大使', performance: '3M-9.99M', performanceZh: '300万-999万' },
+  { tier: 'Supreme', label: 'Supreme', labelZh: '至尊', requirement: '2× 3★A', requirementZh: '2个3星大使', performance: '10M+', performanceZh: '1000万+' },
 ];
 
 interface TeamTierVisualizationProps {
   currentTier?: string;
-  animated?: boolean;
 }
 
-export function TeamTierVisualization({ currentTier = 'VIP', animated = true }: TeamTierVisualizationProps) {
+export function TeamTierVisualization({ currentTier = 'VIP' }: TeamTierVisualizationProps) {
   const { t, language } = useLanguage();
-  const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
-  const [expandedLevel, setExpandedLevel] = useState(0);
+  const [animatedIndex, setAnimatedIndex] = useState(-1);
   
-  const currentTierIndex = tierOrder.indexOf(currentTier);
+  const currentTierIndex = tierRequirements.findIndex(t => t.tier === currentTier);
 
   useEffect(() => {
-    if (!animated) {
-      const allNodes = new Set<string>();
-      const collectNodes = (node: TierNode) => {
-        allNodes.add(node.id);
-        node.children?.forEach(collectNodes);
-      };
-      collectNodes(tierStructure);
-      setVisibleNodes(allNodes);
-      setExpandedLevel(8);
-      return;
-    }
+    setAnimatedIndex(-1);
+    const timer = setTimeout(() => {
+      let idx = 0;
+      const interval = setInterval(() => {
+        setAnimatedIndex(idx);
+        idx++;
+        if (idx > currentTierIndex) {
+          clearInterval(interval);
+        }
+      }, 150);
+      return () => clearInterval(interval);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [currentTier, currentTierIndex]);
 
-    const animateNodes = async () => {
-      const delays = [0, 200, 400, 600, 800, 1000, 1200, 1400];
-      
-      for (let level = 0; level <= 7; level++) {
-        await new Promise(resolve => setTimeout(resolve, delays[level] || 200));
-        setExpandedLevel(level + 1);
-        
-        const nodesAtLevel = new Set(visibleNodes);
-        const addNodesAtLevel = (node: TierNode) => {
-          if (node.level <= level) {
-            nodesAtLevel.add(node.id);
-          }
-          node.children?.forEach(addNodesAtLevel);
-        };
-        addNodesAtLevel(tierStructure);
-        setVisibleNodes(nodesAtLevel);
-      }
-    };
+  const currentTierData = tierRequirements[currentTierIndex];
+  const previousTier = currentTierIndex > 0 ? tierRequirements[currentTierIndex - 1] : null;
 
-    animateNodes();
-  }, [animated]);
+  return (
+    <Card className="p-3 md:p-4 card-luxury overflow-hidden" data-testid="team-tier-visualization">
+      <div className="flex items-center gap-2 mb-3">
+        <Users className="w-4 h-4 text-primary" />
+        <h3 className="text-sm md:text-base font-semibold">{t.tierStructure}</h3>
+      </div>
 
-  const getTierColor = (tier: string): string => {
-    const tierIdx = tierOrder.indexOf(tier);
-    if (tierIdx < currentTierIndex) return 'opacity-40';
-    if (tierIdx === currentTierIndex) return 'ring-2 ring-primary ring-offset-2 ring-offset-background';
-    return '';
-  };
-
-  const isNodeVisible = (nodeId: string, level: number) => {
-    return expandedLevel > level;
-  };
-
-  const renderCompactNode = (node: TierNode, isLeft: boolean = true) => {
-    const visible = isNodeVisible(node.id, node.level);
-    const tierIdx = tierOrder.indexOf(node.tier);
-    const isActive = tierIdx <= currentTierIndex;
-    const isCurrent = tierIdx === currentTierIndex;
-    
-    return (
-      <div 
-        key={node.id}
-        className={`
-          flex flex-col items-center transition-all duration-500 ease-out
-          ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}
-        `}
-        data-testid={`tier-node-${node.id}`}
-      >
+      <div className="flex flex-col items-center gap-1 py-2">
         <div 
           className={`
-            relative p-2 md:p-3 rounded-lg border transition-all duration-300
-            ${isActive ? 'bg-primary/10 border-primary/30' : 'bg-muted/30 border-border/50'}
-            ${isCurrent ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg scale-105' : ''}
-            ${!isActive ? 'opacity-50' : ''}
+            w-full max-w-[280px] p-2 rounded-lg border-2 text-center transition-all duration-300
+            ${currentTierIndex === tierRequirements.length - 1 
+              ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50' 
+              : 'bg-primary/10 border-primary/50'}
+            ring-2 ring-primary ring-offset-1 ring-offset-background shadow-md
           `}
         >
-          {node.tier === 'Supreme' && (
-            <Crown className="absolute -top-2 -right-2 w-4 h-4 text-yellow-500" />
-          )}
-          <div className="flex items-center gap-1.5">
-            <Users className={`w-3 h-3 md:w-4 md:h-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-            <span className={`text-xs md:text-sm font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {language === 'zh' ? node.labelZh : node.label}
+          <div className="flex items-center justify-center gap-1.5">
+            {currentTier === 'Supreme' && <Crown className="w-3.5 h-3.5 text-yellow-500" />}
+            <span className="text-sm font-bold text-foreground">
+              {language === 'zh' ? currentTierData?.labelZh : currentTierData?.label}
             </span>
           </div>
-          {node.requirement && (
-            <p className="text-[10px] md:text-xs text-muted-foreground mt-1 text-center">
-              {language === 'zh' ? node.requirementZh : node.requirement}
-            </p>
-          )}
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            ${currentTierData?.performance}
+          </p>
         </div>
 
-        {node.children && node.children.length > 0 && visible && (
+        {currentTierIndex > 0 && (
           <>
-            <div className="w-px h-3 md:h-4 bg-border/50" />
-            <ChevronDown className="w-3 h-3 text-muted-foreground -my-1" />
-            <div className="w-px h-2 md:h-3 bg-border/50" />
+            <ChevronUp className="w-4 h-4 text-primary my-0.5" />
             
-            <div className="flex gap-2 md:gap-4">
-              {node.children.map((child, idx) => (
-                <div key={child.id} className="flex flex-col items-center">
-                  {node.children!.length > 1 && (
-                    <div className="flex items-center mb-1">
-                      <div className={`h-px w-4 md:w-8 ${idx === 0 ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} from-transparent to-border/50`} />
-                    </div>
+            <div className="text-[10px] text-center text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
+              {language === 'zh' ? '需要2个不同组织线' : 'Requires 2 different lines'}
+            </div>
+
+            <div className="flex items-start gap-4 mt-1">
+              {[0, 1].map((lineIdx) => (
+                <div 
+                  key={lineIdx}
+                  className={`
+                    flex flex-col items-center transition-all duration-500
+                    ${animatedIndex >= currentTierIndex - 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
+                  `}
+                  style={{ transitionDelay: `${lineIdx * 100}ms` }}
+                >
+                  <div className="w-px h-3 bg-border" />
+                  
+                  <div 
+                    className={`
+                      p-1.5 rounded border text-center min-w-[90px]
+                      bg-primary/5 border-primary/30
+                    `}
+                  >
+                    <span className="text-xs font-medium text-foreground">
+                      {language === 'zh' ? previousTier?.labelZh : previousTier?.label}
+                    </span>
+                    <p className="text-[9px] text-muted-foreground">
+                      ${previousTier?.performance}
+                    </p>
+                  </div>
+
+                  {currentTierIndex > 1 && (
+                    <>
+                      <ChevronUp className="w-3 h-3 text-muted-foreground my-0.5" />
+                      <div className="text-[9px] text-muted-foreground">...</div>
+                    </>
                   )}
-                  {renderCompactNode(child, idx === 0)}
                 </div>
               ))}
             </div>
           </>
         )}
       </div>
-    );
-  };
 
-  const renderSimplifiedView = () => {
-    return (
-      <div className="flex flex-col items-center gap-2 py-4" data-testid="tier-visualization-simple">
-        {[...tierOrder].reverse().map((tier, idx) => {
-          const tierIdx = tierOrder.indexOf(tier);
-          const isActive = tierIdx <= currentTierIndex;
-          const isCurrent = tierIdx === currentTierIndex;
-          const requirement = getRequirementForTier(tier);
-          
-          return (
-            <div 
-              key={tier}
-              className={`
-                w-full max-w-xs transition-all duration-300 delay-${idx * 100}
-                ${animated && expandedLevel <= idx ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}
-              `}
-            >
-              {idx > 0 && (
-                <div className="flex justify-center mb-2">
-                  <ChevronDown className="w-4 h-4 text-muted-foreground rotate-180" />
-                </div>
-              )}
+      <div className="mt-3 pt-2 border-t border-border/50">
+        <p className="text-[10px] text-center text-muted-foreground mb-2">
+          {language === 'zh' ? '层级晋升要求' : 'Tier Upgrade Requirements'}
+        </p>
+        <div className="grid grid-cols-4 gap-1 text-[9px]">
+          {tierRequirements.slice(0, 4).map((tier, idx) => {
+            const isActive = idx <= currentTierIndex;
+            const isCurrent = idx === currentTierIndex;
+            return (
               <div 
+                key={tier.tier}
                 className={`
-                  p-3 rounded-lg border text-center transition-all
-                  ${isActive ? 'bg-primary/10 border-primary/30' : 'bg-muted/30 border-border/50'}
-                  ${isCurrent ? 'ring-2 ring-primary shadow-lg' : ''}
-                  ${!isActive ? 'opacity-50' : ''}
+                  p-1 rounded text-center transition-all duration-300
+                  ${isActive ? 'bg-primary/10' : 'bg-muted/30 opacity-50'}
+                  ${isCurrent ? 'ring-1 ring-primary' : ''}
+                  ${animatedIndex >= idx ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
                 `}
+                style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <div className="flex items-center justify-center gap-2">
-                  {tier === 'Supreme' && <Crown className="w-4 h-4 text-yellow-500" />}
-                  <TierBadge tier={tier as TeamTier} />
-                </div>
-                {requirement && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === 'zh' ? requirement.zh : requirement.en}
-                  </p>
-                )}
+                <div className="font-medium truncate">{language === 'zh' ? tier.labelZh : tier.label}</div>
+                <div className="text-muted-foreground">{language === 'zh' ? tier.requirementZh : tier.requirement}</div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const getRequirementForTier = (tier: string): { en: string; zh: string } | null => {
-    const requirements: Record<string, { en: string; zh: string }> = {
-      'VIP': { en: '', zh: '' },
-      '1-Star Expert': { en: '2× VIP (different lines)', zh: '2个VIP（不同组织线）' },
-      '2-Star Expert': { en: '2× 1★ Expert', zh: '2个1星达人' },
-      '3-Star Expert': { en: '2× 2★ Expert', zh: '2个2星达人' },
-      '1-Star Ambassador': { en: '2× 3★ Expert', zh: '2个3星达人' },
-      '2-Star Ambassador': { en: '2× 1★ Ambassador', zh: '2个1星大使' },
-      '3-Star Ambassador': { en: '2× 2★ Ambassador', zh: '2个2星大使' },
-      'Supreme': { en: '2× 3★ Ambassador', zh: '2个3星大使' },
-    };
-    return requirements[tier] || null;
-  };
-
-  return (
-    <Card className="p-4 md:p-6 card-luxury overflow-hidden" data-testid="team-tier-visualization">
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="w-5 h-5 text-primary" />
-        <h3 className="text-base md:text-lg font-semibold">{t.tierStructure || 'Tier Structure'}</h3>
-      </div>
-      
-      <p className="text-xs md:text-sm text-muted-foreground mb-4">
-        {language === 'zh' 
-          ? '每个层级需要2个下级社区（不同组织线）' 
-          : 'Each tier requires 2 downline communities (different organization lines)'}
-      </p>
-
-      <div className="block md:hidden">
-        {renderSimplifiedView()}
-      </div>
-      
-      <div className="hidden md:block overflow-x-auto pb-4">
-        <div className="min-w-[600px] flex justify-center">
-          {renderCompactNode(tierStructure)}
+            );
+          })}
+        </div>
+        <div className="grid grid-cols-4 gap-1 text-[9px] mt-1">
+          {tierRequirements.slice(4).map((tier, idx) => {
+            const realIdx = idx + 4;
+            const isActive = realIdx <= currentTierIndex;
+            const isCurrent = realIdx === currentTierIndex;
+            return (
+              <div 
+                key={tier.tier}
+                className={`
+                  p-1 rounded text-center transition-all duration-300
+                  ${isActive ? 'bg-primary/10' : 'bg-muted/30 opacity-50'}
+                  ${isCurrent ? 'ring-1 ring-primary' : ''}
+                  ${tier.tier === 'Supreme' ? 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10' : ''}
+                  ${animatedIndex >= realIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
+                `}
+                style={{ transitionDelay: `${realIdx * 100}ms` }}
+              >
+                <div className="font-medium truncate flex items-center justify-center gap-0.5">
+                  {tier.tier === 'Supreme' && <Crown className="w-2.5 h-2.5 text-yellow-500" />}
+                  {language === 'zh' ? tier.labelZh : tier.label}
+                </div>
+                <div className="text-muted-foreground">{language === 'zh' ? tier.requirementZh : tier.requirement}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-border/50">
-        <div className="flex items-center gap-4 justify-center text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-primary/10 border border-primary/30" />
-            <span className="text-muted-foreground">{t.achieved || 'Achieved'}</span>
+      <div className="mt-2 pt-2 border-t border-border/30">
+        <div className="flex items-center gap-3 justify-center text-[9px]">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded bg-primary/10 ring-1 ring-primary" />
+            <span className="text-muted-foreground">{t.currentLevel}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded ring-2 ring-primary bg-primary/20" />
-            <span className="text-muted-foreground">{t.currentLevel || 'Current'}</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded bg-primary/10" />
+            <span className="text-muted-foreground">{t.achieved}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-muted/30 border border-border/50 opacity-50" />
-            <span className="text-muted-foreground">{t.locked || 'Locked'}</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded bg-muted/30 opacity-50" />
+            <span className="text-muted-foreground">{t.locked}</span>
           </div>
         </div>
       </div>

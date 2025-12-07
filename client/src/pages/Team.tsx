@@ -103,7 +103,7 @@ export default function Team() {
 
   const renderFormView = () => (
     <div className="space-y-6">
-      <TeamTierVisualization currentTier={currentTier} animated={true} />
+      <TeamTierVisualization currentTier={currentTier} />
       
       <Card className="p-4 md:p-8 card-luxury glass-card">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
