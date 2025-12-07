@@ -304,33 +304,70 @@ export default function Investment() {
     <Card className="p-6 xl:p-8 card-luxury glass-card">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-5">
-          <div>
-            <Label className="text-base xl:text-lg font-semibold mb-4 block">{t.productType}</Label>
+          <div className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-lg border-2 border-cyan-500/30">
+            <Label className="text-base xl:text-lg font-semibold mb-2 block text-center flex items-center justify-center gap-2">
+              <TrendingUp className="w-5 h-5 text-cyan-500" />
+              <span className="text-cyan-700 dark:text-cyan-300">{t.productType}</span>
+            </Label>
+            <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 text-center mb-4 flex items-center justify-center gap-1">
+              <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
+              {language === 'zh' ? '点击选择产品类型' : 'Click to select product type'}
+            </p>
             <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-                className="w-full h-12 xl:h-14 text-sm xl:text-base"
-                onClick={() => {
-                  form.setValue('productType', ProductType.SHORT);
-                  setResult(null);
-                }}
-                data-testid="button-product-short"
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                {t.shortTerm}
-              </Button>
-              <Button
-                type="button"
-                variant={productType === ProductType.LONG ? 'default' : 'outline'}
-                className="w-full h-12 xl:h-14 text-sm xl:text-base"
-                onClick={() => {
-                  form.setValue('productType', ProductType.LONG);
-                  setResult(null);
-                }}
-                data-testid="button-product-long"
+                <Button
+                  type="button"
+                  variant={productType === ProductType.SHORT ? 'default' : 'outline'}
+                  className={`w-full h-14 xl:h-16 text-sm xl:text-base flex flex-col items-center justify-center gap-1 transition-all duration-300 ${
+                    productType === ProductType.SHORT 
+                      ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                      : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+                  }`}
+                  onClick={() => {
+                    form.setValue('productType', ProductType.SHORT);
+                    setResult(null);
+                  }}
+                  data-testid="button-product-short"
+                >
+                  <span className="font-semibold">{t.shortTerm}</span>
+                  {productType === ProductType.SHORT ? (
+                    <span className="text-[10px] font-medium bg-white/30 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  ) : (
+                    <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70">{language === 'zh' ? '5-10天' : '5-10 days'}</span>
+                  )}
+                </Button>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
               >
-                {t.longTerm}
-              </Button>
+                <Button
+                  type="button"
+                  variant={productType === ProductType.LONG ? 'default' : 'outline'}
+                  className={`w-full h-14 xl:h-16 text-sm xl:text-base flex flex-col items-center justify-center gap-1 transition-all duration-300 ${
+                    productType === ProductType.LONG 
+                      ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                      : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+                  }`}
+                  onClick={() => {
+                    form.setValue('productType', ProductType.LONG);
+                    setResult(null);
+                  }}
+                  data-testid="button-product-long"
+                >
+                  <span className="font-semibold">{t.longTerm}</span>
+                  {productType === ProductType.LONG ? (
+                    <span className="text-[10px] font-medium bg-white/30 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  ) : (
+                    <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70">{language === 'zh' ? '180天' : '180 days'}</span>
+                  )}
+                </Button>
+              </motion.div>
             </div>
           </div>
 
