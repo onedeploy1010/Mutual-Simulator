@@ -270,67 +270,87 @@ export default function Team() {
   const FormSection = (
     <div className="space-y-4">
       <Card className="p-4 xl:p-6 card-luxury bg-gradient-to-br from-primary/5 to-chart-1/5 border-primary/20">
-        <Label className="text-base xl:text-lg font-semibold mb-4 block text-center flex items-center justify-center gap-2">
+        <Label className="text-base xl:text-lg font-semibold mb-2 block text-center flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           {t.currentTier}
         </Label>
+        <p className="text-xs text-muted-foreground text-center mb-4 flex items-center justify-center gap-1">
+          <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          {language === 'zh' ? '点击选择您的达标等级' : 'Click to select your tier level'}
+        </p>
         <div className="grid grid-cols-4 gap-2">
-          {teamTiers.slice(0, 4).map((tier) => (
-            <Button
+          {teamTiers.slice(0, 4).map((tier, index) => (
+            <motion.div
               key={tier.tier}
-              type="button"
-              variant={currentTier === tier.tier ? 'default' : 'outline'}
-              size="sm"
-              className={`h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-200 ${
-                currentTier === tier.tier 
-                  ? 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80' 
-                  : 'hover:border-primary/50 hover:bg-primary/5'
-              }`}
-              onClick={() => handleTierChange(tier.tier)}
-              data-testid={`tab-tier-${tier.tier}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
             >
-              <span className="font-semibold truncate w-full text-center">
-                {language === 'zh' 
-                  ? (tier.tier === 'VIP' ? 'VIP' : tier.tier.includes('Expert') ? `${tier.tier.charAt(0)}星达人` : tier.tier)
-                  : (tier.tier === 'VIP' ? 'VIP' : tier.tier.replace('-Star Expert', '★E'))
-                }
-              </span>
-              {currentTier === tier.tier && (
-                <span className="text-[10px] opacity-80">✓</span>
-              )}
-            </Button>
+              <Button
+                type="button"
+                variant={currentTier === tier.tier ? 'default' : 'outline'}
+                size="sm"
+                className={`w-full h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-300 cursor-pointer ${
+                  currentTier === tier.tier 
+                    ? 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80 animate-pulse' 
+                    : 'hover:border-primary hover:bg-primary/10 hover:scale-102 hover:shadow-md border-dashed'
+                }`}
+                onClick={() => handleTierChange(tier.tier)}
+                data-testid={`tab-tier-${tier.tier}`}
+              >
+                <span className="font-semibold truncate w-full text-center">
+                  {language === 'zh' 
+                    ? (tier.tier === 'VIP' ? 'VIP' : tier.tier.includes('Expert') ? `${tier.tier.charAt(0)}星达人` : tier.tier)
+                    : (tier.tier === 'VIP' ? 'VIP' : tier.tier.replace('-Star Expert', '★E'))
+                  }
+                </span>
+                {currentTier === tier.tier ? (
+                  <span className="text-[10px] font-medium bg-white/20 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground opacity-60">{language === 'zh' ? '点击选择' : 'Click'}</span>
+                )}
+              </Button>
+            </motion.div>
           ))}
         </div>
         <div className="grid grid-cols-4 gap-2 mt-2">
-          {teamTiers.slice(4).map((tier) => (
-            <Button
+          {teamTiers.slice(4).map((tier, index) => (
+            <motion.div
               key={tier.tier}
-              type="button"
-              variant={currentTier === tier.tier ? 'default' : 'outline'}
-              size="sm"
-              className={`h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-200 ${
-                currentTier === tier.tier 
-                  ? tier.tier === 'Supreme'
-                    ? 'ring-2 ring-yellow-500 ring-offset-2 shadow-lg shadow-yellow-500/30 scale-105 bg-gradient-to-br from-yellow-500 to-orange-500 text-white'
-                    : 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80'
-                  : tier.tier === 'Supreme' 
-                    ? 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30 hover:border-yellow-500/60 hover:from-yellow-500/20 hover:to-orange-500/20' 
-                    : 'hover:border-primary/50 hover:bg-primary/5'
-              }`}
-              onClick={() => handleTierChange(tier.tier)}
-              data-testid={`tab-tier-${tier.tier}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: (index + 4) * 0.05, duration: 0.3 }}
             >
-              <span className="font-semibold truncate w-full text-center flex items-center justify-center gap-0.5">
-                {tier.tier === 'Supreme' && <Crown className="w-3 h-3" />}
-                {language === 'zh' 
-                  ? (tier.tier === 'Supreme' ? '至尊' : tier.tier.includes('Ambassador') ? `${tier.tier.charAt(0)}星大使` : tier.tier)
-                  : (tier.tier === 'Supreme' ? 'Supreme' : tier.tier.replace('-Star Ambassador', '★A'))
-                }
-              </span>
-              {currentTier === tier.tier && (
-                <span className="text-[10px] opacity-80">✓</span>
-              )}
-            </Button>
+              <Button
+                type="button"
+                variant={currentTier === tier.tier ? 'default' : 'outline'}
+                size="sm"
+                className={`w-full h-auto py-3 px-2 text-xs xl:text-sm flex flex-col items-center gap-0.5 transition-all duration-300 cursor-pointer ${
+                  currentTier === tier.tier 
+                    ? tier.tier === 'Supreme'
+                      ? 'ring-2 ring-yellow-500 ring-offset-2 shadow-lg shadow-yellow-500/30 scale-105 bg-gradient-to-br from-yellow-500 to-orange-500 text-white'
+                      : 'ring-2 ring-primary ring-offset-2 shadow-lg shadow-primary/30 scale-105 bg-gradient-to-br from-primary to-primary/80 animate-pulse'
+                    : tier.tier === 'Supreme' 
+                      ? 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30 border-dashed hover:border-yellow-500 hover:from-yellow-500/20 hover:to-orange-500/20 hover:scale-102 hover:shadow-md' 
+                      : 'hover:border-primary hover:bg-primary/10 hover:scale-102 hover:shadow-md border-dashed'
+                }`}
+                onClick={() => handleTierChange(tier.tier)}
+                data-testid={`tab-tier-${tier.tier}`}
+              >
+                <span className="font-semibold truncate w-full text-center flex items-center justify-center gap-0.5">
+                  {tier.tier === 'Supreme' && <Crown className="w-3 h-3" />}
+                  {language === 'zh' 
+                    ? (tier.tier === 'Supreme' ? '至尊' : tier.tier.includes('Ambassador') ? `${tier.tier.charAt(0)}星大使` : tier.tier)
+                    : (tier.tier === 'Supreme' ? 'Supreme' : tier.tier.replace('-Star Ambassador', '★A'))
+                  }
+                </span>
+                {currentTier === tier.tier ? (
+                  <span className="text-[10px] font-medium bg-white/20 px-1.5 py-0.5 rounded-full">{language === 'zh' ? '已选' : 'Selected'}</span>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground opacity-60">{language === 'zh' ? '点击选择' : 'Click'}</span>
+                )}
+              </Button>
+            </motion.div>
           ))}
         </div>
       </Card>
