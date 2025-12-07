@@ -72,29 +72,31 @@ export default function Investment() {
   };
 
   const ProductTypeStep = (
-    <div className="space-y-4">
-      <div className="p-4 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-xl border-2 border-cyan-500/30">
-        <Label className="text-base font-semibold mb-2 block text-center flex items-center justify-center gap-2">
-          <TrendingUp className="w-5 h-5 text-cyan-500" />
-          <span className="text-cyan-700 dark:text-cyan-300">{t.productType}</span>
-        </Label>
-        <p className="text-xs text-cyan-600/80 dark:text-cyan-400/80 text-center mb-4 flex items-center justify-center gap-1">
-          <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
-          {language === 'zh' ? '点击选择产品类型' : 'Click to select product type'}
-        </p>
-        <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-3">
+      <div className="p-5 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/15 dark:to-blue-500/15 rounded-2xl border-2 border-cyan-500/30">
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center justify-center gap-2 mb-2">
+            <TrendingUp className="w-6 h-6 text-cyan-500" />
+            <span className="text-xl font-bold text-cyan-700 dark:text-cyan-300">{t.productType}</span>
+          </div>
+          <p className="text-sm text-cyan-600/80 dark:text-cyan-400/80 flex items-center justify-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
+            {language === 'zh' ? '点击选择产品类型' : 'Tap to select product type'}
+          </p>
+        </div>
+        <div className="space-y-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <Button
               type="button"
               variant={productType === ProductType.SHORT ? 'default' : 'outline'}
-              className={`w-full h-auto py-4 text-base transition-all duration-300 ${
+              className={`w-full h-auto min-h-[88px] py-5 transition-all duration-300 ${
                 productType === ProductType.SHORT 
-                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
-                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-xl shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-2 border-dashed border-cyan-500/40'
               }`}
               onClick={() => {
                 form.setValue('productType', ProductType.SHORT);
@@ -102,29 +104,32 @@ export default function Investment() {
               }}
               data-testid="button-product-short"
             >
-              <div className="flex flex-col items-center gap-1">
-                <span className="font-semibold text-lg">{t.shortTerm}</span>
-                <span className="text-xs opacity-80">{t.shortTermDesc}</span>
+              <div className="flex flex-col items-center gap-2 w-full">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  <span className="font-bold text-xl">{t.shortTerm}</span>
+                </div>
+                <span className="text-sm opacity-90">{t.shortTermDesc}</span>
                 {productType === ProductType.SHORT ? (
-                  <span className="text-[10px] font-medium bg-white/30 px-2 py-0.5 rounded-full mt-1">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">{language === 'zh' ? '点击选择' : 'Click to select'}</span>
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '5-10天 · 点击选择' : '5-10 days · Tap to select'}</span>
                 )}
               </div>
             </Button>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
           >
             <Button
               type="button"
               variant={productType === ProductType.LONG ? 'default' : 'outline'}
-              className={`w-full h-auto py-4 text-base transition-all duration-300 ${
+              className={`w-full h-auto min-h-[88px] py-5 transition-all duration-300 ${
                 productType === ProductType.LONG 
-                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-lg shadow-cyan-500/40 bg-gradient-to-br from-cyan-500 to-blue-500 text-white border-cyan-500' 
-                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-dashed border-cyan-500/40'
+                  ? 'ring-2 ring-cyan-500 ring-offset-2 shadow-xl shadow-cyan-500/30 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-cyan-500' 
+                  : 'hover:border-cyan-500 hover:bg-cyan-500/10 border-2 border-dashed border-cyan-500/40'
               }`}
               onClick={() => {
                 form.setValue('productType', ProductType.LONG);
@@ -132,13 +137,16 @@ export default function Investment() {
               }}
               data-testid="button-product-long"
             >
-              <div className="flex flex-col items-center gap-1">
-                <span className="font-semibold text-lg">{t.longTerm}</span>
-                <span className="text-xs opacity-80">{t.longTermDesc}</span>
+              <div className="flex flex-col items-center gap-2 w-full">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" />
+                  <span className="font-bold text-xl">{t.longTerm}</span>
+                </div>
+                <span className="text-sm opacity-90">{t.longTermDesc}</span>
                 {productType === ProductType.LONG ? (
-                  <span className="text-[10px] font-medium bg-white/30 px-2 py-0.5 rounded-full mt-1">{language === 'zh' ? '已选' : 'Selected'}</span>
+                  <span className="text-xs font-semibold bg-white/25 px-3 py-1 rounded-full">{language === 'zh' ? '已选择' : 'Selected'}</span>
                 ) : (
-                  <span className="text-[10px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">{language === 'zh' ? '点击选择' : 'Click to select'}</span>
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">{language === 'zh' ? '180天 · 点击选择' : '180 days · Tap to select'}</span>
                 )}
               </div>
             </Button>
