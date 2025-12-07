@@ -13,7 +13,7 @@ import { Slider } from '@/components/ui/slider';
 import { MetricCard } from '@/components/MetricCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, UserPlus, TrendingUp, Calculator } from 'lucide-react';
+import { Users, UserPlus, TrendingUp, Calculator, Gift, Sparkles } from 'lucide-react';
 
 export default function Referral() {
   const { t } = useLanguage();
@@ -133,11 +133,21 @@ export default function Referral() {
   const FormSection = (
     <Card className="p-4 md:p-6 xl:p-8 card-luxury glass-card">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-4">
-          <div>
-            <Label className="text-base xl:text-lg font-semibold mb-3 block">
-              {t.dailyReturnRateReferral}: <span className="font-mono text-primary text-lg xl:text-xl">{dailyRate?.toFixed(2)}%</span>
-            </Label>
+        <div className="space-y-5">
+          {/* Rate Selection */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="p-4 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 dark:from-violet-500/15 dark:to-fuchsia-500/15 rounded-xl border-2 border-violet-500/30"
+          >
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-violet-500" />
+              <span className="text-base font-semibold text-violet-700 dark:text-violet-300">{t.dailyReturnRateReferral}</span>
+            </div>
+            <div className="text-center mb-3">
+              <span className="font-mono text-3xl font-bold text-violet-600 dark:text-violet-400">{dailyRate?.toFixed(2)}%</span>
+            </div>
             <Slider
               min={1.0}
               max={1.5}
@@ -147,71 +157,88 @@ export default function Referral() {
               data-testid="slider-daily-rate"
               className="mt-2"
             />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
               <span>1.0%</span>
               <span>1.5%</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs text-violet-600/80 dark:text-violet-400/80 mt-3 text-center">
               {t.rateAppliesBothLevels}
             </p>
-          </div>
+          </motion.div>
 
-          <div className="border-l-4 border-l-primary pl-4 md:pl-6 py-2">
-            <h3 className="text-base xl:text-lg font-semibold text-foreground mb-4">
-              Level 1 - {t.directReward}
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-3 block">
-                  {t.downlineInvestment}
-                </Label>
-                <Input
-                  id="downlineRwaCount"
-                  type="number"
-                  step="1"
-                  min="1"
-                  {...form.register('downlineRwaCount', { valueAsNumber: true })}
-                  data-testid="input-downline-rwa"
-                  className="font-mono h-12"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  1 RWA = $100 USD
-                </p>
-              </div>
+          {/* Level 1 - Direct Reward */}
+          <motion.div 
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="p-4 bg-gradient-to-br from-rose-500/10 to-pink-500/10 dark:from-rose-500/15 dark:to-pink-500/15 rounded-xl border-2 border-rose-500/30"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <UserPlus className="w-5 h-5 text-rose-500" />
+              <h3 className="text-base font-semibold text-rose-700 dark:text-rose-300">
+                Level 1 - {t.directReward}
+              </h3>
+              <span className="ml-auto text-xs font-mono bg-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full">20%</span>
             </div>
-          </div>
 
-          <div className="border-l-4 border-l-chart-3 pl-4 md:pl-6 py-2">
-            <h3 className="text-base xl:text-lg font-semibold text-foreground mb-4">
-              Level 2 - {t.indirectReward} <span className="text-xs text-muted-foreground">(Optional)</span>
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-3 block">
-                  {t.secondLevelInvestment}
-                </Label>
-                <Input
-                  id="secondLevelRwaCount"
-                  type="number"
-                  step="1"
-                  min="0"
-                  {...form.register('secondLevelRwaCount', { valueAsNumber: true })}
-                  data-testid="input-second-level-rwa"
-                  className="font-mono h-12"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  1 RWA = $100 USD
-                </p>
-              </div>
+            <div>
+              <Label htmlFor="downlineRwaCount" className="text-sm font-medium mb-2 block text-rose-700/80 dark:text-rose-300/80">
+                {t.downlineInvestment}
+              </Label>
+              <Input
+                id="downlineRwaCount"
+                type="number"
+                step="1"
+                min="1"
+                {...form.register('downlineRwaCount', { valueAsNumber: true })}
+                data-testid="input-downline-rwa"
+                className="font-mono h-12 text-lg"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                1 RWA = $100 USD
+              </p>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Level 2 - Indirect Reward */}
+          <motion.div 
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="p-4 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 rounded-xl border-2 border-purple-500/30"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-5 h-5 text-purple-500" />
+              <h3 className="text-base font-semibold text-purple-700 dark:text-purple-300">
+                Level 2 - {t.indirectReward}
+              </h3>
+              <span className="text-xs text-purple-600/70 dark:text-purple-400/70">(Optional)</span>
+              <span className="ml-auto text-xs font-mono bg-purple-500/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">10%</span>
+            </div>
+
+            <div>
+              <Label htmlFor="secondLevelRwaCount" className="text-sm font-medium mb-2 block text-purple-700/80 dark:text-purple-300/80">
+                {t.secondLevelInvestment}
+              </Label>
+              <Input
+                id="secondLevelRwaCount"
+                type="number"
+                step="1"
+                min="0"
+                {...form.register('secondLevelRwaCount', { valueAsNumber: true })}
+                data-testid="input-second-level-rwa"
+                className="font-mono h-12 text-lg"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                1 RWA = $100 USD
+              </p>
+            </div>
+          </motion.div>
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg" data-testid="button-calculate-referral">
-            <Calculator className="w-4 h-4 mr-2" />
+          <Button type="submit" size="lg" className="flex-1 h-12 xl:h-14 text-base xl:text-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 border-0" data-testid="button-calculate-referral">
+            <Calculator className="w-5 h-5 mr-2" />
             {t.calculate}
           </Button>
           <Button type="button" variant="outline" size="lg" onClick={handleReset} data-testid="button-reset-referral">
@@ -225,9 +252,9 @@ export default function Referral() {
   if (isMobile) {
     return (
       <div className="space-y-6">
-        <div className="mb-6">
+        <div className="mb-4">
           <h2 className="section-header text-foreground flex items-center gap-3">
-            <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+            <div className="w-1.5 h-10 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
             {t.referralRewards}
           </h2>
           <p className="text-sm text-muted-foreground mt-2 ml-5">
@@ -258,7 +285,7 @@ export default function Referral() {
     <div className="space-y-6 md:space-y-8">
       <div className="mb-6 md:mb-8">
         <h2 className="section-header text-foreground flex items-center gap-3">
-          <div className="w-1.5 h-10 bg-gradient-to-b from-primary to-chart-1 rounded-full"></div>
+          <div className="w-1.5 h-10 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
           {t.referralRewards}
         </h2>
         <p className="text-base xl:text-lg text-muted-foreground mt-2 ml-5">
