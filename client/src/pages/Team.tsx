@@ -460,12 +460,12 @@ export default function Team() {
 
           <Button 
             onClick={handleViewDetailedBreakdown}
-            className="w-full mt-4 h-14 text-lg"
+            className="w-full mt-4 h-12 md:h-14 text-sm md:text-lg"
             data-testid="button-view-team-breakdown"
           >
-            <ListOrdered className="w-5 h-5 mr-2" />
+            <ListOrdered className="w-4 h-4 md:w-5 md:h-5 mr-2" />
             {t.viewDetailedBreakdown}
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-2" />
           </Button>
         </Card>
 
