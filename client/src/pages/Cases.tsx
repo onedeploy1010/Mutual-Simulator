@@ -348,7 +348,7 @@ function InteractiveNode({
 }
 
 function ExpandableInteractiveNode(props: Omit<InteractiveNodeProps, 'isExpanded' | 'onToggle'>) {
-  const [isExpanded, setIsExpanded] = useState(props.node.level < 2);
+  const [isExpanded, setIsExpanded] = useState(props.node.level < 3);
   return (
     <InteractiveNode 
       {...props} 
