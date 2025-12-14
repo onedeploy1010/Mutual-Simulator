@@ -260,11 +260,11 @@ function InteractiveNode({
   const hasChildren = node.childIds.length > 0;
   const canAddChildren = node.level < maxLevel;
   
-  const sizeClasses = isMobile ? 'px-3 py-2 min-w-[70px]' : 'px-4 py-3 min-w-[100px]';
-  const iconSize = isMobile ? 'w-4 h-4' : 'w-5 h-5';
-  const textSize = isMobile ? 'text-xs' : 'text-sm';
-  const lineHeight = isMobile ? 20 : 28;
-  const nodeGap = isMobile ? 8 : 16;
+  const sizeClasses = isMobile ? 'px-1.5 py-1 min-w-[45px]' : 'px-4 py-3 min-w-[100px]';
+  const iconSize = isMobile ? 'w-3 h-3' : 'w-5 h-5';
+  const textSize = isMobile ? 'text-[9px]' : 'text-sm';
+  const lineHeight = isMobile ? 12 : 28;
+  const nodeGap = isMobile ? 4 : 16;
 
   return (
     <div className="flex flex-col items-center">
