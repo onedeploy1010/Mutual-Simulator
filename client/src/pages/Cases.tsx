@@ -17,9 +17,186 @@ import {
   ChevronRight,
   Crown,
   Star,
-  Sparkles
+  Sparkles,
+  Network
 } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+
+interface TreeNodeProps {
+  label: string;
+  rwa: number;
+  color: string;
+  borderColor: string;
+  icon: 'crown' | 'user' | 'users' | 'star';
+  children?: TreeNodeProps[];
+  isLast?: boolean;
+}
+
+function TreeNode({ label, rwa, color, borderColor, icon, children, isLast }: TreeNodeProps) {
+  const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
+  
+  const IconComponent = {
+    crown: Crown,
+    user: User,
+    users: Users,
+    star: Star,
+  }[icon];
+
+  return (
+    <div className="flex flex-col items-center">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className={`relative px-3 py-2 rounded-lg ${color} border ${borderColor} shadow-sm min-w-[70px] text-center`}
+      >
+        <div className="flex items-center justify-center gap-1 mb-0.5">
+          <IconComponent className="w-3 h-3" />
+          <span className="text-xs font-bold">{label}</span>
+        </div>
+        <span className="font-mono text-[10px] opacity-80">{formatRwa(rwa)}</span>
+      </motion.div>
+      
+      {children && children.length > 0 && (
+        <>
+          <div className="w-px h-3 bg-border/60"></div>
+          <div className="relative flex gap-2">
+            {children.length > 1 && (
+              <div 
+                className="absolute top-0 left-1/2 -translate-x-1/2 h-px bg-border/60"
+                style={{ width: `calc(100% - 70px)` }}
+              ></div>
+            )}
+            {children.map((child, idx) => (
+              <div key={idx} className="flex flex-col items-center">
+                <div className="w-px h-3 bg-border/60"></div>
+                <TreeNode {...child} isLast={idx === children.length - 1} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
+  const buildTree = (): TreeNodeProps => {
+    const directChildren: TreeNodeProps[] = [];
+    
+    for (let i = 0; i < config.directCount; i++) {
+      const indirectChildren: TreeNodeProps[] = [];
+      
+      for (let j = 0; j < config.indirectPerDirect; j++) {
+        const thirdLevelChildren: TreeNodeProps[] = [];
+        
+        if (config.extraNodes && config.extraNodes.length > 0) {
+          const level3Node = config.extraNodes.find(n => n.level === 3);
+          if (level3Node) {
+            const nodesPerBranch = Math.ceil(level3Node.count / (config.directCount * config.indirectPerDirect));
+            for (let k = 0; k < Math.min(nodesPerBranch, 2); k++) {
+              const fourthLevelChildren: TreeNodeProps[] = [];
+              
+              const level4Node = config.extraNodes.find(n => n.level === 4);
+              if (level4Node) {
+                const l4PerBranch = Math.ceil(level4Node.count / level3Node.count);
+                for (let l = 0; l < Math.min(l4PerBranch, 2); l++) {
+                  fourthLevelChildren.push({
+                    label: `E${k * 2 + l + 1}`,
+                    rwa: level4Node.rwa,
+                    color: 'bg-rose-500/20 dark:bg-rose-500/30',
+                    borderColor: 'border-rose-500/50',
+                    icon: 'star',
+                  });
+                }
+              }
+              
+              thirdLevelChildren.push({
+                label: `D${k + 1}`,
+                rwa: level3Node.rwa,
+                color: 'bg-purple-500/20 dark:bg-purple-500/30',
+                borderColor: 'border-purple-500/50',
+                icon: 'star',
+                children: fourthLevelChildren.length > 0 ? fourthLevelChildren : undefined,
+              });
+            }
+          }
+        }
+        
+        indirectChildren.push({
+          label: `C${i * config.indirectPerDirect + j + 1}`,
+          rwa: config.indirectRwa,
+          color: 'bg-blue-500/20 dark:bg-blue-500/30',
+          borderColor: 'border-blue-500/50',
+          icon: 'users',
+          children: thirdLevelChildren.length > 0 ? thirdLevelChildren : undefined,
+        });
+      }
+      
+      directChildren.push({
+        label: `B${i + 1}`,
+        rwa: config.directRwa,
+        color: 'bg-cyan-500/20 dark:bg-cyan-500/30',
+        borderColor: 'border-cyan-500/50',
+        icon: 'user',
+        children: indirectChildren.length > 0 ? indirectChildren : undefined,
+      });
+    }
+    
+    return {
+      label: 'A',
+      rwa: config.selfRwa,
+      color: 'bg-amber-500/20 dark:bg-amber-500/30',
+      borderColor: 'border-amber-500/50',
+      icon: 'crown',
+      children: directChildren,
+    };
+  };
+
+  const tree = buildTree();
+
+  return (
+    <Card className="p-4 card-luxury overflow-x-auto">
+      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
+        <Network className="w-4 h-4 text-primary" />
+        {t.orgStructure || '组织架构图'}
+      </h3>
+      <div className="flex justify-center min-w-fit pb-2">
+        <TreeNode {...tree} />
+      </div>
+      <div className="mt-4 pt-3 border-t border-border/50">
+        <div className="flex flex-wrap justify-center gap-3 text-[10px]">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-amber-500/30 border border-amber-500/50"></div>
+            <span>A: {t.selfLabel || '自己'}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-cyan-500/30 border border-cyan-500/50"></div>
+            <span>B: {t.directLabel || '直推'}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-blue-500/30 border border-blue-500/50"></div>
+            <span>C: {t.indirectLabel || '间推'}</span>
+          </div>
+          {config.extraNodes && config.extraNodes.length > 0 && (
+            <>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded bg-purple-500/30 border border-purple-500/50"></div>
+                <span>D: {t.level3Label || '三代'}</span>
+              </div>
+              {config.extraNodes.find(n => n.level === 4) && (
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-rose-500/30 border border-rose-500/50"></div>
+                  <span>E: {t.level4Label || '四代'}</span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 interface TeamNode {
   id: string;
@@ -513,6 +690,8 @@ export default function Cases() {
             {currentCase.tier} - {t.teamPerformance}: {formatUsd(currentCase.minPerformance)}+
           </span>
         </div>
+        
+        <OrgTreeDiagram config={currentCase} t={t} />
         
         {isMobile ? (
           <div className="space-y-3">

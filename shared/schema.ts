@@ -421,6 +421,12 @@ export const translations = {
     level2: 'Level 2',
     level3: 'Level 3',
     level4: 'Level 4',
+    orgStructure: 'Organization Chart',
+    selfLabel: 'Self',
+    directLabel: 'Direct',
+    indirectLabel: 'Indirect',
+    level3Label: 'Gen 3',
+    level4Label: 'Gen 4',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -601,6 +607,12 @@ export const translations = {
     level2: '第2层',
     level3: '第3层',
     level4: '第4层',
+    orgStructure: '组织架构图',
+    selfLabel: '自己',
+    directLabel: '直推',
+    indirectLabel: '间推',
+    level3Label: '三代',
+    level4Label: '四代',
   },
 };
 
