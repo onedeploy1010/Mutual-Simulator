@@ -542,6 +542,44 @@ export default function Cases() {
     }));
   };
 
+  const updateExtraNodeCount = (level: number, delta: number) => {
+    setCustomStructure(prev => {
+      const config = prev[activeTab];
+      if (!config.extraNodes) return prev;
+      
+      const newExtraNodes = config.extraNodes.map(node => {
+        if (node.level === level) {
+          return { ...node, count: Math.max(1, node.count + delta) };
+        }
+        return node;
+      });
+      
+      return {
+        ...prev,
+        [activeTab]: { ...config, extraNodes: newExtraNodes },
+      };
+    });
+  };
+
+  const updateExtraNodeRwa = (level: number, delta: number) => {
+    setCustomStructure(prev => {
+      const config = prev[activeTab];
+      if (!config.extraNodes) return prev;
+      
+      const newExtraNodes = config.extraNodes.map(node => {
+        if (node.level === level) {
+          return { ...node, rwa: Math.max(100, node.rwa + delta) };
+        }
+        return node;
+      });
+      
+      return {
+        ...prev,
+        [activeTab]: { ...config, extraNodes: newExtraNodes },
+      };
+    });
+  };
+
   const resetToDefault = () => {
     setCustomStructure(prev => ({
       ...prev,
@@ -702,15 +740,42 @@ export default function Cases() {
           </div>
         </div>
 
-        {currentCase.extraNodes && currentCase.extraNodes.map((node, idx) => (
-          <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-purple-500" />
-              <span className="text-xs font-medium">{t[`level${node.level}` as keyof typeof t] || `Level ${node.level}`}</span>
+        {currentCase.extraNodes && currentCase.extraNodes.map((node, idx) => {
+          const isLevel4 = node.level === 4;
+          const bgColor = isLevel4 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-purple-500/10 border-purple-500/30';
+          const iconColor = isLevel4 ? 'text-rose-500' : 'text-purple-500';
+          const label = node.level === 3 ? 'D' : 'E';
+          
+          return (
+            <div key={idx} className={`flex items-center justify-between p-2 rounded-lg ${bgColor}`}>
+              <div className="flex items-center gap-2">
+                <Star className={`w-4 h-4 ${iconColor}`} />
+                <span className="text-xs font-medium">{label}: {t[`level${node.level}` as keyof typeof t] || `Level ${node.level}`}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeCount(node.level, -1)}>
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <span className="font-mono text-xs w-4 text-center">{node.count}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeCount(node.level, 1)}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground">×</span>
+                <div className="flex items-center gap-1">
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, -500)}>
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <span className="font-mono text-xs w-14 text-center">{formatRwa(node.rwa)}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, 500)}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <span className="font-mono text-xs">{node.count} × {formatRwa(node.rwa)}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
       
       <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
