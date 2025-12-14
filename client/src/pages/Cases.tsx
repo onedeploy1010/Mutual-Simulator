@@ -172,48 +172,52 @@ function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
   const buildTree = (): TreeNodeData => {
     const directChildren: TreeNodeData[] = [];
     
+    // Calculate how many D nodes per C, and E nodes per D
+    const totalC = config.directCount * config.indirectPerDirect;
+    const level3Node = config.extraNodes?.find(n => n.level === 3);
+    const level4Node = config.extraNodes?.find(n => n.level === 4);
+    const dPerC = level3Node ? Math.ceil(level3Node.count / totalC) : 0;
+    const ePerD = level4Node && level3Node ? Math.ceil(level4Node.count / level3Node.count) : 0;
+    
+    let dIndex = 1;
+    let eIndex = 1;
+    
     for (let i = 0; i < config.directCount; i++) {
       const indirectChildren: TreeNodeData[] = [];
       
       for (let j = 0; j < config.indirectPerDirect; j++) {
         const thirdLevelChildren: TreeNodeData[] = [];
         
-        if (config.extraNodes && config.extraNodes.length > 0) {
-          const level3Node = config.extraNodes.find(n => n.level === 3);
-          if (level3Node) {
-            const nodesPerBranch = Math.ceil(level3Node.count / (config.directCount * config.indirectPerDirect));
-            for (let k = 0; k < Math.min(nodesPerBranch, isMobile ? 1 : 2); k++) {
-              const fourthLevelChildren: TreeNodeData[] = [];
-              
-              const level4Node = config.extraNodes.find(n => n.level === 4);
-              if (level4Node) {
-                const l4PerBranch = Math.ceil(level4Node.count / level3Node.count);
-                for (let l = 0; l < Math.min(l4PerBranch, isMobile ? 1 : 2); l++) {
-                  fourthLevelChildren.push({
-                    label: `E${k * 2 + l + 1}`,
-                    rwa: level4Node.rwa,
-                    color: 'bg-rose-500/20',
-                    borderColor: 'border-rose-500/40',
-                    gradientFrom: 'from-rose-500/20',
-                    gradientTo: 'to-pink-500/30',
-                    icon: 'star',
-                    level: 4,
-                  });
-                }
+        if (level3Node) {
+          for (let k = 0; k < dPerC; k++) {
+            const fourthLevelChildren: TreeNodeData[] = [];
+            
+            if (level4Node) {
+              for (let l = 0; l < ePerD; l++) {
+                fourthLevelChildren.push({
+                  label: `E${eIndex++}`,
+                  rwa: level4Node.rwa,
+                  color: 'bg-rose-500/20',
+                  borderColor: 'border-rose-500/40',
+                  gradientFrom: 'from-rose-500/20',
+                  gradientTo: 'to-pink-500/30',
+                  icon: 'star',
+                  level: 4,
+                });
               }
-              
-              thirdLevelChildren.push({
-                label: `D${k + 1}`,
-                rwa: level3Node.rwa,
-                color: 'bg-purple-500/20',
-                borderColor: 'border-purple-500/40',
-                gradientFrom: 'from-purple-500/20',
-                gradientTo: 'to-violet-500/30',
-                icon: 'star',
-                level: 3,
-                children: fourthLevelChildren.length > 0 ? fourthLevelChildren : undefined,
-              });
             }
+            
+            thirdLevelChildren.push({
+              label: `D${dIndex++}`,
+              rwa: level3Node.rwa,
+              color: 'bg-purple-500/20',
+              borderColor: 'border-purple-500/40',
+              gradientFrom: 'from-purple-500/20',
+              gradientTo: 'to-violet-500/30',
+              icon: 'star',
+              level: 3,
+              children: fourthLevelChildren.length > 0 ? fourthLevelChildren : undefined,
+            });
           }
         }
         
