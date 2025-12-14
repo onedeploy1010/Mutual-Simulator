@@ -66,8 +66,8 @@ function createInitialTree(tier: string): TreeState {
       rwas: [500, 500, 500, 4500],
     },
     star2: {
-      structure: [[1], [2], [2, 2], [2, 2, 2, 2, 2, 2, 2, 2]],
-      rwas: [1000, 500, 500, 7200],
+      structure: [[1], [2], [2, 2], [2, 2, 2, 2]],
+      rwas: [1000, 1000, 1500, 6500],
     },
     star3: {
       structure: [[1], [2], [2, 2], [2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]],
@@ -505,6 +505,7 @@ export default function Cases() {
   const [dailyRate, setDailyRate] = useState(1.25);
   const [streamingRate, setStreamingRate] = useState(0.3);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [showFormulas, setShowFormulas] = useState(false);
   
   const [trees, setTrees] = useState<Record<string, TreeState>>(() => ({
     vip: createInitialTree('vip'),
@@ -681,13 +682,13 @@ export default function Cases() {
       <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">{t.totalInvestment || '总投资'}</span>
-          <span className="font-mono font-semibold">{formatRwa(calculations.totalInvestment)} RWA</span>
+          <span className="font-mono font-semibold">${formatRwa(calculations.totalInvestment)}</span>
         </div>
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">{t.teamPerformance || '团队业绩'}</span>
           <span className={`font-mono font-semibold ${calculations.meetsMinimum ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-            {formatRwa(calculations.teamPerformance)} RWA
-            {!calculations.meetsMinimum && ` (需 ${formatRwa(calculations.minPerformance)}+)`}
+            ${formatRwa(calculations.teamPerformance)}
+            {!calculations.meetsMinimum && ` (需 $${formatRwa(calculations.minPerformance)}+)`}
           </span>
         </div>
       </div>
@@ -696,63 +697,97 @@ export default function Cases() {
 
   const ResultsPanel = (
     <Card className="p-3 card-luxury h-full">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
-        <Calculator className="w-4 h-4 text-emerald-500" />
-        {t.incomeBreakdown || '收益明细'}
-      </h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-emerald-500" />
+          {t.incomeBreakdown || '收益明细'}
+        </h3>
+        <Button 
+          size="sm" 
+          variant={showFormulas ? "default" : "outline"} 
+          onClick={() => setShowFormulas(!showFormulas)} 
+          className="h-6 text-[10px] gap-1"
+          data-testid="btn-toggle-formulas"
+        >
+          {showFormulas ? '隐藏公式' : '显示公式'}
+        </Button>
+      </div>
       
       <div className="space-y-2 text-xs">
-        <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30">
-          <span>{t.customRwaDividend || 'RWA分红'}</span>
-          <span className="font-mono font-semibold text-cyan-600 dark:text-cyan-400">{formatUsd(calculations.customRwaDividend)}</span>
+        <div className="p-2 rounded-lg bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30">
+          <div className="flex justify-between items-center">
+            <span>{t.customRwaDividend || 'RWA分红'}</span>
+            <span className="font-mono font-semibold text-cyan-600 dark:text-cyan-400">{formatUsd(calculations.customRwaDividend)}</span>
+          </div>
+          {showFormulas && (
+            <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+              = 总业绩 ${formatRwa(calculations.totalInvestment)} × {dailyRate}% = {formatUsd(calculations.customRwaDividend)}
+            </p>
+          )}
         </div>
         
-        <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30">
-          <span>{t.streamingReward || '推流奖励'}</span>
-          <span className="font-mono font-semibold text-violet-600 dark:text-violet-400">{formatUsd(calculations.streamingReward)}</span>
+        <div className="p-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30">
+          <div className="flex justify-between items-center">
+            <span>{t.streamingReward || '推流奖励'}</span>
+            <span className="font-mono font-semibold text-violet-600 dark:text-violet-400">{formatUsd(calculations.streamingReward)}</span>
+          </div>
+          {showFormulas && (
+            <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+              = 总业绩 ${formatRwa(calculations.totalInvestment)} × {streamingRate}% = {formatUsd(calculations.streamingReward)}
+            </p>
+          )}
         </div>
         
         <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 space-y-1">
           <div className="flex justify-between items-center">
-            <span>{t.directReferralReward || '直推奖励'} A→B</span>
-            <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardA)}</span>
+            <span>{t.directReferralReward || '直推奖励'} (20%)</span>
+            <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefReward)}</span>
           </div>
-          {calculations.directRefRewardB > 0 && (
-            <div className="flex justify-between items-center">
-              <span>B→C</span>
-              <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardB)}</span>
-            </div>
-          )}
-          {calculations.directRefRewardC > 0 && (
-            <div className="flex justify-between items-center">
-              <span>C→D</span>
-              <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardC)}</span>
+          {showFormulas && (
+            <div className="text-[10px] text-muted-foreground mt-1 font-mono space-y-0.5">
+              <p>A→B: ${formatRwa(calculations.directTotal)} × {dailyRate}% × 20% = {formatUsd(calculations.directRefRewardA)}</p>
+              {calculations.directRefRewardB > 0 && <p>B→C: ${formatRwa(calculations.indirectTotal)} × {dailyRate}% × 20% = {formatUsd(calculations.directRefRewardB)}</p>}
+              {calculations.directRefRewardC > 0 && <p>C→D: ${formatRwa(calculations.level3Total)} × {dailyRate}% × 20% = {formatUsd(calculations.directRefRewardC)}</p>}
             </div>
           )}
         </div>
         
         <div className="p-2 rounded-lg bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30 space-y-1">
           <div className="flex justify-between items-center">
-            <span>{t.indirectReferralReward || '间推奖励'} A→C</span>
-            <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardA)}</span>
+            <span>{t.indirectReferralReward || '间推奖励'} (10%)</span>
+            <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefReward)}</span>
           </div>
-          {calculations.indirectRefRewardB > 0 && (
-            <div className="flex justify-between items-center">
-              <span>B→D</span>
-              <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardB)}</span>
+          {showFormulas && (
+            <div className="text-[10px] text-muted-foreground mt-1 font-mono space-y-0.5">
+              <p>A→C: ${formatRwa(calculations.indirectTotal)} × {dailyRate}% × 10% = {formatUsd(calculations.indirectRefRewardA)}</p>
+              {calculations.indirectRefRewardB > 0 && <p>B→D: ${formatRwa(calculations.level3Total)} × {dailyRate}% × 10% = {formatUsd(calculations.indirectRefRewardB)}</p>}
             </div>
           )}
         </div>
         
-        <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
-          <span>{t.teamReward || '团队分红'} ({tierConfig[activeTab].teamDividendPercent}%)</span>
-          <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamReward)}</span>
+        <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
+          <div className="flex justify-between items-center">
+            <span>{t.teamReward || '团队分红'} ({tierConfig[activeTab].teamDividendPercent}%)</span>
+            <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamReward)}</span>
+          </div>
+          {showFormulas && (
+            <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+              = 团队业绩 ${formatRwa(calculations.teamPerformance)} × {dailyRate}% × {tierConfig[activeTab].teamDividendPercent}% = {formatUsd(calculations.teamReward)}
+            </p>
+          )}
         </div>
         
         {calculations.streamingManagementReward > 0 && (
-          <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/30">
-            <span>{t.streamingManagementReward || '推流管理'} ({tierConfig[activeTab].streamingManagementPercent}%)</span>
-            <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">{formatUsd(calculations.streamingManagementReward)}</span>
+          <div className="p-2 rounded-lg bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/30">
+            <div className="flex justify-between items-center">
+              <span>{t.streamingManagementReward || '推流管理'} ({tierConfig[activeTab].streamingManagementPercent}%)</span>
+              <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">{formatUsd(calculations.streamingManagementReward)}</span>
+            </div>
+            {showFormulas && (
+              <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+                = 团队业绩 ${formatRwa(calculations.teamPerformance)} × 0.3% × {tierConfig[activeTab].streamingManagementPercent}% = {formatUsd(calculations.streamingManagementReward)}
+              </p>
+            )}
           </div>
         )}
       </div>
