@@ -1,4 +1,4 @@
-import { Moon, Sun, Globe, Calculator, Users, Trophy } from 'lucide-react';
+import { Moon, Sun, Globe, Calculator, Users, Trophy, BookOpen } from 'lucide-react';
 import { useLocation, Link } from 'wouter';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,6 +21,7 @@ export function TopNav() {
     { path: '/', icon: Calculator, label: t.investment, testId: 'nav-investment' },
     { path: '/referral', icon: Users, label: t.referral, testId: 'nav-referral' },
     { path: '/team', icon: Trophy, label: t.team, testId: 'nav-team' },
+    { path: '/cases', icon: BookOpen, label: t.cases, testId: 'nav-cases' },
   ];
 
   return (

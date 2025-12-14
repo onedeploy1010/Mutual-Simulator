@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'wouter';
-import { Calculator, Users, Trophy } from 'lucide-react';
+import { Calculator, Users, Trophy, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export function BottomNav() {
@@ -10,6 +10,7 @@ export function BottomNav() {
     { path: '/', icon: Calculator, label: t.investment, testId: 'tab-investment' },
     { path: '/referral', icon: Users, label: t.referral, testId: 'tab-referral' },
     { path: '/team', icon: Trophy, label: t.team, testId: 'tab-team' },
+    { path: '/cases', icon: BookOpen, label: t.cases, testId: 'tab-cases' },
   ];
 
   return (

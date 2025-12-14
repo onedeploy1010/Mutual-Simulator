@@ -12,6 +12,7 @@ import { BottomNav } from "@/components/BottomNav";
 import Investment from "@/pages/Investment";
 import Referral from "@/pages/Referral";
 import Team from "@/pages/Team";
+import Cases from "@/pages/Cases";
 import DailyBreakdown from "@/pages/DailyBreakdown";
 import TeamDailyBreakdown from "@/pages/TeamDailyBreakdown";
 import NotFound from "@/pages/not-found";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/" component={Investment} />
       <Route path="/referral" component={Referral} />
       <Route path="/team" component={Team} />
+      <Route path="/cases" component={Cases} />
       <Route path="/daily-breakdown" component={DailyBreakdown} />
       <Route path="/team-daily-breakdown" component={TeamDailyBreakdown} />
       <Route component={NotFound} />
