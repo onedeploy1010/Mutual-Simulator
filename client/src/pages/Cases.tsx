@@ -425,12 +425,16 @@ export default function Cases() {
     const directTotal = config.directCount * config.directRwa;
     const indirectTotal = config.directCount * config.indirectPerDirect * config.indirectRwa;
     
-    let extraTotal = 0;
+    // Calculate extra levels separately for proper reward calculation
+    let level3Total = 0;
+    let level4Total = 0;
     if (config.extraNodes) {
       config.extraNodes.forEach(node => {
-        extraTotal += node.count * node.rwa;
+        if (node.level === 3) level3Total = node.count * node.rwa;
+        if (node.level === 4) level4Total = node.count * node.rwa;
       });
     }
+    const extraTotal = level3Total + level4Total;
     
     const totalInvestment = selfTotal + directTotal + indirectTotal + extraTotal;
     const teamPerformance = totalInvestment - selfTotal;
@@ -441,20 +445,35 @@ export default function Cases() {
     // 推流奖励：整个团队的推流
     const streamingReward = totalInvestment * (streamingRate / 100);
     
-    // 直推奖励：
-    // A对B1+B2的直推(20%): directTotal * rate * 20%
-    // B1+B2对各自直推的奖励(20%): indirectTotal * rate * 20%
+    // 直推奖励 (Direct Referral - 20%):
+    // A对B的直推(20%): directTotal * rate * 20%
+    // B对C的直推(20%): indirectTotal * rate * 20%
+    // C对D的直推(20%): level3Total * rate * 20% (for 1★+ tiers)
     const directRefRewardA = directTotal * (dailyRate / 100) * 0.20;
     const directRefRewardB = indirectTotal * (dailyRate / 100) * 0.20;
-    const directRefReward = directRefRewardA + directRefRewardB;
+    const directRefRewardC = level3Total * (dailyRate / 100) * 0.20;
+    const directRefReward = directRefRewardA + directRefRewardB + directRefRewardC;
     
-    // 间推奖励：A对二级下级的10%
-    const indirectRefReward = indirectTotal * (dailyRate / 100) * 0.10;
+    // 间推奖励 (Indirect Referral - 10%):
+    // A对C的间推(10%): indirectTotal * rate * 10%
+    // B对D的间推(10%): level3Total * rate * 10% (for 1★+ tiers)
+    const indirectRefRewardA = indirectTotal * (dailyRate / 100) * 0.10;
+    const indirectRefRewardB = level3Total * (dailyRate / 100) * 0.10;
+    const indirectRefReward = indirectRefRewardA + indirectRefRewardB;
     
     // 团队奖励：团队业绩 * 日利率 * 等级比例
     const teamReward = teamPerformance * (dailyRate / 100) * (config.teamDividendPercent / 100);
     
-    const totalDailyIncome = customRwaDividend + streamingReward + directRefReward + indirectRefReward + teamReward;
+    // 推流管理奖励 (Streaming Management - 5% for 1★+):
+    // 公式: 团队业绩 × 0.3% × 等级推流管理比例
+    // VIP: 0%, 1★: 5%, 2★: 10%, 3★: 15%
+    const streamingManagementPercent = config.tier === 'VIP' ? 0 : 
+      config.tier === '1-Star Expert' ? 5 :
+      config.tier === '2-Star Expert' ? 10 :
+      config.tier === '3-Star Expert' ? 15 : 0;
+    const streamingManagementReward = teamPerformance * 0.003 * (streamingManagementPercent / 100);
+    
+    const totalDailyIncome = customRwaDividend + streamingReward + directRefReward + indirectRefReward + teamReward + streamingManagementReward;
     const dailyRatio = (totalDailyIncome / totalInvestment) * 100;
     const monthlyIncome = totalDailyIncome * 30;
     const total180DayProfit = totalDailyIncome * 180;
@@ -465,15 +484,22 @@ export default function Cases() {
       directTotal,
       indirectTotal,
       extraTotal,
+      level3Total,
+      level4Total,
       totalInvestment,
       teamPerformance,
       customRwaDividend,
       streamingReward,
       directRefRewardA,
       directRefRewardB,
+      directRefRewardC,
       directRefReward,
+      indirectRefRewardA,
+      indirectRefRewardB,
       indirectRefReward,
       teamReward,
+      streamingManagementPercent,
+      streamingManagementReward,
       totalDailyIncome,
       dailyRatio,
       monthlyIncome,
@@ -716,24 +742,45 @@ export default function Cases() {
         
         <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 space-y-1">
           <div className="flex justify-between items-center">
-            <span className="text-xs">{t.directReferralReward} A (20%)</span>
+            <span className="text-xs">{t.directReferralReward} A→B (20%)</span>
             <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardA)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs">{t.directReferralReward} B1+B2 (20%)</span>
+            <span className="text-xs">{t.directReferralReward} B→C (20%)</span>
             <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardB)}</span>
           </div>
+          {calculations.directRefRewardC > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-xs">{t.directReferralReward} C→D (20%)</span>
+              <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardC)}</span>
+            </div>
+          )}
         </div>
         
-        <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30">
-          <span className="text-xs">{t.indirectReferralReward} (10%)</span>
-          <span className="font-mono text-sm font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefReward)}</span>
+        <div className="p-2 rounded-lg bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30 space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="text-xs">{t.indirectReferralReward} A→C (10%)</span>
+            <span className="font-mono text-sm font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardA)}</span>
+          </div>
+          {calculations.indirectRefRewardB > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-xs">{t.indirectReferralReward} B→D (10%)</span>
+              <span className="font-mono text-sm font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardB)}</span>
+            </div>
+          )}
         </div>
         
         <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
           <span className="text-xs">{t.teamReward} ({currentCase.teamDividendPercent}%)</span>
           <span className="font-mono text-sm font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamReward)}</span>
         </div>
+        
+        {calculations.streamingManagementReward > 0 && (
+          <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/30">
+            <span className="text-xs">{t.streamingManagementReward || '推流管理奖励'} ({calculations.streamingManagementPercent}%)</span>
+            <span className="font-mono text-sm font-semibold text-rose-600 dark:text-rose-400">{formatUsd(calculations.streamingManagementReward)}</span>
+          </div>
+        )}
       </div>
       
       <div className="mt-3 pt-3 border-t-2 border-primary/30">
