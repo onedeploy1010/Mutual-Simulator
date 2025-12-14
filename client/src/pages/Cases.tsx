@@ -71,7 +71,7 @@ function createInitialTree(tier: string): TreeState {
     },
     star3: {
       structure: [[1], [2], [2, 2], [2, 2, 2, 2]],
-      rwas: [2000, 1000, 1000, 24000],
+      rwas: [2000, 2000, 1000, 24000],
     },
   };
 
