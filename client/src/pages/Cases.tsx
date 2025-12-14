@@ -233,6 +233,14 @@ interface InteractiveNodeProps {
   maxLevel?: number;
 }
 
+const lineColors: Record<number, string> = {
+  0: 'bg-amber-400 dark:bg-amber-500',
+  1: 'bg-cyan-400 dark:bg-cyan-500',
+  2: 'bg-blue-400 dark:bg-blue-500',
+  3: 'bg-purple-400 dark:bg-purple-500',
+  4: 'bg-rose-400 dark:bg-rose-500',
+};
+
 function InteractiveNode({ 
   node, 
   nodes, 
@@ -246,13 +254,17 @@ function InteractiveNode({
 }: InteractiveNodeProps) {
   const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
   const style = levelStyles[Math.min(node.level, 4)];
+  const lineColor = lineColors[Math.min(node.level, 4)];
+  const childLineColor = lineColors[Math.min(node.level + 1, 4)];
   const IconComponent = getIcon(node.level);
   const hasChildren = node.childIds.length > 0;
   const canAddChildren = node.level < maxLevel;
   
-  const sizeClasses = isMobile ? 'px-2 py-1.5 min-w-[60px]' : 'px-3 py-2 min-w-[80px]';
-  const iconSize = isMobile ? 'w-3 h-3' : 'w-4 h-4';
-  const textSize = isMobile ? 'text-[10px]' : 'text-xs';
+  const sizeClasses = isMobile ? 'px-3 py-2 min-w-[70px]' : 'px-4 py-3 min-w-[100px]';
+  const iconSize = isMobile ? 'w-4 h-4' : 'w-5 h-5';
+  const textSize = isMobile ? 'text-xs' : 'text-sm';
+  const lineHeight = isMobile ? 20 : 28;
+  const nodeGap = isMobile ? 8 : 16;
 
   return (
     <div className="flex flex-col items-center">
@@ -261,48 +273,52 @@ function InteractiveNode({
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className={`relative ${sizeClasses} rounded-lg bg-gradient-to-br ${style.gradient} border ${style.border} shadow-md text-center cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105`}
+          className={`relative ${sizeClasses} rounded-xl bg-gradient-to-br ${style.gradient} border-2 ${style.border} shadow-lg text-center cursor-pointer transition-all duration-200 hover:shadow-xl hover:scale-105`}
           onClick={() => onEdit(node.id)}
           data-testid={`node-${node.id}`}
         >
-          <div className="flex items-center justify-center gap-1 mb-0.5">
+          <div className="flex items-center justify-center gap-1.5 mb-1">
             <IconComponent className={`${iconSize} ${style.icon}`} />
             <span className={`${textSize} font-bold`}>{node.label}</span>
             {hasChildren && (
               <button 
                 onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                className="ml-0.5"
+                className="ml-1 p-0.5 rounded hover:bg-white/20 dark:hover:bg-black/20 transition-colors"
               >
                 <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                  <ChevronDown className={`${iconSize} opacity-60`} />
+                  <ChevronDown className={`${iconSize} opacity-70`} />
                 </motion.div>
               </button>
             )}
           </div>
-          <span className={`font-mono ${textSize} opacity-75`}>{formatRwa(node.rwa)}</span>
+          <span className={`font-mono ${textSize} font-semibold opacity-80`}>{formatRwa(node.rwa)} RWA</span>
+          
+          <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${style.bg} border ${style.border} flex items-center justify-center`}>
+            <span className="text-[9px] font-bold opacity-70">L{node.level}</span>
+          </div>
         </motion.div>
 
-        <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10`}>
+        <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10`}>
           {canAddChildren && (
             <Button
               size="icon"
               variant="default"
-              className="h-5 w-5 rounded-full bg-emerald-500 hover:bg-emerald-600"
+              className="h-6 w-6 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-md"
               onClick={(e) => { e.stopPropagation(); onAddChild(node.id); }}
               data-testid={`btn-add-child-${node.id}`}
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3.5 h-3.5" />
             </Button>
           )}
           {node.level > 0 && (
             <Button
               size="icon"
               variant="destructive"
-              className="h-5 w-5 rounded-full"
+              className="h-6 w-6 rounded-full shadow-md"
               onClick={(e) => { e.stopPropagation(); onRemove(node.id); }}
               data-testid={`btn-remove-${node.id}`}
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>
@@ -314,20 +330,31 @@ function InteractiveNode({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
             className="flex flex-col items-center"
           >
-            <div className={`w-px ${isMobile ? 'h-3' : 'h-4'} bg-gradient-to-b from-border/80 to-border/40`}></div>
-            <div className="relative flex flex-wrap justify-center gap-1">
+            <div 
+              className={`w-0.5 ${childLineColor} rounded-full`}
+              style={{ height: lineHeight }}
+            />
+            
+            <div className="relative flex justify-center" style={{ gap: nodeGap }}>
               {node.childIds.length > 1 && (
                 <div 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 h-px bg-border/50"
-                  style={{ width: `calc(100% - 30px)` }}
-                ></div>
+                  className={`absolute top-0 h-0.5 ${childLineColor} rounded-full`}
+                  style={{ 
+                    left: `calc(50% / ${node.childIds.length})`,
+                    right: `calc(50% / ${node.childIds.length})`,
+                  }}
+                />
               )}
-              {node.childIds.map((childId) => (
+              
+              {node.childIds.map((childId, idx) => (
                 <div key={childId} className="flex flex-col items-center">
-                  <div className={`w-px ${isMobile ? 'h-3' : 'h-4'} bg-border/50`}></div>
+                  <div 
+                    className={`w-0.5 ${childLineColor} rounded-full`}
+                    style={{ height: lineHeight }}
+                  />
                   <ExpandableInteractiveNode
                     node={nodes[childId]}
                     nodes={nodes}
