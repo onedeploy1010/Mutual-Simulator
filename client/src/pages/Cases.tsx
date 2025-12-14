@@ -291,7 +291,7 @@ function InteractiveNode({
               </button>
             )}
           </div>
-          <span className={`font-mono ${textSize} font-semibold opacity-80`}>{formatRwa(node.rwa)} RWA</span>
+          <span className={`font-mono ${textSize} font-semibold opacity-80`}>${formatRwa(node.rwa)}</span>
           
           <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${style.bg} border ${style.border} flex items-center justify-center`}>
             <span className="text-[9px] font-bold opacity-70">L{node.level}</span>
@@ -401,7 +401,7 @@ function NodeEditor({ node, open, onClose, onUpdateRwa, onRemove, t }: NodeEdito
     if (node) setInputValue(node.rwa.toString());
   }, [node]);
 
-  const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
+  const formatUsd = (value: number) => new Intl.NumberFormat('en-US').format(value);
   
   if (!node) return null;
 
@@ -418,7 +418,7 @@ function NodeEditor({ node, open, onClose, onUpdateRwa, onRemove, t }: NodeEdito
     setInputValue(value);
     const num = parseInt(value, 10);
     if (!isNaN(num) && num >= 100) {
-      onUpdateRwa(node.id, Math.round(num / 100) * 100);
+      onUpdateRwa(node.id, num);
     }
   };
 
@@ -436,13 +436,13 @@ function NodeEditor({ node, open, onClose, onUpdateRwa, onRemove, t }: NodeEdito
         
         <div className="space-y-4 pt-2">
           <div>
-            <label className="text-sm font-medium mb-2 block">{t.investmentRwa || '投资金额'} (RWA)</label>
+            <label className="text-sm font-medium mb-2 block">{t.investmentAmount || '业绩金额'} (USD)</label>
             <div className="flex items-center gap-2">
               <Button 
                 size="icon" 
                 variant="outline"
                 onClick={() => handleChange(-100)}
-                data-testid="btn-rwa-minus"
+                data-testid="btn-usd-minus"
               >
                 <Minus className="w-4 h-4" />
               </Button>
@@ -453,19 +453,19 @@ function NodeEditor({ node, open, onClose, onUpdateRwa, onRemove, t }: NodeEdito
                 className="text-center font-mono text-lg"
                 min={100}
                 step={100}
-                data-testid="input-node-rwa"
+                data-testid="input-node-usd"
               />
               <Button 
                 size="icon" 
                 variant="outline"
                 onClick={() => handleChange(100)}
-                data-testid="btn-rwa-plus"
+                data-testid="btn-usd-plus"
               >
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              = ${formatRwa(node.rwa * 100)} USD
+              ${formatUsd(node.rwa)} USD
             </p>
           </div>
 
