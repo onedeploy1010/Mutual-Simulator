@@ -388,7 +388,7 @@ const defaultCases: Record<string, CaseConfig> = {
     directRwa: 500,
     indirectPerDirect: 2,
     indirectRwa: 500,
-    extraNodes: [{ level: 3, count: 8, rwa: 7100 }],
+    extraNodes: [{ level: 3, count: 8, rwa: 7200 }],
     teamDividendPercent: 30,
     minPerformance: 60000,
   },
@@ -764,11 +764,11 @@ export default function Cases() {
                 </div>
                 <span className="text-xs text-muted-foreground">×</span>
                 <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, -500)}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, -100)}>
                     <Minus className="w-3 h-3" />
                   </Button>
                   <span className="font-mono text-xs w-14 text-center">{formatRwa(node.rwa)}</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, 500)}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, 100)}>
                     <Plus className="w-3 h-3" />
                   </Button>
                 </div>
