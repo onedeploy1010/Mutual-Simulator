@@ -123,19 +123,30 @@ export default function Cases() {
     const totalInvestment = selfTotal + directTotal + indirectTotal + extraTotal;
     const teamPerformance = totalInvestment - selfTotal;
     
-    const customRwaDividend = selfTotal * 100 * (dailyRate / 100);
-    const streamingReward = selfTotal * 100 * (streamingRate / 100);
+    // 定制RWA分红：整个团队的投资分红
+    const customRwaDividend = totalInvestment * (dailyRate / 100);
     
-    const directRefReward = directTotal * 100 * (dailyRate / 100) * 0.20;
-    const indirectRefReward = indirectTotal * 100 * (dailyRate / 100) * 0.10;
+    // 推流奖励：整个团队的推流
+    const streamingReward = totalInvestment * (streamingRate / 100);
     
-    const teamReward = teamPerformance * 100 * (dailyRate / 100) * (config.teamDividendPercent / 100);
+    // 直推奖励：
+    // A对B1+B2的直推(20%): directTotal * rate * 20%
+    // B1+B2对各自直推的奖励(20%): indirectTotal * rate * 20%
+    const directRefRewardA = directTotal * (dailyRate / 100) * 0.20;
+    const directRefRewardB = indirectTotal * (dailyRate / 100) * 0.20;
+    const directRefReward = directRefRewardA + directRefRewardB;
+    
+    // 间推奖励：A对二级下级的10%
+    const indirectRefReward = indirectTotal * (dailyRate / 100) * 0.10;
+    
+    // 团队奖励：团队业绩 * 日利率 * 等级比例
+    const teamReward = teamPerformance * (dailyRate / 100) * (config.teamDividendPercent / 100);
     
     const totalDailyIncome = customRwaDividend + streamingReward + directRefReward + indirectRefReward + teamReward;
-    const dailyRatio = (totalDailyIncome / (totalInvestment * 100)) * 100;
+    const dailyRatio = (totalDailyIncome / totalInvestment) * 100;
     const monthlyIncome = totalDailyIncome * 30;
     const total180DayProfit = totalDailyIncome * 180;
-    const paybackDays = Math.ceil((totalInvestment * 100) / totalDailyIncome);
+    const paybackDays = Math.ceil(totalInvestment / totalDailyIncome);
     
     return {
       selfTotal,
@@ -146,6 +157,8 @@ export default function Cases() {
       teamPerformance,
       customRwaDividend,
       streamingReward,
+      directRefRewardA,
+      directRefRewardB,
       directRefReward,
       indirectRefReward,
       teamReward,
@@ -389,9 +402,15 @@ export default function Cases() {
           <span className="font-mono text-sm font-semibold text-violet-600 dark:text-violet-400">{formatUsd(calculations.streamingReward)}</span>
         </div>
         
-        <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30">
-          <span className="text-xs">{t.directReferralReward} (20%)</span>
-          <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefReward)}</span>
+        <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="text-xs">{t.directReferralReward} A (20%)</span>
+            <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardA)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs">{t.directReferralReward} B1+B2 (20%)</span>
+            <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardB)}</span>
+          </div>
         </div>
         
         <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30">
