@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useReducer } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Settings, 
   User, 
@@ -14,128 +16,327 @@ import {
   Calculator,
   Plus,
   Minus,
-  ChevronRight,
+  Trash2,
+  Edit3,
   ChevronDown,
   Crown,
   Star,
-  Sparkles,
   Network,
   Expand,
-  Shrink
+  Shrink,
+  RotateCcw,
+  X
 } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-interface TreeNodeData {
+interface EditableNode {
+  id: string;
   label: string;
   rwa: number;
-  color: string;
-  borderColor: string;
-  gradientFrom: string;
-  gradientTo: string;
-  icon: 'crown' | 'user' | 'users' | 'star';
   level: number;
-  children?: TreeNodeData[];
+  parentId: string | null;
+  childIds: string[];
 }
 
-interface TreeNodeProps {
-  node: TreeNodeData;
+interface TreeState {
+  nodes: Record<string, EditableNode>;
+  rootId: string;
+  nextId: number;
+}
+
+type TreeAction =
+  | { type: 'ADD_CHILD'; parentId: string; rwa?: number }
+  | { type: 'REMOVE_NODE'; nodeId: string }
+  | { type: 'UPDATE_RWA'; nodeId: string; rwa: number }
+  | { type: 'RESET'; preset: TreeState };
+
+function generateLabel(level: number, index: number): string {
+  const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  return `${labels[Math.min(level, labels.length - 1)]}${level > 0 ? index : ''}`;
+}
+
+function createInitialTree(tier: string): TreeState {
+  const presets: Record<string, { structure: number[][]; rwas: number[] }> = {
+    vip: {
+      structure: [[1], [2], [5, 5]],
+      rwas: [500, 500, 500],
+    },
+    star1: {
+      structure: [[1], [2], [1, 1], [2, 2, 2, 2]],
+      rwas: [500, 500, 500, 4500],
+    },
+    star2: {
+      structure: [[1], [2], [2, 2], [2, 2, 2, 2, 2, 2, 2, 2]],
+      rwas: [1000, 500, 500, 7200],
+    },
+    star3: {
+      structure: [[1], [2], [2, 2], [2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]],
+      rwas: [2000, 500, 500, 4900, 9900],
+    },
+  };
+
+  const preset = presets[tier] || presets.vip;
+  const nodes: Record<string, EditableNode> = {};
+  let nextId = 1;
+
+  const rootId = 'node-0';
+  nodes[rootId] = {
+    id: rootId,
+    label: 'A',
+    rwa: preset.rwas[0],
+    level: 0,
+    parentId: null,
+    childIds: [],
+  };
+
+  let currentLevelIds = [rootId];
+  
+  for (let level = 1; level < preset.structure.length; level++) {
+    const childCounts = preset.structure[level];
+    const nextLevelIds: string[] = [];
+    let childIndex = 0;
+    let labelCounter = 1;
+
+    for (let i = 0; i < currentLevelIds.length; i++) {
+      const parentId = currentLevelIds[i];
+      const numChildren = childCounts[childIndex] || 0;
+      
+      for (let j = 0; j < numChildren; j++) {
+        const nodeId = `node-${nextId++}`;
+        nodes[nodeId] = {
+          id: nodeId,
+          label: generateLabel(level, labelCounter++),
+          rwa: preset.rwas[Math.min(level, preset.rwas.length - 1)],
+          level,
+          parentId,
+          childIds: [],
+        };
+        nodes[parentId].childIds.push(nodeId);
+        nextLevelIds.push(nodeId);
+      }
+      childIndex++;
+    }
+    currentLevelIds = nextLevelIds;
+  }
+
+  return { nodes, rootId, nextId };
+}
+
+function treeReducer(state: TreeState, action: TreeAction): TreeState {
+  switch (action.type) {
+    case 'ADD_CHILD': {
+      const parent = state.nodes[action.parentId];
+      if (!parent) return state;
+      
+      const newId = `node-${state.nextId}`;
+      const siblingCount = parent.childIds.length;
+      const newLevel = parent.level + 1;
+      
+      const existingAtLevel = Object.values(state.nodes).filter(n => n.level === newLevel);
+      const labelIndex = existingAtLevel.length + 1;
+      
+      const newNode: EditableNode = {
+        id: newId,
+        label: generateLabel(newLevel, labelIndex),
+        rwa: action.rwa || 500,
+        level: newLevel,
+        parentId: action.parentId,
+        childIds: [],
+      };
+
+      return {
+        ...state,
+        nodes: {
+          ...state.nodes,
+          [newId]: newNode,
+          [action.parentId]: {
+            ...parent,
+            childIds: [...parent.childIds, newId],
+          },
+        },
+        nextId: state.nextId + 1,
+      };
+    }
+
+    case 'REMOVE_NODE': {
+      if (action.nodeId === state.rootId) return state;
+      
+      const nodeToRemove = state.nodes[action.nodeId];
+      if (!nodeToRemove) return state;
+
+      const getAllDescendants = (nodeId: string): string[] => {
+        const node = state.nodes[nodeId];
+        if (!node) return [];
+        return [nodeId, ...node.childIds.flatMap(getAllDescendants)];
+      };
+
+      const idsToRemove = new Set(getAllDescendants(action.nodeId));
+      const newNodes = { ...state.nodes };
+      
+      idsToRemove.forEach(id => delete newNodes[id]);
+      
+      if (nodeToRemove.parentId && newNodes[nodeToRemove.parentId]) {
+        newNodes[nodeToRemove.parentId] = {
+          ...newNodes[nodeToRemove.parentId],
+          childIds: newNodes[nodeToRemove.parentId].childIds.filter(id => id !== action.nodeId),
+        };
+      }
+
+      return { ...state, nodes: newNodes };
+    }
+
+    case 'UPDATE_RWA': {
+      const node = state.nodes[action.nodeId];
+      if (!node) return state;
+      
+      return {
+        ...state,
+        nodes: {
+          ...state.nodes,
+          [action.nodeId]: { ...node, rwa: Math.max(100, action.rwa) },
+        },
+      };
+    }
+
+    case 'RESET':
+      return action.preset;
+
+    default:
+      return state;
+  }
+}
+
+const levelStyles: Record<number, { bg: string; border: string; icon: string; gradient: string }> = {
+  0: { bg: 'bg-amber-500/20', border: 'border-amber-500/50', icon: 'text-amber-500', gradient: 'from-amber-500/30 to-orange-500/40' },
+  1: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/50', icon: 'text-cyan-500', gradient: 'from-cyan-500/25 to-teal-500/35' },
+  2: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', icon: 'text-blue-500', gradient: 'from-blue-500/20 to-indigo-500/30' },
+  3: { bg: 'bg-purple-500/20', border: 'border-purple-500/50', icon: 'text-purple-500', gradient: 'from-purple-500/20 to-violet-500/30' },
+  4: { bg: 'bg-rose-500/20', border: 'border-rose-500/50', icon: 'text-rose-500', gradient: 'from-rose-500/20 to-pink-500/30' },
+};
+
+function getIcon(level: number) {
+  if (level === 0) return Crown;
+  if (level === 1) return User;
+  if (level === 2) return Users;
+  return Star;
+}
+
+interface InteractiveNodeProps {
+  node: EditableNode;
+  nodes: Record<string, EditableNode>;
+  onAddChild: (nodeId: string) => void;
+  onRemove: (nodeId: string) => void;
+  onEdit: (nodeId: string) => void;
+  isMobile: boolean;
   isExpanded: boolean;
   onToggle: () => void;
-  isMobile: boolean;
+  maxLevel?: number;
 }
 
-function TreeNode({ node, isExpanded, onToggle, isMobile }: TreeNodeProps) {
+function InteractiveNode({ 
+  node, 
+  nodes, 
+  onAddChild, 
+  onRemove, 
+  onEdit, 
+  isMobile,
+  isExpanded,
+  onToggle,
+  maxLevel = 4
+}: InteractiveNodeProps) {
   const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
+  const style = levelStyles[Math.min(node.level, 4)];
+  const IconComponent = getIcon(node.level);
+  const hasChildren = node.childIds.length > 0;
+  const canAddChildren = node.level < maxLevel;
   
-  const IconComponent = {
-    crown: Crown,
-    user: User,
-    users: Users,
-    star: Star,
-  }[node.icon];
-
-  const sizeClasses = {
-    0: 'px-4 py-2.5 min-w-[80px]',
-    1: 'px-3 py-2 min-w-[70px]',
-    2: 'px-2.5 py-1.5 min-w-[60px]',
-    3: 'px-2 py-1 min-w-[50px]',
-    4: 'px-1.5 py-1 min-w-[44px]',
-  };
-  
-  const iconSizes = {
-    0: 'w-4 h-4',
-    1: 'w-3.5 h-3.5',
-    2: 'w-3 h-3',
-    3: 'w-2.5 h-2.5',
-    4: 'w-2 h-2',
-  };
-  
-  const textSizes = {
-    0: 'text-sm',
-    1: 'text-xs',
-    2: 'text-xs',
-    3: 'text-[10px]',
-    4: 'text-[9px]',
-  };
-  
-  const rwaSizes = {
-    0: 'text-xs',
-    1: 'text-[10px]',
-    2: 'text-[9px]',
-    3: 'text-[8px]',
-    4: 'text-[8px]',
-  };
-
-  const level = Math.min(node.level, 4) as 0 | 1 | 2 | 3 | 4;
-  const hasChildren = node.children && node.children.length > 0;
-  const showChildren = isExpanded && hasChildren;
+  const sizeClasses = isMobile ? 'px-2 py-1.5 min-w-[60px]' : 'px-3 py-2 min-w-[80px]';
+  const iconSize = isMobile ? 'w-3 h-3' : 'w-4 h-4';
+  const textSize = isMobile ? 'text-[10px]' : 'text-xs';
 
   return (
     <div className="flex flex-col items-center">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.25, delay: node.level * 0.05 }}
-        className={`relative ${sizeClasses[level]} rounded-lg bg-gradient-to-br ${node.gradientFrom} ${node.gradientTo} border ${node.borderColor} shadow-md text-center cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105`}
-        onClick={hasChildren ? onToggle : undefined}
-      >
-        <div className="flex items-center justify-center gap-1 mb-0.5">
-          <IconComponent className={iconSizes[level]} />
-          <span className={`${textSizes[level]} font-bold`}>{node.label}</span>
-          {hasChildren && (
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="ml-0.5"
+      <div className="relative group">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className={`relative ${sizeClasses} rounded-lg bg-gradient-to-br ${style.gradient} border ${style.border} shadow-md text-center cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105`}
+          onClick={() => onEdit(node.id)}
+          data-testid={`node-${node.id}`}
+        >
+          <div className="flex items-center justify-center gap-1 mb-0.5">
+            <IconComponent className={`${iconSize} ${style.icon}`} />
+            <span className={`${textSize} font-bold`}>{node.label}</span>
+            {hasChildren && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onToggle(); }}
+                className="ml-0.5"
+              >
+                <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown className={`${iconSize} opacity-60`} />
+                </motion.div>
+              </button>
+            )}
+          </div>
+          <span className={`font-mono ${textSize} opacity-75`}>{formatRwa(node.rwa)}</span>
+        </motion.div>
+
+        <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10`}>
+          {canAddChildren && (
+            <Button
+              size="icon"
+              variant="default"
+              className="h-5 w-5 rounded-full bg-emerald-500 hover:bg-emerald-600"
+              onClick={(e) => { e.stopPropagation(); onAddChild(node.id); }}
+              data-testid={`btn-add-child-${node.id}`}
             >
-              <ChevronDown className={`${iconSizes[level]} opacity-60`} />
-            </motion.div>
+              <Plus className="w-3 h-3" />
+            </Button>
+          )}
+          {node.level > 0 && (
+            <Button
+              size="icon"
+              variant="destructive"
+              className="h-5 w-5 rounded-full"
+              onClick={(e) => { e.stopPropagation(); onRemove(node.id); }}
+              data-testid={`btn-remove-${node.id}`}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
           )}
         </div>
-        <span className={`font-mono ${rwaSizes[level]} opacity-75`}>{formatRwa(node.rwa)}</span>
-      </motion.div>
-      
+      </div>
+
       <AnimatePresence>
-        {showChildren && node.children && (
+        {isExpanded && hasChildren && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
             className="flex flex-col items-center"
           >
-            <div className={`w-px ${isMobile ? 'h-2' : 'h-3'} bg-gradient-to-b from-border/80 to-border/40`}></div>
-            <div className="relative flex gap-1">
-              {node.children.length > 1 && (
+            <div className={`w-px ${isMobile ? 'h-3' : 'h-4'} bg-gradient-to-b from-border/80 to-border/40`}></div>
+            <div className="relative flex flex-wrap justify-center gap-1">
+              {node.childIds.length > 1 && (
                 <div 
                   className="absolute top-0 left-1/2 -translate-x-1/2 h-px bg-border/50"
-                  style={{ width: `calc(100% - ${isMobile ? '40px' : '50px'})` }}
+                  style={{ width: `calc(100% - 30px)` }}
                 ></div>
               )}
-              {node.children.map((child, idx) => (
-                <div key={idx} className="flex flex-col items-center">
-                  <div className={`w-px ${isMobile ? 'h-2' : 'h-3'} bg-border/50`}></div>
-                  <ExpandableTreeNode node={child} isMobile={isMobile} />
+              {node.childIds.map((childId) => (
+                <div key={childId} className="flex flex-col items-center">
+                  <div className={`w-px ${isMobile ? 'h-3' : 'h-4'} bg-border/50`}></div>
+                  <ExpandableInteractiveNode
+                    node={nodes[childId]}
+                    nodes={nodes}
+                    onAddChild={onAddChild}
+                    onRemove={onRemove}
+                    onEdit={onEdit}
+                    isMobile={isMobile}
+                    maxLevel={maxLevel}
+                  />
                 </div>
               ))}
             </div>
@@ -146,708 +347,385 @@ function TreeNode({ node, isExpanded, onToggle, isMobile }: TreeNodeProps) {
   );
 }
 
-function ExpandableTreeNode({ node, isMobile }: { node: TreeNodeData; isMobile: boolean }) {
-  const [isExpanded, setIsExpanded] = useState(node.level < 2);
-  
+function ExpandableInteractiveNode(props: Omit<InteractiveNodeProps, 'isExpanded' | 'onToggle'>) {
+  const [isExpanded, setIsExpanded] = useState(props.node.level < 2);
   return (
-    <TreeNode 
-      node={node} 
+    <InteractiveNode 
+      {...props} 
       isExpanded={isExpanded} 
-      onToggle={() => setIsExpanded(!isExpanded)}
-      isMobile={isMobile}
+      onToggle={() => setIsExpanded(!isExpanded)} 
     />
   );
 }
 
-function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isFullExpanded, setIsFullExpanded] = useState(false);
-  const [treeKey, setTreeKey] = useState(0);
+interface NodeEditorProps {
+  node: EditableNode | null;
+  open: boolean;
+  onClose: () => void;
+  onUpdateRwa: (nodeId: string, rwa: number) => void;
+  onRemove: (nodeId: string) => void;
+  t: any;
+}
 
-  const toggleExpandAll = () => {
-    setIsFullExpanded(!isFullExpanded);
-    setTreeKey(k => k + 1);
+function NodeEditor({ node, open, onClose, onUpdateRwa, onRemove, t }: NodeEditorProps) {
+  const [inputValue, setInputValue] = useState('');
+  
+  const handleOpen = useCallback(() => {
+    if (node) setInputValue(node.rwa.toString());
+  }, [node]);
+
+  const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
+  
+  if (!node) return null;
+
+  const style = levelStyles[Math.min(node.level, 4)];
+  const IconComponent = getIcon(node.level);
+
+  const handleChange = (delta: number) => {
+    const newValue = Math.max(100, node.rwa + delta);
+    onUpdateRwa(node.id, newValue);
+    setInputValue(newValue.toString());
   };
 
-  const buildTree = (): TreeNodeData => {
-    const directChildren: TreeNodeData[] = [];
-    
-    // Calculate how many D nodes per C, and E nodes per D
-    const totalC = config.directCount * config.indirectPerDirect;
-    const level3Node = config.extraNodes?.find(n => n.level === 3);
-    const level4Node = config.extraNodes?.find(n => n.level === 4);
-    const dPerC = level3Node ? Math.ceil(level3Node.count / totalC) : 0;
-    const ePerD = level4Node && level3Node ? Math.ceil(level4Node.count / level3Node.count) : 0;
-    
-    let dIndex = 1;
-    let eIndex = 1;
-    
-    for (let i = 0; i < config.directCount; i++) {
-      const indirectChildren: TreeNodeData[] = [];
-      
-      for (let j = 0; j < config.indirectPerDirect; j++) {
-        const thirdLevelChildren: TreeNodeData[] = [];
-        
-        if (level3Node) {
-          for (let k = 0; k < dPerC; k++) {
-            const fourthLevelChildren: TreeNodeData[] = [];
-            
-            if (level4Node) {
-              for (let l = 0; l < ePerD; l++) {
-                fourthLevelChildren.push({
-                  label: `E${eIndex++}`,
-                  rwa: level4Node.rwa,
-                  color: 'bg-rose-500/20',
-                  borderColor: 'border-rose-500/40',
-                  gradientFrom: 'from-rose-500/20',
-                  gradientTo: 'to-pink-500/30',
-                  icon: 'star',
-                  level: 4,
-                });
-              }
-            }
-            
-            thirdLevelChildren.push({
-              label: `D${dIndex++}`,
-              rwa: level3Node.rwa,
-              color: 'bg-purple-500/20',
-              borderColor: 'border-purple-500/40',
-              gradientFrom: 'from-purple-500/20',
-              gradientTo: 'to-violet-500/30',
-              icon: 'star',
-              level: 3,
-              children: fourthLevelChildren.length > 0 ? fourthLevelChildren : undefined,
-            });
-          }
-        }
-        
-        indirectChildren.push({
-          label: `C${i * config.indirectPerDirect + j + 1}`,
-          rwa: config.indirectRwa,
-          color: 'bg-blue-500/20',
-          borderColor: 'border-blue-500/40',
-          gradientFrom: 'from-blue-500/20',
-          gradientTo: 'to-indigo-500/30',
-          icon: 'users',
-          level: 2,
-          children: thirdLevelChildren.length > 0 ? thirdLevelChildren : undefined,
-        });
-      }
-      
-      directChildren.push({
-        label: `B${i + 1}`,
-        rwa: config.directRwa,
-        color: 'bg-cyan-500/20',
-        borderColor: 'border-cyan-500/40',
-        gradientFrom: 'from-cyan-500/25',
-        gradientTo: 'to-teal-500/35',
-        icon: 'user',
-        level: 1,
-        children: indirectChildren.length > 0 ? indirectChildren : undefined,
-      });
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    const num = parseInt(value, 10);
+    if (!isNaN(num) && num >= 100) {
+      onUpdateRwa(node.id, Math.round(num / 100) * 100);
     }
-    
-    return {
-      label: 'A',
-      rwa: config.selfRwa,
-      color: 'bg-amber-500/25',
-      borderColor: 'border-amber-500/50',
-      gradientFrom: 'from-amber-500/30',
-      gradientTo: 'to-orange-500/40',
-      icon: 'crown',
-      level: 0,
-      children: directChildren,
-    };
-  };
-
-  const tree = buildTree();
-
-  const ExpandableRoot = () => {
-    const [isExpanded, setIsExpanded] = useState(true);
-    
-    return (
-      <TreeNode 
-        node={tree} 
-        isExpanded={isExpanded} 
-        onToggle={() => setIsExpanded(!isExpanded)}
-        isMobile={isMobile}
-      />
-    );
   };
 
   return (
-    <Card className="p-3 card-luxury">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Network className="w-4 h-4 text-primary" />
-          {t.orgStructure || '组织架构图'}
-        </h3>
-        <Button 
-          size="sm" 
-          variant="ghost" 
-          onClick={toggleExpandAll}
-          className="h-7 text-xs gap-1"
-          data-testid="button-toggle-tree-expand"
-        >
-          {isFullExpanded ? <Shrink className="w-3 h-3" /> : <Expand className="w-3 h-3" />}
-          {isFullExpanded ? (t.collapse || '收起') : (t.expand || '展开')}
-        </Button>
-      </div>
-      
-      <div className="overflow-x-auto pb-2">
-        <div className="flex justify-center min-w-fit py-2" key={treeKey}>
-          <ExpandableRoot key={isFullExpanded ? 'expanded' : 'collapsed'} />
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); else handleOpen(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <div className={`p-2 rounded-lg ${style.bg} ${style.border} border`}>
+              <IconComponent className={`w-5 h-5 ${style.icon}`} />
+            </div>
+            {t.editNode || '编辑节点'} {node.label}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 pt-2">
+          <div>
+            <label className="text-sm font-medium mb-2 block">{t.investmentRwa || '投资金额'} (RWA)</label>
+            <div className="flex items-center gap-2">
+              <Button 
+                size="icon" 
+                variant="outline"
+                onClick={() => handleChange(-100)}
+                data-testid="btn-rwa-minus"
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <Input
+                type="number"
+                value={inputValue}
+                onChange={(e) => handleInputChange(e.target.value)}
+                className="text-center font-mono text-lg"
+                min={100}
+                step={100}
+                data-testid="input-node-rwa"
+              />
+              <Button 
+                size="icon" 
+                variant="outline"
+                onClick={() => handleChange(100)}
+                data-testid="btn-rwa-plus"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 text-center">
+              = ${formatRwa(node.rwa * 100)} USD
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            {node.level > 0 && (
+              <Button 
+                variant="destructive" 
+                className="flex-1"
+                onClick={() => { onRemove(node.id); onClose(); }}
+                data-testid="btn-delete-node"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t.delete || '删除'}
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={onClose}
+              data-testid="btn-close-editor"
+            >
+              {t.done || '完成'}
+            </Button>
+          </div>
         </div>
-      </div>
-      
-      <div className="mt-3 pt-2 border-t border-border/40">
-        <div className="flex flex-wrap justify-center gap-2 text-[9px]">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">
-            <Crown className="w-2.5 h-2.5 text-amber-600" />
-            <span>A: {t.selfLabel || '自己'}</span>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30">
-            <User className="w-2.5 h-2.5 text-cyan-600" />
-            <span>B: {t.directLabel || '直推'}</span>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30">
-            <Users className="w-2.5 h-2.5 text-blue-600" />
-            <span>C: {t.indirectLabel || '间推'}</span>
-          </div>
-          {config.extraNodes && config.extraNodes.length > 0 && (
-            <>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30">
-                <Star className="w-2.5 h-2.5 text-purple-600" />
-                <span>D: {t.level3Label || '三代'}</span>
-              </div>
-              {config.extraNodes.find(n => n.level === 4) && (
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30">
-                  <Star className="w-2.5 h-2.5 text-rose-600" />
-                  <span>E: {t.level4Label || '四代'}</span>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        <p className="text-center text-[9px] text-muted-foreground mt-2">
-          {t.clickToExpand || '点击节点展开/收起下级'}
-        </p>
-      </div>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
-
-interface TeamNode {
-  id: string;
-  rwa: number;
-  children: TeamNode[];
-}
-
-interface CaseConfig {
-  tier: string;
-  tierLabel: string;
-  selfRwa: number;
-  directCount: number;
-  directRwa: number;
-  indirectPerDirect: number;
-  indirectRwa: number;
-  extraNodes?: { level: number; count: number; rwa: number }[];
-  teamDividendPercent: number;
-  minPerformance: number;
-}
-
-const defaultCases: Record<string, CaseConfig> = {
-  vip: {
-    tier: 'VIP',
-    tierLabel: 'VIP',
-    selfRwa: 500,
-    directCount: 2,
-    directRwa: 500,
-    indirectPerDirect: 5,
-    indirectRwa: 500,
-    teamDividendPercent: 10,
-    minPerformance: 6000,
-  },
-  star1: {
-    tier: '1-Star Expert',
-    tierLabel: '1★',
-    selfRwa: 500,
-    directCount: 2,
-    directRwa: 500,
-    indirectPerDirect: 1,
-    indirectRwa: 500,
-    extraNodes: [{ level: 3, count: 4, rwa: 4500 }],
-    teamDividendPercent: 20,
-    minPerformance: 20000,
-  },
-  star2: {
-    tier: '2-Star Expert',
-    tierLabel: '2★',
-    selfRwa: 1000,
-    directCount: 2,
-    directRwa: 500,
-    indirectPerDirect: 2,
-    indirectRwa: 500,
-    extraNodes: [{ level: 3, count: 8, rwa: 7200 }],
-    teamDividendPercent: 30,
-    minPerformance: 60000,
-  },
-  star3: {
-    tier: '3-Star Expert',
-    tierLabel: '3★',
-    selfRwa: 2000,
-    directCount: 2,
-    directRwa: 500,
-    indirectPerDirect: 2,
-    indirectRwa: 500,
-    extraNodes: [
-      { level: 3, count: 8, rwa: 4900 },
-      { level: 4, count: 16, rwa: 9900 },
-    ],
-    teamDividendPercent: 40,
-    minPerformance: 200000,
-  },
-};
 
 export default function Cases() {
   const { t } = useLanguage();
   const isMobile = useMediaQuery('(max-width: 768px)');
   
   const [activeTab, setActiveTab] = useState('vip');
-  const [showParams, setShowParams] = useState(false);
+  const [mobileView, setMobileView] = useState<'tree' | 'results' | 'settings'>('tree');
   const [dailyRate, setDailyRate] = useState(1.25);
   const [streamingRate, setStreamingRate] = useState(0.3);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   
-  const [customStructure, setCustomStructure] = useState<Record<string, CaseConfig>>(() => ({...defaultCases}));
+  const [trees, setTrees] = useState<Record<string, TreeState>>(() => ({
+    vip: createInitialTree('vip'),
+    star1: createInitialTree('star1'),
+    star2: createInitialTree('star2'),
+    star3: createInitialTree('star3'),
+  }));
 
-  const currentCase = customStructure[activeTab];
+  const currentTree = trees[activeTab];
+
+  const dispatch = useCallback((action: TreeAction) => {
+    setTrees(prev => ({
+      ...prev,
+      [activeTab]: treeReducer(prev[activeTab], action),
+    }));
+  }, [activeTab]);
+
+  const tierConfig: Record<string, { teamDividendPercent: number; minPerformance: number; streamingManagementPercent: number }> = {
+    vip: { teamDividendPercent: 10, minPerformance: 6000, streamingManagementPercent: 0 },
+    star1: { teamDividendPercent: 20, minPerformance: 20000, streamingManagementPercent: 5 },
+    star2: { teamDividendPercent: 30, minPerformance: 60000, streamingManagementPercent: 10 },
+    star3: { teamDividendPercent: 40, minPerformance: 200000, streamingManagementPercent: 15 },
+  };
 
   const calculations = useMemo(() => {
-    const config = currentCase;
+    const nodes = Object.values(currentTree.nodes);
+    const config = tierConfig[activeTab];
     
-    const selfTotal = config.selfRwa;
-    const directTotal = config.directCount * config.directRwa;
-    const indirectTotal = config.directCount * config.indirectPerDirect * config.indirectRwa;
+    const nodesByLevel: Record<number, EditableNode[]> = {};
+    nodes.forEach(node => {
+      if (!nodesByLevel[node.level]) nodesByLevel[node.level] = [];
+      nodesByLevel[node.level].push(node);
+    });
+
+    const selfTotal = nodesByLevel[0]?.reduce((sum, n) => sum + n.rwa, 0) || 0;
+    const directTotal = nodesByLevel[1]?.reduce((sum, n) => sum + n.rwa, 0) || 0;
+    const indirectTotal = nodesByLevel[2]?.reduce((sum, n) => sum + n.rwa, 0) || 0;
+    const level3Total = nodesByLevel[3]?.reduce((sum, n) => sum + n.rwa, 0) || 0;
+    const level4Total = nodesByLevel[4]?.reduce((sum, n) => sum + n.rwa, 0) || 0;
     
-    // Calculate extra levels separately for proper reward calculation
-    let level3Total = 0;
-    let level4Total = 0;
-    if (config.extraNodes) {
-      config.extraNodes.forEach(node => {
-        if (node.level === 3) level3Total = node.count * node.rwa;
-        if (node.level === 4) level4Total = node.count * node.rwa;
-      });
-    }
-    const extraTotal = level3Total + level4Total;
-    
-    const totalInvestment = selfTotal + directTotal + indirectTotal + extraTotal;
+    const totalInvestment = selfTotal + directTotal + indirectTotal + level3Total + level4Total;
     const teamPerformance = totalInvestment - selfTotal;
-    
-    // 定制RWA分红：整个团队的投资分红
+
     const customRwaDividend = totalInvestment * (dailyRate / 100);
-    
-    // 推流奖励：整个团队的推流
     const streamingReward = totalInvestment * (streamingRate / 100);
     
-    // 直推奖励 (Direct Referral - 20%):
-    // A对B的直推(20%): directTotal * rate * 20%
-    // B对C的直推(20%): indirectTotal * rate * 20%
-    // C对D的直推(20%): level3Total * rate * 20% (for 1★+ tiers)
     const directRefRewardA = directTotal * (dailyRate / 100) * 0.20;
     const directRefRewardB = indirectTotal * (dailyRate / 100) * 0.20;
     const directRefRewardC = level3Total * (dailyRate / 100) * 0.20;
     const directRefReward = directRefRewardA + directRefRewardB + directRefRewardC;
     
-    // 间推奖励 (Indirect Referral - 10%):
-    // A对C的间推(10%): indirectTotal * rate * 10%
-    // B对D的间推(10%): level3Total * rate * 10% (for 1★+ tiers)
     const indirectRefRewardA = indirectTotal * (dailyRate / 100) * 0.10;
     const indirectRefRewardB = level3Total * (dailyRate / 100) * 0.10;
     const indirectRefReward = indirectRefRewardA + indirectRefRewardB;
     
-    // 团队奖励：团队业绩 * 日利率 * 等级比例
     const teamReward = teamPerformance * (dailyRate / 100) * (config.teamDividendPercent / 100);
-    
-    // 推流管理奖励 (Streaming Management - 5% for 1★+):
-    // 公式: 团队业绩 × 0.3% × 等级推流管理比例
-    // VIP: 0%, 1★: 5%, 2★: 10%, 3★: 15%
-    const streamingManagementPercent = config.tier === 'VIP' ? 0 : 
-      config.tier === '1-Star Expert' ? 5 :
-      config.tier === '2-Star Expert' ? 10 :
-      config.tier === '3-Star Expert' ? 15 : 0;
-    const streamingManagementReward = teamPerformance * 0.003 * (streamingManagementPercent / 100);
+    const streamingManagementReward = teamPerformance * 0.003 * (config.streamingManagementPercent / 100);
     
     const totalDailyIncome = customRwaDividend + streamingReward + directRefReward + indirectRefReward + teamReward + streamingManagementReward;
-    const dailyRatio = (totalDailyIncome / totalInvestment) * 100;
+    const dailyRatio = totalInvestment > 0 ? (totalDailyIncome / totalInvestment) * 100 : 0;
     const monthlyIncome = totalDailyIncome * 30;
     const total180DayProfit = totalDailyIncome * 180;
-    const paybackDays = Math.ceil(totalInvestment / totalDailyIncome);
+    const paybackDays = totalDailyIncome > 0 ? Math.ceil(totalInvestment / totalDailyIncome) : 0;
     
-    return {
-      selfTotal,
-      directTotal,
-      indirectTotal,
-      extraTotal,
-      level3Total,
-      level4Total,
-      totalInvestment,
-      teamPerformance,
-      customRwaDividend,
-      streamingReward,
-      directRefRewardA,
-      directRefRewardB,
-      directRefRewardC,
-      directRefReward,
-      indirectRefRewardA,
-      indirectRefRewardB,
-      indirectRefReward,
-      teamReward,
-      streamingManagementPercent,
-      streamingManagementReward,
-      totalDailyIncome,
-      dailyRatio,
-      monthlyIncome,
-      total180DayProfit,
-      paybackDays,
+    const nodeCount = {
+      level0: nodesByLevel[0]?.length || 0,
+      level1: nodesByLevel[1]?.length || 0,
+      level2: nodesByLevel[2]?.length || 0,
+      level3: nodesByLevel[3]?.length || 0,
+      level4: nodesByLevel[4]?.length || 0,
     };
-  }, [currentCase, dailyRate, streamingRate]);
 
-  const updateDirectCount = (delta: number) => {
-    setCustomStructure(prev => ({
+    return {
+      selfTotal, directTotal, indirectTotal, level3Total, level4Total,
+      totalInvestment, teamPerformance,
+      customRwaDividend, streamingReward,
+      directRefRewardA, directRefRewardB, directRefRewardC, directRefReward,
+      indirectRefRewardA, indirectRefRewardB, indirectRefReward,
+      teamReward, streamingManagementReward,
+      totalDailyIncome, dailyRatio, monthlyIncome, total180DayProfit, paybackDays,
+      nodeCount, minPerformance: config.minPerformance,
+      meetsMinimum: teamPerformance >= config.minPerformance,
+    };
+  }, [currentTree, activeTab, dailyRate, streamingRate]);
+
+  const formatUsd = (value: number) => new Intl.NumberFormat('en-US', { 
+    style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2,
+  }).format(value);
+  
+  const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
+
+  const handleAddChild = (parentId: string) => {
+    dispatch({ type: 'ADD_CHILD', parentId, rwa: 500 });
+  };
+
+  const handleRemoveNode = (nodeId: string) => {
+    dispatch({ type: 'REMOVE_NODE', nodeId });
+    if (editingNodeId === nodeId) setEditingNodeId(null);
+  };
+
+  const handleUpdateRwa = (nodeId: string, rwa: number) => {
+    dispatch({ type: 'UPDATE_RWA', nodeId, rwa });
+  };
+
+  const handleReset = () => {
+    setTrees(prev => ({
       ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        directCount: Math.max(1, Math.min(10, prev[activeTab].directCount + delta)),
-      },
+      [activeTab]: createInitialTree(activeTab),
     }));
   };
 
-  const updateIndirectPerDirect = (delta: number) => {
-    setCustomStructure(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        indirectPerDirect: Math.max(0, Math.min(10, prev[activeTab].indirectPerDirect + delta)),
-      },
-    }));
-  };
+  const editingNode = editingNodeId ? currentTree.nodes[editingNodeId] : null;
 
-  const updateRwa = (field: 'selfRwa' | 'directRwa' | 'indirectRwa', delta: number) => {
-    setCustomStructure(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        [field]: Math.max(100, prev[activeTab][field] + delta),
-      },
-    }));
-  };
-
-  const updateExtraNodeCount = (level: number, delta: number) => {
-    setCustomStructure(prev => {
-      const config = prev[activeTab];
-      if (!config.extraNodes) return prev;
-      
-      const newExtraNodes = config.extraNodes.map(node => {
-        if (node.level === level) {
-          return { ...node, count: Math.max(1, node.count + delta) };
-        }
-        return node;
-      });
-      
-      return {
-        ...prev,
-        [activeTab]: { ...config, extraNodes: newExtraNodes },
-      };
-    });
-  };
-
-  const updateExtraNodeRwa = (level: number, delta: number) => {
-    setCustomStructure(prev => {
-      const config = prev[activeTab];
-      if (!config.extraNodes) return prev;
-      
-      const newExtraNodes = config.extraNodes.map(node => {
-        if (node.level === level) {
-          return { ...node, rwa: Math.max(100, node.rwa + delta) };
-        }
-        return node;
-      });
-      
-      return {
-        ...prev,
-        [activeTab]: { ...config, extraNodes: newExtraNodes },
-      };
-    });
-  };
-
-  const resetToDefault = () => {
-    setCustomStructure(prev => ({
-      ...prev,
-      [activeTab]: {...defaultCases[activeTab]},
-    }));
-  };
-
-  const formatUsd = (value: number) => {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  };
-
-  const formatRwa = (value: number) => {
-    return new Intl.NumberFormat('en-US').format(value);
-  };
-
-  const ParamsPanel = (
-    <AnimatePresence>
-      {showParams && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="overflow-hidden"
-        >
-          <Card className="p-3 mb-3 bg-gradient-to-br from-violet-500/10 to-purple-500/10 dark:from-violet-500/20 dark:to-purple-500/20 border-violet-500/30">
-            <div className="space-y-3">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-violet-700 dark:text-violet-300">{t.customRwaRate}</span>
-                  <span className="font-mono text-sm font-bold text-violet-600 dark:text-violet-400">{dailyRate.toFixed(2)}%</span>
-                </div>
-                <Slider
-                  min={1.0}
-                  max={1.5}
-                  step={0.05}
-                  value={[dailyRate]}
-                  onValueChange={([v]) => setDailyRate(v)}
-                  data-testid="slider-daily-rate-cases"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>1.0%</span>
-                  <span>1.5%</span>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-violet-700 dark:text-violet-300">{t.streamingRateSetting}</span>
-                  <span className="font-mono text-sm font-bold text-violet-600 dark:text-violet-400">{streamingRate.toFixed(2)}%</span>
-                </div>
-                <Slider
-                  min={0.2}
-                  max={0.4}
-                  step={0.02}
-                  value={[streamingRate]}
-                  onValueChange={([v]) => setStreamingRate(v)}
-                  data-testid="slider-streaming-rate-cases"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>0.2%</span>
-                  <span>0.4%</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      )}
-    </AnimatePresence>
+  const TierTabs = (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="grid grid-cols-4 w-full h-auto p-1">
+        <TabsTrigger value="vip" className="text-xs py-2 data-[state=active]:bg-amber-500 data-[state=active]:text-white" data-testid="tab-vip">VIP</TabsTrigger>
+        <TabsTrigger value="star1" className="text-xs py-2 data-[state=active]:bg-cyan-500 data-[state=active]:text-white" data-testid="tab-star1">1★</TabsTrigger>
+        <TabsTrigger value="star2" className="text-xs py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white" data-testid="tab-star2">2★</TabsTrigger>
+        <TabsTrigger value="star3" className="text-xs py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white" data-testid="tab-star3">3★</TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 
-  const StructureCard = (
-    <Card className="p-3 card-luxury">
+  const TreePanel = (
+    <Card className="p-3 card-luxury h-full">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Users className="w-4 h-4 text-amber-500" />
-          {t.structureOverview}
+          <Network className="w-4 h-4 text-primary" />
+          {t.orgStructure || '组织架构'}
         </h3>
-        <Button size="sm" variant="outline" onClick={resetToDefault} className="text-xs h-7">
-          {t.reset}
+        <Button size="sm" variant="outline" onClick={handleReset} className="h-7 text-xs gap-1" data-testid="btn-reset-tree">
+          <RotateCcw className="w-3 h-3" />
+          {t.reset || '重置'}
         </Button>
       </div>
       
-      <div className="space-y-2">
-        <div className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/30">
-          <div className="flex items-center gap-2">
-            <Crown className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-medium">{t.selfInvestment}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('selfRwa', -100)}>
-              <Minus className="w-3 h-3" />
-            </Button>
-            <span className="font-mono text-sm w-16 text-center">{formatRwa(currentCase.selfRwa)}</span>
-            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('selfRwa', 100)}>
-              <Plus className="w-3 h-3" />
-            </Button>
-          </div>
+      <div className="overflow-auto pb-4" style={{ maxHeight: isMobile ? '300px' : '400px' }}>
+        <div className="flex justify-center min-w-fit py-4">
+          <ExpandableInteractiveNode
+            node={currentTree.nodes[currentTree.rootId]}
+            nodes={currentTree.nodes}
+            onAddChild={handleAddChild}
+            onRemove={handleRemoveNode}
+            onEdit={setEditingNodeId}
+            isMobile={isMobile}
+          />
         </div>
-        
-        <div className="flex items-center justify-between p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-cyan-500" />
-            <span className="text-xs font-medium">{t.level1}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateDirectCount(-1)}>
-                <Minus className="w-3 h-3" />
-              </Button>
-              <span className="font-mono text-xs w-4 text-center">{currentCase.directCount}</span>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateDirectCount(1)}>
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-            <span className="text-xs text-muted-foreground">×</span>
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('directRwa', -100)}>
-                <Minus className="w-3 h-3" />
-              </Button>
-              <span className="font-mono text-xs w-12 text-center">{formatRwa(currentCase.directRwa)}</span>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('directRwa', 100)}>
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10 border border-blue-500/30">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-500" />
-            <span className="text-xs font-medium">{t.level2}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateIndirectPerDirect(-1)}>
-                <Minus className="w-3 h-3" />
-              </Button>
-              <span className="font-mono text-xs w-4 text-center">{currentCase.indirectPerDirect}</span>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateIndirectPerDirect(1)}>
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-            <span className="text-xs text-muted-foreground">×</span>
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('indirectRwa', -100)}>
-                <Minus className="w-3 h-3" />
-              </Button>
-              <span className="font-mono text-xs w-12 text-center">{formatRwa(currentCase.indirectRwa)}</span>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateRwa('indirectRwa', 100)}>
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {currentCase.extraNodes && currentCase.extraNodes.map((node, idx) => {
-          const isLevel4 = node.level === 4;
-          const bgColor = isLevel4 ? 'bg-rose-500/10 border-rose-500/30' : 'bg-purple-500/10 border-purple-500/30';
-          const iconColor = isLevel4 ? 'text-rose-500' : 'text-purple-500';
-          const label = node.level === 3 ? 'D' : 'E';
-          
-          return (
-            <div key={idx} className={`flex items-center justify-between p-2 rounded-lg ${bgColor}`}>
-              <div className="flex items-center gap-2">
-                <Star className={`w-4 h-4 ${iconColor}`} />
-                <span className="text-xs font-medium">{label}: {t[`level${node.level}` as keyof typeof t] || `Level ${node.level}`}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeCount(node.level, -1)}>
-                    <Minus className="w-3 h-3" />
-                  </Button>
-                  <span className="font-mono text-xs w-4 text-center">{node.count}</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeCount(node.level, 1)}>
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
-                <span className="text-xs text-muted-foreground">×</span>
-                <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, -100)}>
-                    <Minus className="w-3 h-3" />
-                  </Button>
-                  <span className="font-mono text-xs w-14 text-center">{formatRwa(node.rwa)}</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => updateExtraNodeRwa(node.level, 100)}>
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </div>
-      
-      <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
+
+      <div className="border-t border-border/40 pt-3 mt-2">
+        <div className="flex flex-wrap justify-center gap-2 text-[9px]">
+          {[
+            { level: 0, label: 'A', name: t.selfLabel || '自己', color: 'amber' },
+            { level: 1, label: 'B', name: t.directLabel || '直推', color: 'cyan' },
+            { level: 2, label: 'C', name: t.indirectLabel || '间推', color: 'blue' },
+            { level: 3, label: 'D', name: t.level3Label || '三代', color: 'purple' },
+            { level: 4, label: 'E', name: t.level4Label || '四代', color: 'rose' },
+          ].filter(l => calculations.nodeCount[`level${l.level}` as keyof typeof calculations.nodeCount] > 0).map(l => {
+            const Icon = getIcon(l.level);
+            return (
+              <div key={l.level} className={`flex items-center gap-1 px-2 py-0.5 rounded-full bg-${l.color}-500/15 border border-${l.color}-500/30`}>
+                <Icon className={`w-2.5 h-2.5 text-${l.color}-600`} />
+                <span>{l.label}: {l.name}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-center text-[9px] text-muted-foreground mt-2">
+          {(t as any).clickToEdit || '点击节点编辑 · 悬停显示添加/删除按钮'}
+        </p>
+      </div>
+
+      <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">{t.totalInvestment}</span>
+          <span className="text-muted-foreground">{t.totalInvestment || '总投资'}</span>
           <span className="font-mono font-semibold">{formatRwa(calculations.totalInvestment)} RWA</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">{t.teamPerformance}</span>
-          <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatRwa(calculations.teamPerformance)} RWA</span>
+          <span className="text-muted-foreground">{t.teamPerformance || '团队业绩'}</span>
+          <span className={`font-mono font-semibold ${calculations.meetsMinimum ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+            {formatRwa(calculations.teamPerformance)} RWA
+            {!calculations.meetsMinimum && ` (需 ${formatRwa(calculations.minPerformance)}+)`}
+          </span>
         </div>
       </div>
     </Card>
   );
 
-  const ResultsCard = (
-    <Card className="p-3 card-luxury">
+  const ResultsPanel = (
+    <Card className="p-3 card-luxury h-full">
       <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
         <Calculator className="w-4 h-4 text-emerald-500" />
-        {t.incomeBreakdown}
+        {t.incomeBreakdown || '收益明细'}
       </h3>
       
-      <div className="space-y-2">
+      <div className="space-y-2 text-xs">
         <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30">
-          <span className="text-xs">{t.customRwaDividend}</span>
-          <span className="font-mono text-sm font-semibold text-cyan-600 dark:text-cyan-400">{formatUsd(calculations.customRwaDividend)}</span>
+          <span>{t.customRwaDividend || 'RWA分红'}</span>
+          <span className="font-mono font-semibold text-cyan-600 dark:text-cyan-400">{formatUsd(calculations.customRwaDividend)}</span>
         </div>
         
         <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30">
-          <span className="text-xs">{t.streamingReward}</span>
-          <span className="font-mono text-sm font-semibold text-violet-600 dark:text-violet-400">{formatUsd(calculations.streamingReward)}</span>
+          <span>{t.streamingReward || '推流奖励'}</span>
+          <span className="font-mono font-semibold text-violet-600 dark:text-violet-400">{formatUsd(calculations.streamingReward)}</span>
         </div>
         
         <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 space-y-1">
           <div className="flex justify-between items-center">
-            <span className="text-xs">{t.directReferralReward} A→B (20%)</span>
-            <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardA)}</span>
+            <span>{t.directReferralReward || '直推奖励'} A→B</span>
+            <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardA)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs">{t.directReferralReward} B→C (20%)</span>
-            <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardB)}</span>
-          </div>
+          {calculations.directRefRewardB > 0 && (
+            <div className="flex justify-between items-center">
+              <span>B→C</span>
+              <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardB)}</span>
+            </div>
+          )}
           {calculations.directRefRewardC > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-xs">{t.directReferralReward} C→D (20%)</span>
-              <span className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardC)}</span>
+              <span>C→D</span>
+              <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{formatUsd(calculations.directRefRewardC)}</span>
             </div>
           )}
         </div>
         
         <div className="p-2 rounded-lg bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30 space-y-1">
           <div className="flex justify-between items-center">
-            <span className="text-xs">{t.indirectReferralReward} A→C (10%)</span>
-            <span className="font-mono text-sm font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardA)}</span>
+            <span>{t.indirectReferralReward || '间推奖励'} A→C</span>
+            <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardA)}</span>
           </div>
           {calculations.indirectRefRewardB > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-xs">{t.indirectReferralReward} B→D (10%)</span>
-              <span className="font-mono text-sm font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardB)}</span>
+              <span>B→D</span>
+              <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">{formatUsd(calculations.indirectRefRewardB)}</span>
             </div>
           )}
         </div>
         
         <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
-          <span className="text-xs">{t.teamReward} ({currentCase.teamDividendPercent}%)</span>
-          <span className="font-mono text-sm font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamReward)}</span>
+          <span>{t.teamReward || '团队分红'} ({tierConfig[activeTab].teamDividendPercent}%)</span>
+          <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamReward)}</span>
         </div>
         
         {calculations.streamingManagementReward > 0 && (
           <div className="flex justify-between items-center p-2 rounded-lg bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/30">
-            <span className="text-xs">{t.streamingManagementReward || '推流管理奖励'} ({calculations.streamingManagementPercent}%)</span>
-            <span className="font-mono text-sm font-semibold text-rose-600 dark:text-rose-400">{formatUsd(calculations.streamingManagementReward)}</span>
+            <span>{t.streamingManagementReward || '推流管理'} ({tierConfig[activeTab].streamingManagementPercent}%)</span>
+            <span className="font-mono font-semibold text-rose-600 dark:text-rose-400">{formatUsd(calculations.streamingManagementReward)}</span>
           </div>
         )}
       </div>
@@ -855,50 +733,80 @@ export default function Cases() {
       <div className="mt-3 pt-3 border-t-2 border-primary/30">
         <div className="grid grid-cols-2 gap-2">
           <div className="p-2 rounded-lg bg-primary/10 text-center">
-            <p className="text-xs text-muted-foreground">{t.totalDailyIncome}</p>
-            <p className="font-mono text-lg font-bold text-primary">{formatUsd(calculations.totalDailyIncome)}</p>
+            <p className="text-[10px] text-muted-foreground">{t.totalDailyIncome || '日收益'}</p>
+            <p className="font-mono text-base font-bold text-primary">{formatUsd(calculations.totalDailyIncome)}</p>
           </div>
           <div className="p-2 rounded-lg bg-emerald-500/10 text-center">
-            <p className="text-xs text-muted-foreground">{t.dailyRatio}</p>
-            <p className="font-mono text-lg font-bold text-emerald-600 dark:text-emerald-400">{calculations.dailyRatio.toFixed(2)}%</p>
+            <p className="text-[10px] text-muted-foreground">{t.dailyRatio || '日收益率'}</p>
+            <p className="font-mono text-base font-bold text-emerald-600 dark:text-emerald-400">{calculations.dailyRatio.toFixed(2)}%</p>
           </div>
           <div className="p-2 rounded-lg bg-blue-500/10 text-center">
-            <p className="text-xs text-muted-foreground">{t.monthlyIncome}</p>
-            <p className="font-mono text-base font-bold text-blue-600 dark:text-blue-400">{formatUsd(calculations.monthlyIncome)}</p>
+            <p className="text-[10px] text-muted-foreground">{t.monthlyIncome || '月收益'}</p>
+            <p className="font-mono text-sm font-bold text-blue-600 dark:text-blue-400">{formatUsd(calculations.monthlyIncome)}</p>
           </div>
           <div className="p-2 rounded-lg bg-violet-500/10 text-center">
-            <p className="text-xs text-muted-foreground">{t.total180DayProfit}</p>
-            <p className="font-mono text-base font-bold text-violet-600 dark:text-violet-400">{formatUsd(calculations.total180DayProfit)}</p>
+            <p className="text-[10px] text-muted-foreground">{t.total180DayProfit || '180天收益'}</p>
+            <p className="font-mono text-sm font-bold text-violet-600 dark:text-violet-400">{formatUsd(calculations.total180DayProfit)}</p>
           </div>
         </div>
         
         <div className="mt-2 p-2 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-center">
-          <p className="text-xs text-muted-foreground">{t.paybackPeriod}</p>
-          <p className="font-mono text-xl font-bold text-amber-600 dark:text-amber-400">
-            {calculations.paybackDays} {t.days}
+          <p className="text-[10px] text-muted-foreground">{t.paybackPeriod || '回本周期'}</p>
+          <p className="font-mono text-lg font-bold text-amber-600 dark:text-amber-400">
+            {calculations.paybackDays} {t.days || '天'}
           </p>
         </div>
       </div>
     </Card>
   );
 
-  const TierTabs = (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid grid-cols-4 w-full h-auto p-1">
-        <TabsTrigger value="vip" className="text-xs py-2 data-[state=active]:bg-amber-500 data-[state=active]:text-white" data-testid="tab-vip-case">
-          VIP
-        </TabsTrigger>
-        <TabsTrigger value="star1" className="text-xs py-2 data-[state=active]:bg-cyan-500 data-[state=active]:text-white" data-testid="tab-star1-case">
-          1★
-        </TabsTrigger>
-        <TabsTrigger value="star2" className="text-xs py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white" data-testid="tab-star2-case">
-          2★
-        </TabsTrigger>
-        <TabsTrigger value="star3" className="text-xs py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white" data-testid="tab-star3-case">
-          3★
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+  const SettingsPanel = (
+    <Card className="p-3 card-luxury">
+      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+        <Settings className="w-4 h-4 text-violet-500" />
+        {t.baseParams || '基础参数'}
+      </h3>
+      
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium">{t.customRwaRate || '定制RWA日利率'}</span>
+            <span className="font-mono text-sm font-bold text-primary">{dailyRate.toFixed(2)}%</span>
+          </div>
+          <Slider
+            min={1.0}
+            max={1.5}
+            step={0.05}
+            value={[dailyRate]}
+            onValueChange={([v]) => setDailyRate(v)}
+            data-testid="slider-daily-rate"
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+            <span>1.0%</span>
+            <span>1.5%</span>
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium">{t.streamingRateSetting || '推流日利率'}</span>
+            <span className="font-mono text-sm font-bold text-primary">{streamingRate.toFixed(2)}%</span>
+          </div>
+          <Slider
+            min={0.2}
+            max={0.4}
+            step={0.02}
+            value={[streamingRate]}
+            onValueChange={([v]) => setStreamingRate(v)}
+            data-testid="slider-streaming-rate"
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+            <span>0.2%</span>
+            <span>0.4%</span>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 
   return (
@@ -907,55 +815,73 @@ export default function Cases() {
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <div className="w-1 h-6 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></div>
-            {t.cases}
+            {t.cases || '案例模拟'}
           </h2>
           <p className="text-xs text-muted-foreground mt-1 ml-3">
-            {t.casesDesc}
+            {t.casesDesc || '自定义组织结构，模拟收益'}
           </p>
         </div>
-        <Button
-          size="sm"
-          variant={showParams ? "default" : "outline"}
-          onClick={() => setShowParams(!showParams)}
-          className="h-8"
-          data-testid="button-toggle-params"
-        >
-          <Settings className="w-4 h-4 mr-1" />
-          {t.baseParams}
-        </Button>
       </div>
 
-      {ParamsPanel}
-      
       {TierTabs}
       
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.25 }}
-        className="space-y-3"
-      >
-        <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-center">
-          <span className="text-sm font-semibold">
-            {currentCase.tier} - {t.teamPerformance}: {formatRwa(currentCase.minPerformance)} RWA+
-          </span>
+      <div className={`p-2 rounded-lg text-center ${calculations.meetsMinimum ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30' : 'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30'}`}>
+        <span className="text-sm font-semibold">
+          {activeTab.toUpperCase().replace('STAR', '★').replace('VIP', 'VIP')} - {t.teamPerformance || '团队业绩'}: {formatRwa(tierConfig[activeTab].minPerformance)} RWA+
+        </span>
+      </div>
+
+      {isMobile ? (
+        <>
+          <Tabs value={mobileView} onValueChange={(v) => setMobileView(v as any)} className="w-full">
+            <TabsList className="grid grid-cols-3 w-full">
+              <TabsTrigger value="tree" className="text-xs" data-testid="tab-mobile-tree">
+                <Network className="w-3 h-3 mr-1" />
+                {t.orgStructure || '架构'}
+              </TabsTrigger>
+              <TabsTrigger value="results" className="text-xs" data-testid="tab-mobile-results">
+                <Calculator className="w-3 h-3 mr-1" />
+                {(t as any).results || '结果'}
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="text-xs" data-testid="tab-mobile-settings">
+                <Settings className="w-3 h-3 mr-1" />
+                {(t as any).settings || '设置'}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mobileView}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {mobileView === 'tree' && TreePanel}
+              {mobileView === 'results' && ResultsPanel}
+              {mobileView === 'settings' && SettingsPanel}
+            </motion.div>
+          </AnimatePresence>
+        </>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {TreePanel}
+            {SettingsPanel}
+          </div>
+          {ResultsPanel}
         </div>
-        
-        <OrgTreeDiagram config={currentCase} t={t} />
-        
-        {isMobile ? (
-          <div className="space-y-3">
-            {StructureCard}
-            {ResultsCard}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {StructureCard}
-            {ResultsCard}
-          </div>
-        )}
-      </motion.div>
+      )}
+
+      <NodeEditor
+        node={editingNode}
+        open={!!editingNodeId}
+        onClose={() => setEditingNodeId(null)}
+        onUpdateRwa={handleUpdateRwa}
+        onRemove={handleRemoveNode}
+        t={t}
+      />
     </div>
   );
 }
