@@ -555,7 +555,7 @@ export default function Cases() {
         </div>
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">{t.teamPerformance}</span>
-          <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatUsd(calculations.teamPerformance * 100)}</span>
+          <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{formatRwa(calculations.teamPerformance)} RWA</span>
         </div>
       </div>
     </Card>
@@ -687,7 +687,7 @@ export default function Cases() {
       >
         <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-center">
           <span className="text-sm font-semibold">
-            {currentCase.tier} - {t.teamPerformance}: {formatUsd(currentCase.minPerformance)}+
+            {currentCase.tier} - {t.teamPerformance}: {formatRwa(currentCase.minPerformance)} RWA+
           </span>
         </div>
         
