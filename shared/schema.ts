@@ -427,6 +427,9 @@ export const translations = {
     indirectLabel: 'Indirect',
     level3Label: 'Gen 3',
     level4Label: 'Gen 4',
+    expand: 'Expand',
+    collapse: 'Collapse',
+    clickToExpand: 'Click node to expand/collapse',
   },
   zh: {
     appTitle: 'Mutual收益计算器',
@@ -613,6 +616,9 @@ export const translations = {
     indirectLabel: '间推',
     level3Label: '三代',
     level4Label: '四代',
+    expand: '展开',
+    collapse: '收起',
+    clickToExpand: '点击节点展开/收起下级',
   },
 };
 

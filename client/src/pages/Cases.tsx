@@ -15,24 +15,36 @@ import {
   Plus,
   Minus,
   ChevronRight,
+  ChevronDown,
   Crown,
   Star,
   Sparkles,
-  Network
+  Network,
+  Expand,
+  Shrink
 } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-interface TreeNodeProps {
+interface TreeNodeData {
   label: string;
   rwa: number;
   color: string;
   borderColor: string;
+  gradientFrom: string;
+  gradientTo: string;
   icon: 'crown' | 'user' | 'users' | 'star';
-  children?: TreeNodeProps[];
-  isLast?: boolean;
+  level: number;
+  children?: TreeNodeData[];
 }
 
-function TreeNode({ label, rwa, color, borderColor, icon, children, isLast }: TreeNodeProps) {
+interface TreeNodeProps {
+  node: TreeNodeData;
+  isExpanded: boolean;
+  onToggle: () => void;
+  isMobile: boolean;
+}
+
+function TreeNode({ node, isExpanded, onToggle, isMobile }: TreeNodeProps) {
   const formatRwa = (value: number) => new Intl.NumberFormat('en-US').format(value);
   
   const IconComponent = {
@@ -40,73 +52,152 @@ function TreeNode({ label, rwa, color, borderColor, icon, children, isLast }: Tr
     user: User,
     users: Users,
     star: Star,
-  }[icon];
+  }[node.icon];
+
+  const sizeClasses = {
+    0: 'px-4 py-2.5 min-w-[80px]',
+    1: 'px-3 py-2 min-w-[70px]',
+    2: 'px-2.5 py-1.5 min-w-[60px]',
+    3: 'px-2 py-1 min-w-[50px]',
+    4: 'px-1.5 py-1 min-w-[44px]',
+  };
+  
+  const iconSizes = {
+    0: 'w-4 h-4',
+    1: 'w-3.5 h-3.5',
+    2: 'w-3 h-3',
+    3: 'w-2.5 h-2.5',
+    4: 'w-2 h-2',
+  };
+  
+  const textSizes = {
+    0: 'text-sm',
+    1: 'text-xs',
+    2: 'text-xs',
+    3: 'text-[10px]',
+    4: 'text-[9px]',
+  };
+  
+  const rwaSizes = {
+    0: 'text-xs',
+    1: 'text-[10px]',
+    2: 'text-[9px]',
+    3: 'text-[8px]',
+    4: 'text-[8px]',
+  };
+
+  const level = Math.min(node.level, 4) as 0 | 1 | 2 | 3 | 4;
+  const hasChildren = node.children && node.children.length > 0;
+  const showChildren = isExpanded && hasChildren;
 
   return (
     <div className="flex flex-col items-center">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className={`relative px-3 py-2 rounded-lg ${color} border ${borderColor} shadow-sm min-w-[70px] text-center`}
+        transition={{ duration: 0.25, delay: node.level * 0.05 }}
+        className={`relative ${sizeClasses[level]} rounded-lg bg-gradient-to-br ${node.gradientFrom} ${node.gradientTo} border ${node.borderColor} shadow-md text-center cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105`}
+        onClick={hasChildren ? onToggle : undefined}
       >
         <div className="flex items-center justify-center gap-1 mb-0.5">
-          <IconComponent className="w-3 h-3" />
-          <span className="text-xs font-bold">{label}</span>
+          <IconComponent className={iconSizes[level]} />
+          <span className={`${textSizes[level]} font-bold`}>{node.label}</span>
+          {hasChildren && (
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="ml-0.5"
+            >
+              <ChevronDown className={`${iconSizes[level]} opacity-60`} />
+            </motion.div>
+          )}
         </div>
-        <span className="font-mono text-[10px] opacity-80">{formatRwa(rwa)}</span>
+        <span className={`font-mono ${rwaSizes[level]} opacity-75`}>{formatRwa(node.rwa)}</span>
       </motion.div>
       
-      {children && children.length > 0 && (
-        <>
-          <div className="w-px h-3 bg-border/60"></div>
-          <div className="relative flex gap-2">
-            {children.length > 1 && (
-              <div 
-                className="absolute top-0 left-1/2 -translate-x-1/2 h-px bg-border/60"
-                style={{ width: `calc(100% - 70px)` }}
-              ></div>
-            )}
-            {children.map((child, idx) => (
-              <div key={idx} className="flex flex-col items-center">
-                <div className="w-px h-3 bg-border/60"></div>
-                <TreeNode {...child} isLast={idx === children.length - 1} />
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      <AnimatePresence>
+        {showChildren && node.children && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-col items-center"
+          >
+            <div className={`w-px ${isMobile ? 'h-2' : 'h-3'} bg-gradient-to-b from-border/80 to-border/40`}></div>
+            <div className="relative flex gap-1">
+              {node.children.length > 1 && (
+                <div 
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-px bg-border/50"
+                  style={{ width: `calc(100% - ${isMobile ? '40px' : '50px'})` }}
+                ></div>
+              )}
+              {node.children.map((child, idx) => (
+                <div key={idx} className="flex flex-col items-center">
+                  <div className={`w-px ${isMobile ? 'h-2' : 'h-3'} bg-border/50`}></div>
+                  <ExpandableTreeNode node={child} isMobile={isMobile} />
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
+function ExpandableTreeNode({ node, isMobile }: { node: TreeNodeData; isMobile: boolean }) {
+  const [isExpanded, setIsExpanded] = useState(node.level < 2);
+  
+  return (
+    <TreeNode 
+      node={node} 
+      isExpanded={isExpanded} 
+      onToggle={() => setIsExpanded(!isExpanded)}
+      isMobile={isMobile}
+    />
+  );
+}
+
 function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
-  const buildTree = (): TreeNodeProps => {
-    const directChildren: TreeNodeProps[] = [];
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isFullExpanded, setIsFullExpanded] = useState(false);
+  const [treeKey, setTreeKey] = useState(0);
+
+  const toggleExpandAll = () => {
+    setIsFullExpanded(!isFullExpanded);
+    setTreeKey(k => k + 1);
+  };
+
+  const buildTree = (): TreeNodeData => {
+    const directChildren: TreeNodeData[] = [];
     
     for (let i = 0; i < config.directCount; i++) {
-      const indirectChildren: TreeNodeProps[] = [];
+      const indirectChildren: TreeNodeData[] = [];
       
       for (let j = 0; j < config.indirectPerDirect; j++) {
-        const thirdLevelChildren: TreeNodeProps[] = [];
+        const thirdLevelChildren: TreeNodeData[] = [];
         
         if (config.extraNodes && config.extraNodes.length > 0) {
           const level3Node = config.extraNodes.find(n => n.level === 3);
           if (level3Node) {
             const nodesPerBranch = Math.ceil(level3Node.count / (config.directCount * config.indirectPerDirect));
-            for (let k = 0; k < Math.min(nodesPerBranch, 2); k++) {
-              const fourthLevelChildren: TreeNodeProps[] = [];
+            for (let k = 0; k < Math.min(nodesPerBranch, isMobile ? 1 : 2); k++) {
+              const fourthLevelChildren: TreeNodeData[] = [];
               
               const level4Node = config.extraNodes.find(n => n.level === 4);
               if (level4Node) {
                 const l4PerBranch = Math.ceil(level4Node.count / level3Node.count);
-                for (let l = 0; l < Math.min(l4PerBranch, 2); l++) {
+                for (let l = 0; l < Math.min(l4PerBranch, isMobile ? 1 : 2); l++) {
                   fourthLevelChildren.push({
                     label: `E${k * 2 + l + 1}`,
                     rwa: level4Node.rwa,
-                    color: 'bg-rose-500/20 dark:bg-rose-500/30',
-                    borderColor: 'border-rose-500/50',
+                    color: 'bg-rose-500/20',
+                    borderColor: 'border-rose-500/40',
+                    gradientFrom: 'from-rose-500/20',
+                    gradientTo: 'to-pink-500/30',
                     icon: 'star',
+                    level: 4,
                   });
                 }
               }
@@ -114,9 +205,12 @@ function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
               thirdLevelChildren.push({
                 label: `D${k + 1}`,
                 rwa: level3Node.rwa,
-                color: 'bg-purple-500/20 dark:bg-purple-500/30',
-                borderColor: 'border-purple-500/50',
+                color: 'bg-purple-500/20',
+                borderColor: 'border-purple-500/40',
+                gradientFrom: 'from-purple-500/20',
+                gradientTo: 'to-violet-500/30',
                 icon: 'star',
+                level: 3,
                 children: fourthLevelChildren.length > 0 ? fourthLevelChildren : undefined,
               });
             }
@@ -126,9 +220,12 @@ function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
         indirectChildren.push({
           label: `C${i * config.indirectPerDirect + j + 1}`,
           rwa: config.indirectRwa,
-          color: 'bg-blue-500/20 dark:bg-blue-500/30',
-          borderColor: 'border-blue-500/50',
+          color: 'bg-blue-500/20',
+          borderColor: 'border-blue-500/40',
+          gradientFrom: 'from-blue-500/20',
+          gradientTo: 'to-indigo-500/30',
           icon: 'users',
+          level: 2,
           children: thirdLevelChildren.length > 0 ? thirdLevelChildren : undefined,
         });
       }
@@ -136,9 +233,12 @@ function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
       directChildren.push({
         label: `B${i + 1}`,
         rwa: config.directRwa,
-        color: 'bg-cyan-500/20 dark:bg-cyan-500/30',
-        borderColor: 'border-cyan-500/50',
+        color: 'bg-cyan-500/20',
+        borderColor: 'border-cyan-500/40',
+        gradientFrom: 'from-cyan-500/25',
+        gradientTo: 'to-teal-500/35',
         icon: 'user',
+        level: 1,
         children: indirectChildren.length > 0 ? indirectChildren : undefined,
       });
     }
@@ -146,53 +246,88 @@ function OrgTreeDiagram({ config, t }: { config: CaseConfig; t: any }) {
     return {
       label: 'A',
       rwa: config.selfRwa,
-      color: 'bg-amber-500/20 dark:bg-amber-500/30',
+      color: 'bg-amber-500/25',
       borderColor: 'border-amber-500/50',
+      gradientFrom: 'from-amber-500/30',
+      gradientTo: 'to-orange-500/40',
       icon: 'crown',
+      level: 0,
       children: directChildren,
     };
   };
 
   const tree = buildTree();
 
+  const ExpandableRoot = () => {
+    const [isExpanded, setIsExpanded] = useState(true);
+    
+    return (
+      <TreeNode 
+        node={tree} 
+        isExpanded={isExpanded} 
+        onToggle={() => setIsExpanded(!isExpanded)}
+        isMobile={isMobile}
+      />
+    );
+  };
+
   return (
-    <Card className="p-4 card-luxury overflow-x-auto">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4">
-        <Network className="w-4 h-4 text-primary" />
-        {t.orgStructure || '组织架构图'}
-      </h3>
-      <div className="flex justify-center min-w-fit pb-2">
-        <TreeNode {...tree} />
+    <Card className="p-3 card-luxury">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Network className="w-4 h-4 text-primary" />
+          {t.orgStructure || '组织架构图'}
+        </h3>
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          onClick={toggleExpandAll}
+          className="h-7 text-xs gap-1"
+          data-testid="button-toggle-tree-expand"
+        >
+          {isFullExpanded ? <Shrink className="w-3 h-3" /> : <Expand className="w-3 h-3" />}
+          {isFullExpanded ? (t.collapse || '收起') : (t.expand || '展开')}
+        </Button>
       </div>
-      <div className="mt-4 pt-3 border-t border-border/50">
-        <div className="flex flex-wrap justify-center gap-3 text-[10px]">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-amber-500/30 border border-amber-500/50"></div>
+      
+      <div className="overflow-x-auto pb-2">
+        <div className="flex justify-center min-w-fit py-2" key={treeKey}>
+          <ExpandableRoot key={isFullExpanded ? 'expanded' : 'collapsed'} />
+        </div>
+      </div>
+      
+      <div className="mt-3 pt-2 border-t border-border/40">
+        <div className="flex flex-wrap justify-center gap-2 text-[9px]">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">
+            <Crown className="w-2.5 h-2.5 text-amber-600" />
             <span>A: {t.selfLabel || '自己'}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-cyan-500/30 border border-cyan-500/50"></div>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30">
+            <User className="w-2.5 h-2.5 text-cyan-600" />
             <span>B: {t.directLabel || '直推'}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-blue-500/30 border border-blue-500/50"></div>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30">
+            <Users className="w-2.5 h-2.5 text-blue-600" />
             <span>C: {t.indirectLabel || '间推'}</span>
           </div>
           {config.extraNodes && config.extraNodes.length > 0 && (
             <>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-purple-500/30 border border-purple-500/50"></div>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30">
+                <Star className="w-2.5 h-2.5 text-purple-600" />
                 <span>D: {t.level3Label || '三代'}</span>
               </div>
               {config.extraNodes.find(n => n.level === 4) && (
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-rose-500/30 border border-rose-500/50"></div>
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30">
+                  <Star className="w-2.5 h-2.5 text-rose-600" />
                   <span>E: {t.level4Label || '四代'}</span>
                 </div>
               )}
             </>
           )}
         </div>
+        <p className="text-center text-[9px] text-muted-foreground mt-2">
+          {t.clickToExpand || '点击节点展开/收起下级'}
+        </p>
       </div>
     </Card>
   );
